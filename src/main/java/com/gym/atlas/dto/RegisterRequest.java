@@ -3,11 +3,12 @@ package com.gym.atlas.dto;
 import java.sql.Date;
 
 public record RegisterRequest(
+        Long idUsuario,
         String nomApe,
-        Date fechanac,
-        Long dni,
-        String email,
-        Long tel,
+        Date fechaNacimiento,
+        Long dniUs,
+        String mailUs,
+        Long telUs,
         String password,
-        Long categoriaId
+        Long idCatUs
 ) {}

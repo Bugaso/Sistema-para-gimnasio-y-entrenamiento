@@ -27,7 +27,7 @@ public class Usuario implements UserDetails {
     private String mailUs;
 
     @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "categoriaus", nullable = false)
+    @JoinColumn(name = "idCatUs", nullable = false)
     private CategoriaUs categoria;
     private String password;
 

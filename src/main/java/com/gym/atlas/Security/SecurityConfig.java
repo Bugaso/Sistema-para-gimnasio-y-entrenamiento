@@ -23,6 +23,7 @@ public class SecurityConfig {
     // Rutas accesibles para usuarios no registrados (públicas)
     private static final String[] PUBLIC_ENDPOINTS = {
             "/",
+            "/register",
             "/error",
             "/api/v1/auth/login",
             "/api/v1/auth/register",
@@ -30,7 +31,8 @@ public class SecurityConfig {
             // Endpoints de documentación (Swagger/OpenAPI) si los utilizas
             "/v3/api-docs/**",
             "/swagger-ui/**",
-            "/swagger-ui.html"
+            "/swagger-ui.html",
+            "/css/**", "/js/**", "/images/**", "/favicon.ico"
     };
 
     @Bean
