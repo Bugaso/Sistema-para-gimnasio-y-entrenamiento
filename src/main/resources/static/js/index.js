@@ -31,3 +31,6 @@ const password = document.getElementById('loginPassword').value.trim();
     output.textContent = `⚠️ Error de conexión:\nAsegúrate de que el backend está corriendo en http://localhost:8080\n\nDetalle: ${error.message}`;
   }
 });
+
+
+
