@@ -23,6 +23,7 @@ public class SecurityConfig {
     // Rutas accesibles para usuarios no registrados (públicas)
     private static final String[] PUBLIC_ENDPOINTS = {
             "/",
+            "/login",
             "/register",
             "/error",
             "/api/v1/auth/login",
@@ -50,6 +51,11 @@ public class SecurityConfig {
                 // 3. Configurar la gestión de sesiones como STATELESS
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                )
+                .exceptionHandling(exception -> exception
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.sendRedirect("/");
+                        })
                 )
 
                 // 4. Añadir nuestro filtro JWT antes del filtro de autenticación estándar
