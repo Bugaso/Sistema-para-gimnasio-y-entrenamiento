@@ -3,30 +3,49 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Gimnasio Atlas - Tester API</title>
-  <link rel="stylesheet" href="/css/login.css">
+  <title>Gimnasio Atlas | Iniciar Sesión</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/bienvenida.css">
+  <link rel="stylesheet" href="css/auth.css">
 </head>
 <body>
-  <div class="container">
-    <h2>🏋️ Gimnasio Atlas - Prueba de API</h2>
 
-    <!-- Formulario de Login -->
-    <div class="card">
-      <h3>Iniciar Sesión</h3>
-      <form id="loginForm">
-        <input type="email" id="loginEmail" placeholder="Correo electrónico" required>
-        <input type="password" id="loginPassword" placeholder="Contraseña" required>
-        <button type="submit">Iniciar Sesión</button>
-      </form>
-    </div>
+<!-- Encabezado Inyectado -->
+<div id="header-container"></div>
 
-    <!-- Panel para mostrar el Token o Respuestas -->
-    <div class="card">
-      <h3>Respuesta del Servidor</h3>
-      <pre id="output">Esperando acción...</pre>
-    </div>
+<main class="auth-wrapper">
+  <div class="auth-card">
+    <h2>INICIAR <span>SESIÓN</span></h2>
+    <p class="auth-subtitle">Ingresa a tu cuenta para gestionar tus entrenamientos</p>
+
+    <div id="feedbackMsg" class="feedback-msg"></div>
+
+    <form id="loginForm">
+      <div class="form-group">
+        <label for="loginEmail">Correo Electrónico</label>
+        <input type="email" id="loginEmail" placeholder="usuario@ejemplo.com" required>
+      </div>
+
+      <div class="form-group">
+        <label for="loginPassword">Contraseña</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" required>
+      </div>
+
+      <button type="submit" class="btn-submit">Ingresar</button>
+    </form>
+
+    <p class="auth-footer-link">
+      ¿Aún no tienes cuenta? <a href="/register">Regístrate aquí</a>
+    </p>
   </div>
+</main>
 
-  <script src="/js/login.js"></script>
+<!-- Pie de Página Inyectado -->
+<div id="footer-container"></div>
+
+<!-- Scripts de carga e interacción -->
+<script src="js/include-components.js"></script>
+<script src="js/bienvenida.js"></script>
+<script src="js/login.js"></script>
 </body>
 </html>

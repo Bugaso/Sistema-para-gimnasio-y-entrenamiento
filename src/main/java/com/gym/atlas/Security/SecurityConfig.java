@@ -23,12 +23,9 @@ public class SecurityConfig {
     // Rutas accesibles para usuarios no registrados (públicas)
     private static final String[] PUBLIC_ENDPOINTS = {
             "/",
-            "/login",
-            "/register",
+            "/me",
             "/componentes/**",
             "/error",
-            "/api/v1/auth/login",
-            "/api/v1/auth/register",
             "/api/v1/public/**",
             // Endpoints de documentación (Swagger/OpenAPI) si los utilizas
             "/v3/api-docs/**",
@@ -40,6 +37,13 @@ public class SecurityConfig {
             "/favicon.ico"
     };
 
+    private static final String[] AUTH_ENDPOINTS = {
+            "/login",
+            "/register",
+            "/api/v1/auth/login",
+            "/api/v1/auth/register",
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -48,6 +52,7 @@ public class SecurityConfig {
 
                 // 2. Configurar la autorización de las peticiones HTTP
                 .authorizeHttpRequests(auth -> auth
+                        .requestMatchers(AUTH_ENDPOINTS).anonymous()
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll() // Acceso libre
                         .anyRequest().authenticated()                  // El resto requiere JWT válido
                 )
