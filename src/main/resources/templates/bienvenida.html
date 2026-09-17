@@ -7,32 +7,10 @@
     <link rel="stylesheet" href="css/bienvenida.css">
     <!-- Google Fonts: Montserrat para un look moderno y limpio -->
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-    <script src="../static/js/bienvenida.js"></script>
 </head>
 <body>
-
-<!-- Barra de Navegación -->
-<header class="navbar" id="navbar">
-    <div class="logo">
-        <a href="#">ATLAS<span>GYM</span></a>
-    </div>
-    <nav>
-        <ul class="nav-links">
-            <li><a href="#inicio">Inicio</a></li>
-            <li><a href="#planes">Planes</a></li>
-            <li><a href="#coach">Coaches</a></li>
-            <li><a href="#contacto">Contacto</a></li>
-        </ul>
-    </nav>
-    <div class="nav-buttons">
-        <a href="/login" class="btn-login">Iniciar Sesión</a>
-        <button class="menu-toggle" id="mobile-menu">
-            <span class="bar"></span>
-            <span class="bar"></span>
-            <span class="bar"></span>
-        </button>
-    </div>
-</header>
+<!-- Contenedor dinámico del Header -->
+<div id="header-container"></div>
 
 <!-- Sección Hero (Principal) -->
 <section class="hero" id="inicio">
@@ -46,30 +24,11 @@
     </div>
 </section>
 
-<!-- Pie de Página -->
-<footer id="contacto">
-    <div class="footer-content">
-        <div class="footer-info">
-            <h3>ATLAS GYM</h3>
-            <p>Tu transformación comienza aquí. Entrena con los mejores.</p>
-        </div>
-        <div class="footer-links">
-            <h4>Enlaces</h4>
-            <a href="#">Términos y Condiciones</a>
-            <a href="#">Política de Privacidad</a>
-        </div>
-        <div class="footer-contact">
-            <h4>Contacto</h4>
-            <p>📍 Humberto Cafri 5566, Sgo. del Estero</p>
-            <p>📞 +54 9 385 617-7861</p>
-            <p>✉️ contacto@atlasgym.com</p>
-        </div>
-    </div>
-    <div class="footer-bottom">
-        <p>&copy; 2026 Atlas Gym. Todos los derechos reservados.</p>
-    </div>
-</footer>
+<!-- Contenedor dinámico del Footer -->
+<div id="footer-container"></div>
 
-<script src="js/bienvenida.js"></script>
+<!-- Script modular para cargar componentes -->
+<script src="/js/include-components.js"></script>
+<script src="/js/bienvenida.js"></script>
 </body>
 </html>
