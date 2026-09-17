@@ -3,7 +3,7 @@ package com.gym.atlas.data;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "membresia")
+(name = "membresia")
 public class Membresia {
 
 //    @jakarta.persistence.Id

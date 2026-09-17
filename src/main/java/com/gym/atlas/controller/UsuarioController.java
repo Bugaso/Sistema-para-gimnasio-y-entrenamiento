@@ -37,8 +37,15 @@ public class UsuarioController {
                 .body(resource);
     }
 
+//    @GetMapping("/usuarios")
+//    public ResponseEntity<List<Usuario>> obtenerTodos() {
+//        return ResponseEntity.ok(usuarioRepository.findAll());
+//    }
+
     @GetMapping("/usuarios")
-    public ResponseEntity<List<Usuario>> obtenerTodos() {
-        return ResponseEntity.ok(usuarioRepository.findAll());
+    public ResponseEntity<List<Usuario>> obtenerClientes() {
+        // Pasa fija la categoría 2 correspondiente a clientes
+        List<Usuario> clientes = usuarioRepository.findByIdCatUs(2);
+        return ResponseEntity.ok(clientes);
     }
 }

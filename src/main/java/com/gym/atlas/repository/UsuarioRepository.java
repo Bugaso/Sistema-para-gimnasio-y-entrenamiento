@@ -22,4 +22,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     @Query("SELECT u FROM Usuario u WHERE CAST(u.dniUs AS string) LIKE CONCAT('%', :criterio, '%') " +
             "OR LOWER(u.nomApe) LIKE LOWER(CONCAT('%', :criterio, '%'))")
     List<Usuario> buscarPorDniONombre(@Param("criterio") String criterio);
+
+
+    @Query(value = "SELECT * FROM usuario WHERE idCatUs = :idCatUs", nativeQuery = true)
+    List<Usuario> findByIdCatUs(@Param("idCatUs") Integer idCatUs);
 }
