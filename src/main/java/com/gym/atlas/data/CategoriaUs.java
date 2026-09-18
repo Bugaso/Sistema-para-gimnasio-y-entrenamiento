@@ -1,5 +1,6 @@
 package com.gym.atlas.data;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
@@ -13,7 +14,8 @@ public class CategoriaUs {
 
     private String nomCatUs;
 
-    private int tipoPermiso;
+    @Column(name = "tipoPermiso", nullable = false)
+    private String tipoPermiso;
 
 
     @OneToMany(mappedBy = "categoria")
@@ -35,11 +37,11 @@ public class CategoriaUs {
         this.nomCatUs = nomCatUs;
     }
 
-    public int getTipoPermiso() {
+    public String getTipoPermiso() {
         return tipoPermiso;
     }
 
-    public void setTipoPermiso(int tipoPermiso) {
+    public void setTipoPermiso(String tipoPermiso) {
         this.tipoPermiso = tipoPermiso;
     }
 
