@@ -27,6 +27,11 @@ public class SecurityConfig {
             "/componentes/**",
             "/error",
             "/api/v1/public/**",
+            "/membresia",
+            "/membresia/**",
+            "/usuarios",
+            "/usuarios/**",
+            "/cliente-membresias/**",
             // Endpoints de documentación (Swagger/OpenAPI) si los utilizas
             "/v3/api-docs/**",
             "/swagger-ui/**",

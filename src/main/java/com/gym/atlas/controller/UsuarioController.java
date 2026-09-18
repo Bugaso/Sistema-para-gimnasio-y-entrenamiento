@@ -1,7 +1,8 @@
 package com.gym.atlas.controller;
 
-import com.gym.atlas.dto.UserProfileResponse;
-import com.gym.atlas.service.UsuarioService;
+
+import com.gym.atlas.data.Usuario;
+import com.gym.atlas.repository.UsuarioRepository;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -10,15 +11,25 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import com.gym.atlas.dto.UserProfileResponse;
+import com.gym.atlas.service.UsuarioService;
+import java.util.List;
 
 @RestController
 @RequestMapping("/")
 public class UsuarioController {
 
+
+    private final UsuarioRepository usuarioRepository;
+
+    public UsuarioController(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
+=======
     private UsuarioService usuarioService;
 
     public UsuarioController(UsuarioService usuarioService){
         this.usuarioService = usuarioService;
+
     }
 
     @GetMapping("login")
@@ -30,12 +41,24 @@ public class UsuarioController {
     }
 
     @GetMapping("register")
-    public ResponseEntity<ClassPathResource> register(){
+    public ResponseEntity<ClassPathResource> register() {
         ClassPathResource resource = new ClassPathResource("templates/security/register.html");
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)
                 .body(resource);
     }
+
+
+//    @GetMapping("/usuarios")
+//    public ResponseEntity<List<Usuario>> obtenerTodos() {
+//        return ResponseEntity.ok(usuarioRepository.findAll());
+//    }
+
+    @GetMapping("/usuarios")
+    public ResponseEntity<List<Usuario>> obtenerClientes() {
+        // Pasa fija la categoría 2 correspondiente a clientes
+        List<Usuario> clientes = usuarioRepository.findByIdCatUs(2);
+        return ResponseEntity.ok(clientes);
 
     @GetMapping("me")
     public ResponseEntity<UserProfileResponse> obtenerUsuarioAutenticado(Authentication authentication) {
@@ -47,5 +70,6 @@ public class UsuarioController {
         String email = authentication.getName();
         UserProfileResponse usuario = usuarioService.obtenerPerfilPorEmail(email);
         return ResponseEntity.ok(usuario);
+
     }
 }

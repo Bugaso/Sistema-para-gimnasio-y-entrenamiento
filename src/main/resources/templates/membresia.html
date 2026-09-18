@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestión de Membresías | Atlas Gym</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/membresia.css">
+</head>
+<body>
+
+<header class="navbar">
+    <div class="logo"><a href="/">ATLAS<span>GYM</span></a></div>
+    <nav>
+        <a href="/">Inicio</a>
+        <a href="/membresia" class="active">Membresías</a>
+    </nav>
+</header>
+
+<main class="container">
+    <section class="title-section">
+        <h1>REGISTRO DE <span>MEMBRESÍAS</span></h1>
+        <p>Asigna un plan de entrenamiento y registra el pago del cliente.</p>
+    </section>
+
+    <!-- Formulario de Alta y Asignación -->
+    <section class="card form-card">
+        <h2>Nueva Suscripción</h2>
+        <form id="formMembresia">
+            <div class="form-grid">
+
+                <!-- Selección de Cliente -->
+                <div class="form-group">
+                    <label for="selectUsuario">Cliente / Usuario *</label>
+                    <select id="selectUsuario" required>
+                        <option value="">Cargando clientes...</option>
+                    </select>
+                </div>
+
+                <!-- Tipo / Descripción de Plan -->
+                <div class="form-group">
+                    <label for="descripMembresia">Tipo de Plan *</label>
+                    <select id="descripMembresia" required>
+                        <option value="">-- Seleccionar Plan --</option>
+                        <option value="Plan Libre (5 días por semana)">Plan Libre (5 días por semana)</option>
+                        <option value="Plan 3 Días por semana">Plan 3 Días por semana</option>
+                        <option value="Plan Personalizado / Pase Diario">Plan Personalizado / Pase Diario</option>
+                    </select>
+                </div>
+
+                <!-- Costo en Pesos -->
+                <div class="form-group">
+                    <label for="costoMembresia">Costo ($ ARS) *</label>
+                    <input type="number" id="costoMembresia" step="0.01" placeholder="Ej: 28000.00" required>
+                </div>
+
+                <!-- Duración y Unidad -->
+                <div class="form-group duration-group">
+                    <label for="duracionMembresia">Duración *</label>
+                    <div class="inline-inputs">
+                        <input type="number" id="duracionMembresia" min="1" placeholder="Ej: 1" required>
+                        <select id="unidadDuracion">
+                            <option value="meses">Mes(es)</option>
+                            <option value="dias">Día(s)</option>
+                        </select>
+                    </div>
+                </div>
+
+            </div>
+
+            <button type="submit" class="btn-submit">Registrar Pago y Asignar</button>
+        </form>
+    </section>
+
+    <!-- Lista e Historial con Buscador -->
+    <section class="card list-card">
+        <div class="list-header">
+            <h2>Historial de Membresías Asignadas</h2>
+            <div class="search-box">
+                <input type="text" id="searchDni" placeholder="Buscar por DNI / Documento...">
+            </div>
+        </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                <tr>
+                    <th># Reg</th>
+                    <th>Documento</th>
+                    <th>Cliente</th>
+                    <th>Plan / Descripción</th>
+                    <th>Costo</th>
+                    <th>Duración</th>
+                    <th>Fecha Pago</th>
+                </tr>
+                </thead>
+                <tbody id="tablaCuerpo">
+                <tr>
+                    <td colspan="7" class="empty-msg">Cargando registros...</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+</main>
+
+<script src="/js/membresia.js"></script>
+</body>
+</html>
