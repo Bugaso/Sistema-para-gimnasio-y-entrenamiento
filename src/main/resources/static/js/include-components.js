@@ -17,7 +17,7 @@ async function cargarComponentes() {
         }
 
         // 2. Verificar sesión y actualizar el botón de Login
-        await actualizarBotonUsuario();
+        await gestionarEstadoSesion();
 
         // Cargar Footer
         const footerResp = await fetch('/componentes/footer');
@@ -31,12 +31,22 @@ async function cargarComponentes() {
 
 
 
-async function actualizarBotonUsuario() {
+async function gestionarEstadoSesion() {
     const btnAuth = document.getElementById('AuthUser');
+    const btnLogout = document.getElementById('btnLogout');
     const token = localStorage.getItem('jwt_token');
 
-    if (!btnAuth || !token) return;
+    // Estado cuando NO hay sesión activa
+    if (!token) {
+        if (btnLogout) btnLogout.style.display = 'none';
+        if (btnAuth) {
+            btnAuth.textContent = 'Iniciar Sesión';
+            btnAuth.href = '/login';
+        }
+        return;
+    }
 
+    // Validar token contra el backend
     try {
         const response = await fetch('http://localhost:8080/me', {
             method: 'GET',
@@ -49,18 +59,28 @@ async function actualizarBotonUsuario() {
         if (response.ok) {
             const usuario = await response.json();
 
-            // Cambia el texto por el nombre del usuario y redirige al Dashboard al hacer clic
-            btnAuth.textContent = usuario.nomApe;
-            btnAuth.href = '/';
+            // Usuario Autenticado: Actualizar nombre y mostrar Logout
+            if (btnAuth) {
+                btnAuth.textContent = usuario.nomApe;
+                btnAuth.href = '/';
+            }
+
+            if (btnLogout) {
+                btnLogout.style.display = 'inline-block';
+                btnLogout.addEventListener('click', postCierreSesion);
+            }
         } else {
-            // Si el token expiró o es inválido, limpia el storage
-            localStorage.removeItem('jwt_token');
+            // Token expirado o alterado
+            postCierreSesion();
         }
     } catch (error) {
-        console.error('Error al obtener datos del usuario:', error);
+        console.error('Error al validar la sesión:', error);
     }
 }
 
-
+function postCierreSesion() {
+    localStorage.removeItem('jwt_token');
+    window.location.href = '/';
+}
 
 document.addEventListener('DOMContentLoaded', cargarComponentes);
