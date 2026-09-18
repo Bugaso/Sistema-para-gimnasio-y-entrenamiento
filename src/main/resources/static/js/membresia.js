@@ -20,7 +20,7 @@ async function cargarUsuarios() {
 
         usuarios.forEach(user => {
             // Asume que el usuario tiene idUsuario, nomApe o nombre/dni
-            const dniText = user.dni ? ` (DNI: ${user.dni})` : '';
+            const dniText = user.dniUs ? ` (DNI: ${user.dniUs})` : '';
             select.innerHTML += `<option value="${user.idUsuario}">${user.nomApe || user.nombre}${dniText}</option>`;
         });
     } catch (error) {
@@ -99,7 +99,7 @@ function renderizarTabla(lista) {
 
     lista.forEach(reg => {
         const fecha = reg.fechaPago ? new Date(reg.fechaPago).toLocaleString() : 'N/A';
-        const dni = reg.usuario && reg.usuario.dni ? reg.usuario.dni : 'S/D';
+        const dni = reg.usuario && reg.usuario.dniUs ? reg.usuario.dniUs : 'S/D';
         const clienteNom = reg.usuario ? (reg.usuario.nomApe || reg.usuario.nombre) : `ID: ${reg.idUsuario}`;
         const planNom = reg.membresia ? reg.membresia.descripMembresia : 'N/A';
         const costo = reg.membresia ? `$${reg.membresia.costoMembresia}` : 'N/A';
@@ -124,7 +124,7 @@ function filtrarPorDni() {
     const termino = document.getElementById("searchDni").value.trim().toLowerCase();
 
     const filtrados = listaHistorialCompleta.filter(reg => {
-        const dni = reg.usuario && reg.usuario.dni ? reg.usuario.dni.toString().toLowerCase() : '';
+        const dni = reg.usuario && reg.usuario.dniUs ? reg.usuario.dniUs.toString().toLowerCase() : '';
         return dni.includes(termino);
     });
 

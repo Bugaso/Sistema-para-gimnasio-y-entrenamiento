@@ -1,23 +1,32 @@
 package com.gym.atlas.controller;
 
+import com.gym.atlas.data.ClienteMembresia;
+import com.gym.atlas.dto.RegistrarMembresiaRequest;
+import com.gym.atlas.service.ClienteMembresiaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/cliente-membresias")
 public class ClienteMembresiaController {
 
+    private final ClienteMembresiaService clienteMembresiaService;
+
+    public ClienteMembresiaController(ClienteMembresiaService clienteMembresiaService) {
+        this.clienteMembresiaService = clienteMembresiaService;
+    }
+
     @PostMapping("/registrar-pago")
-    public ResponseEntity<?> registrarPago(@RequestBody Object payload) {
-        // TODO: Inyecta tu servicio y procesa la asignación de membresía y pago
-        return ResponseEntity.ok("Pago registrado correctamente");
+    public ResponseEntity<ClienteMembresia> registrarPago(
+            @RequestBody RegistrarMembresiaRequest request
+    ) {
+        return ResponseEntity.ok(clienteMembresiaService.registrarPago(request));
     }
 
     @GetMapping("/historial")
-    public ResponseEntity<?> obtenerHistorial() {
-        // TODO: Retorna la lista de historial
-        return ResponseEntity.ok().build();
+    public ResponseEntity<List<ClienteMembresia>> obtenerHistorial() {
+        return ResponseEntity.ok(clienteMembresiaService.obtenerHistorial());
     }
-
-
 }
