@@ -9,6 +9,17 @@
 <script src="/js/include-components.js"></script>
 <body>
 <header class="navbar" id="navbar">
+
+    <script>
+        (function () {
+            const token = localStorage.getItem('jwt_token');
+            if (token) {
+                // Redirige al usuario inmediatamente a la página principal
+                window.location.replace('/');
+            }
+        })();
+    </script>
+
     <div class="logo">
         <a href="/">ATLAS<span>GYM</span></a>
     </div>
@@ -21,7 +32,7 @@
         </ul>
     </nav>
     <div class="nav-buttons">
-        <a id="authUser" href="/login" class="btn-login">Iniciar Sesión</a>
+        <a id="AuthUser" href="/login" class="btn-login">Iniciar Sesión</a>
         <button class="menu-toggle" id="mobile-menu">
             <span class="bar"></span>
             <span class="bar"></span>
