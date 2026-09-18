@@ -19,18 +19,16 @@ import java.util.List;
 @RequestMapping("/")
 public class UsuarioController {
 
-
+    private UsuarioService usuarioService;
     private final UsuarioRepository usuarioRepository;
 
-    public UsuarioController(UsuarioRepository usuarioRepository) {
+    public UsuarioController(UsuarioService usuarioService,UsuarioRepository usuarioRepository) {
         this.usuarioRepository = usuarioRepository;
-=======
-    private UsuarioService usuarioService;
-
-    public UsuarioController(UsuarioService usuarioService){
         this.usuarioService = usuarioService;
-
     }
+
+
+
 
     @GetMapping("login")
     public ResponseEntity<ClassPathResource> login() {
@@ -59,7 +57,7 @@ public class UsuarioController {
         // Pasa fija la categoría 2 correspondiente a clientes
         List<Usuario> clientes = usuarioRepository.findByIdCatUs(2);
         return ResponseEntity.ok(clientes);
-
+    }
     @GetMapping("me")
     public ResponseEntity<UserProfileResponse> obtenerUsuarioAutenticado(Authentication authentication) {
         // Validar si la petición no incluye un contexto de autenticación válido
