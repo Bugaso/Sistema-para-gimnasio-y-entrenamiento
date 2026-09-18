@@ -61,4 +61,6 @@ async function actualizarBotonUsuario() {
     }
 }
 
+
+
 document.addEventListener('DOMContentLoaded', cargarComponentes);

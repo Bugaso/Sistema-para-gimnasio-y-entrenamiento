@@ -110,6 +110,14 @@ async function cargarCategorias() {
     }
 }
 
+async function isAuth() {
+    const token = localStorage.getItem('jwt_token');
+    if (token.valueOf() != null) {
+        // Redirige al usuario inmediatamente a la página principal
+        window.location.href ="/"
+    }
+}
+
 // Ejecutar la carga automáticamente al renderizar el DOM
 document.addEventListener('DOMContentLoaded', cargarCategorias);
-
+document.addEventListener('DOMContentLoaded', isAuth);

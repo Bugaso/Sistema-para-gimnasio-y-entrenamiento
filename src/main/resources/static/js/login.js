@@ -36,5 +36,14 @@ const password = document.getElementById('loginPassword').value.trim();
   }
 });
 
+async function isAuth() {
+  const token = localStorage.getItem('jwt_token');
+  if (token.valueOf() != null) {
+    // Redirige al usuario inmediatamente a la página principal
+    window.location.href ="/"
+  }
+}
+document.addEventListener('DOMContentLoaded', isAuth);
+
 
 

@@ -1,24 +1,19 @@
 <!DOCTYPE html>
 <html lang="es">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gimnasio Atlas | Dashboard</title>
-<link rel="stylesheet" href="css/bienvenida.css">
-<!-- Google Fonts: Montserrat para un look moderno y limpio -->
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-<script src="/js/include-components.js"></script>
-<body>
-<header class="navbar" id="navbar">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gimnasio Atlas | Dashboard</title>
+    <link rel="stylesheet" href="css/bienvenida.css">
+    <!-- Google Fonts: Montserrat para un look moderno y limpio -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="/js/include-components.js"></script>
 
-    <script>
-        (function () {
-            const token = localStorage.getItem('jwt_token');
-            if (token) {
-                // Redirige al usuario inmediatamente a la página principal
-                window.location.replace('/');
-            }
-        })();
-    </script>
+</head>
+<body>
+    <header class="navbar" id="navbar">
+
+
 
     <div class="logo">
         <a href="/">ATLAS<span>GYM</span></a>
