@@ -70,6 +70,7 @@ document.getElementById('formRegistro')?.addEventListener('submit', async (e) =>
         alert('¡Usuario registrado con éxito!');
         // Redirigir al panel o vista principal
         // window.location.href = '/dashboard.html';
+        window.location.href = "/login"
     } catch (err) {
         alert('Error al registrar usuario: ' + err.message);
     }
@@ -109,6 +110,14 @@ async function cargarCategorias() {
     }
 }
 
+async function isAuth() {
+    const token = localStorage.getItem('jwt_token');
+    if (token.valueOf() != null) {
+        // Redirige al usuario inmediatamente a la página principal
+        window.location.href ="/"
+    }
+}
+
 // Ejecutar la carga automáticamente al renderizar el DOM
 document.addEventListener('DOMContentLoaded', cargarCategorias);
-
+document.addEventListener('DOMContentLoaded', isAuth);

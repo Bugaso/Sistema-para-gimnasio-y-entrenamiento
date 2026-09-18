@@ -1,14 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Gimnasio Atlas | Dashboard</title>
-<link rel="stylesheet" href="css/bienvenida.css">
-<!-- Google Fonts: Montserrat para un look moderno y limpio -->
-<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
-<script src="/js/include-components.js"></script>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gimnasio Atlas | Dashboard</title>
+    <link rel="stylesheet" href="css/bienvenida.css">
+    <link rel="stylesheet" href="css/header.css">
+    <!-- Google Fonts: Montserrat para un look moderno y limpio -->
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <script src="/js/include-components.js"></script>
+
+</head>
 <body>
-<header class="navbar" id="navbar">
+    <header class="navbar" id="navbar">
+
+
+
     <div class="logo">
         <a href="/">ATLAS<span>GYM</span></a>
     </div>
@@ -21,7 +28,8 @@
         </ul>
     </nav>
     <div class="nav-buttons">
-        <a href="/login" class="btn-login">Iniciar Sesión</a>
+        <a id="AuthUser" href="/login" class="btn-login">Iniciar Sesión</a>
+        <button id="btnLogout" class="btn-logout" style="display: none;">Cerrar Sesión</button>
         <button class="menu-toggle" id="mobile-menu">
             <span class="bar"></span>
             <span class="bar"></span>

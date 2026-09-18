@@ -26,7 +26,7 @@ public class Usuario implements UserDetails {
 
     private String mailUs;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "idCatUs", nullable = false)
     private CategoriaUs categoria;
     private String password;
@@ -121,7 +121,7 @@ public class Usuario implements UserDetails {
     @Override
     public String getUsername() {
         // En esta aplicación usamos el email como identificador (username)
-        return nomApe;
+        return mailUs;
     }
 
     @Override
