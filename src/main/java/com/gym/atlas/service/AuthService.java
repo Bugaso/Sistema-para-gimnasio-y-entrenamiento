@@ -44,17 +44,17 @@ public class AuthService {
      */
     public AuthResponse register(RegisterRequest request) {
         // 1. Validar que la categoría exista en la base de datos
-        CategoriaUs categoria = catUsuarioRepository.findById(request.categoriaId())
+        CategoriaUs categoria = catUsuarioRepository.findById(request.idCatUs())
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "No existe la categoría de usuario con ID: " + request.categoriaId()
+                        "No existe la categoría de usuario con ID: " + request.idCatUs()
                 ));
 
         // 2. Crear y poblar la entidad Usuario
         Usuario usuario = new Usuario();
         usuario.setNomApe(request.nomApe());
-        usuario.setDniUs(request.dni());
-        usuario.setFechaNacimiento(request.fechanac());
-        usuario.setMailUs(request.email());
+        usuario.setDniUs(request.dniUs());
+        usuario.setFechaNacimiento(request.fechaNacimiento());
+        usuario.setMailUs(request.mailUs());
         usuario.setPassword(passwordEncoder.encode(request.password())); // Contraseña encriptada con BCrypt
         usuario.setCategoria(categoria); // Relación @ManyToOne asignada
 

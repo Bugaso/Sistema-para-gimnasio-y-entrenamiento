@@ -26,8 +26,8 @@ public class Usuario implements UserDetails {
 
     private String mailUs;
 
-    @ManyToOne(fetch = FetchType.LAZY, optional = false)
-    @JoinColumn(name = "categoriaus", nullable = false)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
+    @JoinColumn(name = "idCatUs", nullable = false)
     private CategoriaUs categoria;
     private String password;
 
@@ -104,8 +104,13 @@ public class Usuario implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        // Asigna el rol con el prefijo estándar "ROLE_"
-        return List.of(new SimpleGrantedAuthority("ROLE_" + categoria.getNomCatUs()));
+        if (categoria != null && categoria.getNomCatUs() != null) {
+            return List.of(
+                    new SimpleGrantedAuthority("ROLE_" + categoria.getNomCatUs().toUpperCase()),
+                    new SimpleGrantedAuthority("PERMISO_" + categoria.getTipoPermiso().toUpperCase())
+            );
+        }
+        return List.of();
     }
 
     @Override
@@ -116,7 +121,7 @@ public class Usuario implements UserDetails {
     @Override
     public String getUsername() {
         // En esta aplicación usamos el email como identificador (username)
-        return nomApe;
+        return mailUs;
     }
 
     @Override
@@ -138,4 +143,6 @@ public class Usuario implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
+
+
 }

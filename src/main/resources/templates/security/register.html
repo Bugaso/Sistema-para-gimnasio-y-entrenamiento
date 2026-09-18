@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gimnasio Atlas | Registro</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/bienvenida.css">
+    <link rel="stylesheet" href="css/auth.css">
+</head>
+<body>
+
+<!-- Encabezado Inyectado -->
+<div id="header-container"></div>
+
+<main class="auth-wrapper">
+    <div class="auth-card">
+        <h2>ÚNETE A <span>ATLAS</span></h2>
+        <p class="auth-subtitle">Crea tu cuenta y comienza tu transformación</p>
+
+        <div id="feedbackMsg" class="feedback-msg"></div>
+
+        <form id="formRegistro">
+            <div class="form-group">
+                <label for="nomApe">Nombre y Apellido</label>
+                <input type="text" id="nomApe" placeholder="Ej: Juan Pérez" required>
+            </div>
+
+            <div class="form-group">
+                <label for="fechaNacimiento">Fecha de Nacimiento</label>
+                <input type="date" id="fechaNacimiento" required>
+            </div>
+
+            <div class="form-group">
+                <label for="dniUs">DNI / Documento</label>
+                <input type="number" id="dniUs" placeholder="Ej: 40123456" required>
+            </div>
+
+            <div class="form-group">
+                <label for="telUs">Teléfono</label>
+                <input type="tel" id="telUs" placeholder="Ej: 3856123456" required>
+            </div>
+
+            <div class="form-group">
+                <label for="mailUs">Correo Electrónico</label>
+                <input type="email" id="mailUs" placeholder="usuario@ejemplo.com" required>
+            </div>
+
+            <div class="form-group">
+                <label for="idCatUs">Categoría de Usuario</label>
+                <select id="idCatUs" required>
+                    <option value="" disabled selected>Cargando categorías...</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Contraseña</label>
+                <input type="password" id="password" placeholder="••••••••" required>
+            </div>
+
+            <button type="submit" class="btn-submit">Completar Registro</button>
+        </form>
+
+        <p class="auth-footer-link">
+            ¿Ya tienes una cuenta? <a href="/login">Inicia sesión</a>
+        </p>
+    </div>
+</main>
+
+<!-- Pie de Página Inyectado -->
+<div id="footer-container"></div>
+
+<!-- Scripts de carga e interacción -->
+<script src="js/include-components.js"></script>
+<script src="js/bienvenida.js"></script>
+<script src="js/register.js"></script>
+</body>
+</html>
