@@ -1,7 +1,7 @@
 package com.gym.atlas.dto;
 
 public record RegistrarMembresiaRequest(
-        Long idUsuario,
+        Long idMembresia,
         String descripMembresia,
         Long costoMembresia,
         Long duracionMembresia

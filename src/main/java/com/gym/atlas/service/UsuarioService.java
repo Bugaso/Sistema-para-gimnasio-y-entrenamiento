@@ -5,6 +5,8 @@ import com.gym.atlas.dto.UserProfileResponse;
 import com.gym.atlas.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+
 @Service
 public class UsuarioService {
     private final UsuarioRepository userRepo;
@@ -22,5 +24,10 @@ public class UsuarioService {
                 user.getMailUs()
         );
         return  userRep;
+    }
+
+    public List<Usuario> obtenerUsuariosClientes(){
+        List<Usuario> usuarios = userRepo.findByIdCatUs(2);
+        return usuarios;
     }
 }

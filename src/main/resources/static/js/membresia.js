@@ -1,7 +1,7 @@
 document.addEventListener("DOMContentLoaded", () => {
     cargarUsuarios();
     cargarHistorial();
-
+    cargarMembresias();
     document.getElementById("formMembresia").addEventListener("submit", registrarMembresiaYPago);
     document.getElementById("searchDni").addEventListener("input", filtrarPorDni);
 });
@@ -29,13 +29,31 @@ async function cargarUsuarios() {
     }
 }
 
+async function cargarMembresias(){
+    const selectMembresias = document.getElementById("descripMembresia")
+    try {
+        const response = await fetch("/membresia/listar"); // Endpoint que lista usuarios
+        if (!response.ok) throw new Error("Error al obtener las membresias");
+
+        const membresias = await response.json();
+        //console.log(membresias)
+        membresias.forEach(membresia => {
+            // Asume que la membresia fue cargada y contiene los datos
+            const descText = membresia.descripMembresia ? ` (${membresia.descripMembresia})` : '';
+            selectMembresias.innerHTML += `<option value="${membresia.idMembresia}">${membresia.descripMembresia} | ${membresia.costoMembresia} ARS</option>`;
+        });
+    } catch (error) {
+        console.error(error);
+        selectMembresias.innerHTML = '<option value="">No se pudieron cargar las membresias</option>';
+    }
+}
+
 // 2. Registrar la Membresía y guardar el registro en ClienteMembresia
 async function registrarMembresiaYPago(e) {
     e.preventDefault();
 
     const idUsuario = document.getElementById("selectUsuario").value;
-    const descripMembresia = document.getElementById("descripMembresia").value;
-    const costoMembresia = parseFloat(document.getElementById("costoMembresia").value);
+    const idMembresia = document.getElementById("descripMembresia").value;
 
     let duracion = parseInt(document.getElementById("duracionMembresia").value);
     const unidad = document.getElementById("unidadDuracion").value;
@@ -47,8 +65,7 @@ async function registrarMembresiaYPago(e) {
 
     const payload = {
         idUsuario: parseInt(idUsuario),
-        descripMembresia: descripMembresia,
-        costoMembresia: costoMembresia,
+        idMembresia : parseInt(idMembresia),
         duracionMembresia: duracion
     };
 

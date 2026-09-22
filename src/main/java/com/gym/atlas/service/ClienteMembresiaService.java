@@ -3,7 +3,7 @@ package com.gym.atlas.service;
 import com.gym.atlas.data.ClienteMembresia;
 import com.gym.atlas.data.Membresia;
 import com.gym.atlas.data.Usuario;
-import com.gym.atlas.dto.RegistrarMembresiaRequest;
+import com.gym.atlas.dto.RegistrarClienteMembresiaRequest;
 import com.gym.atlas.repository.ClienteMembresiaRepository;
 import com.gym.atlas.repository.MembresiaRepository;
 import com.gym.atlas.repository.UsuarioRepository;
@@ -31,14 +31,9 @@ public class ClienteMembresiaService {
     }
 
     @Transactional
-    public ClienteMembresia registrarPago(RegistrarMembresiaRequest request) {
-        if (request.idUsuario() == null
-                || request.descripMembresia() == null
-                || request.descripMembresia().isBlank()
-                || request.costoMembresia() == null
-                || request.duracionMembresia() == null
-                || request.duracionMembresia() <= 0) {
-            throw new IllegalArgumentException("Los datos de la membresía son obligatorios y válidos");
+    public ClienteMembresia registrarPago(RegistrarClienteMembresiaRequest request) {
+        if (request.idUsuario() == null || request.idMembresia() == null) {
+            throw new IllegalArgumentException("Los datos de la membresía son obligatorios o no válidos");
         }
 
         Usuario usuario = usuarioRepository.findById(request.idUsuario())
@@ -46,11 +41,9 @@ public class ClienteMembresiaService {
                         "No existe el usuario con ID: " + request.idUsuario()
                 ));
 
-        Membresia membresia = new Membresia();
-        membresia.setDescripMembresia(request.descripMembresia());
-        membresia.setCostoMembresia(request.costoMembresia());
-        membresia.setDuracionMembresia(request.duracionMembresia());
-        membresiaRepository.save(membresia);
+        Membresia membresia = membresiaRepository.findById(request.idMembresia())
+                .orElseThrow(() -> new IllegalArgumentException(
+                        "No existe la membresia con ID: "+ request.idMembresia()));
 
         ClienteMembresia clienteMembresia = new ClienteMembresia();
         clienteMembresia.setUsuario(usuario);

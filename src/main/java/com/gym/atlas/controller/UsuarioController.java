@@ -20,15 +20,12 @@ import java.util.List;
 public class UsuarioController {
 
     private UsuarioService usuarioService;
-    private final UsuarioRepository usuarioRepository;
 
-    public UsuarioController(UsuarioService usuarioService,UsuarioRepository usuarioRepository) {
-        this.usuarioRepository = usuarioRepository;
+
+    public UsuarioController(UsuarioService usuarioService) {
+
         this.usuarioService = usuarioService;
     }
-
-
-
 
     @GetMapping("login")
     public ResponseEntity<ClassPathResource> login() {
@@ -52,10 +49,10 @@ public class UsuarioController {
 //        return ResponseEntity.ok(usuarioRepository.findAll());
 //    }
 
-    @GetMapping("/usuarios")
+    @GetMapping("usuarios")
     public ResponseEntity<List<Usuario>> obtenerClientes() {
         // Pasa fija la categoría 2 correspondiente a clientes
-        List<Usuario> clientes = usuarioRepository.findByIdCatUs(2);
+        List<Usuario> clientes = usuarioService.obtenerUsuariosClientes();
         return ResponseEntity.ok(clientes);
     }
     @GetMapping("me")
