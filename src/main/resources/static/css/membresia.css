@@ -198,3 +198,72 @@ td { color: var(--text); }
     color: var(--text-muted);
     padding: 20px;
 }
+
+.form-group input:disabled,
+.form-group select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #121318;
+    border-color: #22252e;
+}
+
+/* Estilos para el indicador de Total Estimado */
+.total-monto {
+    padding: 12px;
+    background-color: var(--bg-input);
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: 4px;
+    font-size: 1.15rem;
+    font-weight: 900;
+    text-align: right;
+    letter-spacing: 0.5px;
+}
+
+.form-group select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #121318;
+    border-color: #22252e;
+}
+
+/* Contenedor inferior alineado a la derecha */
+.total-row {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+    margin-bottom: 15px;
+}
+
+/* Caja del monto total estimado */
+.total-box {
+    display: inline-flex;
+    align-items: center;
+    gap: 15px;
+    background-color: var(--bg-input);
+    border: 1px solid var(--accent);
+    padding: 10px 20px;
+    border-radius: 6px;
+}
+
+.total-box span {
+    font-size: 0.85rem;
+    color: var(--text-muted);
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.total-box strong {
+    font-size: 1.25rem;
+    color: var(--accent);
+    font-weight: 900;
+    letter-spacing: 0.5px;
+}
+
+/* Selector deshabilitado visualmente */
+.form-group select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    background-color: #121318;
+    border-color: #22252e;
+}

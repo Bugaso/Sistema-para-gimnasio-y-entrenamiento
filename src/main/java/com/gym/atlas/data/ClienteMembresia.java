@@ -2,6 +2,7 @@ package com.gym.atlas.data;
 
 import jakarta.persistence.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
@@ -23,6 +24,10 @@ public class ClienteMembresia {
 
     @Column(name = "fechaPago")
     private LocalDateTime fechaPago;
+
+    private LocalDate fechaVenc;
+
+    private Double costoTotal;
 
     public ClienteMembresia() {}
 
@@ -52,6 +57,23 @@ public class ClienteMembresia {
 
     public LocalDateTime getFechaPago() {
         return fechaPago;
+    }
+
+    public Double getCostoTotal() {
+        return costoTotal;
+    }
+
+    public void setCostoTotal(Double costoTotal) {
+        this.costoTotal = costoTotal;
+    }
+
+    public LocalDate getFechaVenc() {
+
+        return fechaVenc;
+    }
+
+    public void setFechaVenc(LocalDate fechaVenc) {
+        this.fechaVenc = fechaVenc;
     }
 
     public void setFechaPago(LocalDateTime fechaPago) {

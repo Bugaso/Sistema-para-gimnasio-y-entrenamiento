@@ -6,8 +6,6 @@ import jakarta.persistence.*;
 (name = "membresia")
 public class Membresia {
 
-//    @jakarta.persistence.Id
-//    private Long id;
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idMembresia")
@@ -16,6 +14,8 @@ public class Membresia {
     private String descripMembresia;
     private Long costoMembresia;
     private Long duracionMembresia;
+
+    private int diasMembresia;
 
     public Membresia(){
 
@@ -51,5 +51,13 @@ public class Membresia {
 
     public void setDuracionMembresia(Long duracionMembresia) {
         this.duracionMembresia = duracionMembresia;
+    }
+
+    public int getDiasMembresia() {
+        return diasMembresia;
+    }
+
+    public void setDiasMembresia(int diasMembresia) {
+        this.diasMembresia = diasMembresia;
     }
 }

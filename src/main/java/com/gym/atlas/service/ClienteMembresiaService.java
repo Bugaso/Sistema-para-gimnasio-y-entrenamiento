@@ -10,6 +10,7 @@ import com.gym.atlas.repository.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -50,6 +51,12 @@ public class ClienteMembresiaService {
         clienteMembresia.setMembresia(membresia);
         clienteMembresia.setFechaPago(LocalDateTime.now());
 
+        Long cantCuotas = request.duracionMembresia();
+
+
+        clienteMembresia.setFechaVenc(LocalDate.from(LocalDateTime.now().plusDays(membresia.getDuracionMembresia()*cantCuotas)));
+        
+        clienteMembresia.setCostoTotal((double) (cantCuotas*membresia.getCostoMembresia()));
         return clienteMembresiaRepository.save(clienteMembresia);
     }
 

@@ -4,6 +4,7 @@ public record RegistrarMembresiaRequest(
         Long idMembresia,
         String descripMembresia,
         Long costoMembresia,
-        Long duracionMembresia
+        Long duracionMembresia,
+        int diasMembresia
 ) {
 }

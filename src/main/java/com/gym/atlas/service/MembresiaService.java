@@ -31,7 +31,7 @@ public class MembresiaService {
         membresia.setCostoMembresia(request.costoMembresia());
         membresia.setDescripMembresia(request.descripMembresia());
         membresia.setDuracionMembresia(request.duracionMembresia());
-
+        membresia.setDiasMembresia(request.diasMembresia());
         memRep.save(membresia);
 
         return membresia;
