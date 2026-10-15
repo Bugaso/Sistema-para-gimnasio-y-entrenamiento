@@ -22,7 +22,7 @@ public class MembresiaController {
 
     @GetMapping()
     public ResponseEntity<ClassPathResource> membresia(){
-        ClassPathResource resource = new ClassPathResource("templates/membresia.html");
+        ClassPathResource resource = new ClassPathResource("static/membresia.html");
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)
                 .body(resource);

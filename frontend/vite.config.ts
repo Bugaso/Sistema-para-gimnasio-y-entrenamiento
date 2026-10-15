@@ -1,0 +1,30 @@
+import { defineConfig } from 'vite'
+import react from '@vitejs/plugin-react'
+import tailwindcss from '@tailwindcss/vite'
+import path from 'node:path'
+
+export default defineConfig({
+  base: '/',
+  build: {
+    outDir: '../src/main/resources/static',
+    emptyOutDir: true,
+    sourcemap: false,
+    minify: true,
+    rollupOptions: {
+      input: {
+        main: path.resolve(__dirname, 'index.html'),
+        registro: path.resolve(__dirname, 'registro.html'),
+        inicioSesion: path.resolve(__dirname, 'inicio-sesion.html'),
+      },
+    },
+  },
+  plugins: [
+    react(),
+    tailwindcss(),
+  ],
+  resolve: {
+    alias: {
+      '@': path.resolve(__dirname, './src'),
+    },
+  },
+})

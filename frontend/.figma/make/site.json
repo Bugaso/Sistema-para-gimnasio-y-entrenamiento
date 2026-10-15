@@ -1,0 +1,10 @@
+{
+  "description": "Atlas Gym's web app offers a user-friendly interface for exploring services, memberships, and trainers, enhancing user engagement and simplifying registration.",
+  "robots": {
+    "index": false
+  },
+  "accessibility": {
+    "addBypassLinks": false,
+    "ignoreReducedMotion": false
+  }
+}

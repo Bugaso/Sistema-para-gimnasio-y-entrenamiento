@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Inicia sesión en Atlas Gym y continúa avanzando hacia tus objetivos." />
+    <title>Iniciar sesión — Atlas Gym</title>
+  </head>
+  <body class="login-page">
+    <header class="site-header signup-header">
+      <nav class="nav container" aria-label="Navegación de inicio de sesión">
+        <a class="logo" href="/#inicio" aria-label="Atlas Gym, volver al inicio">
+          <span class="logo-mark" aria-hidden="true">A</span>Atlas Gym
+        </a>
+        <a class="back-link" href="/#registro"><span aria-hidden="true">←</span> Volver al sitio</a>
+      </nav>
+    </header>
+
+    <main class="login-main">
+      <div class="container login-layout">
+        <section class="login-intro" aria-labelledby="login-title">
+          <div>
+            <p class="eyebrow">Área de miembros</p>
+            <h1 id="login-title">Vuelve al<br /><span>trabajo.</span></h1>
+            <p>Accede a tu cuenta para consultar tu membresía, revisar tu progreso y continuar con tu entrenamiento.</p>
+          </div>
+          <div class="login-quote">
+            <span aria-hidden="true">“</span>
+            <blockquote>La disciplina convierte una meta en un resultado.</blockquote>
+            <small>Atlas Gym · Desde el primer día</small>
+          </div>
+        </section>
+
+        <section class="login-panel" aria-label="Formulario de inicio de sesión">
+          <div class="form-heading login-heading">
+            <span class="form-index">Acceso</span>
+            <div>
+              <h2>Inicia sesión</h2>
+              <p>Introduce tus datos para acceder a tu cuenta.</p>
+            </div>
+          </div>
+
+          <form class="login-form" data-login-form novalidate>
+            <div class="form-field">
+              <label for="identifier">Email</label>
+              <input
+                id="identifier"
+                name="email"
+                type="email"
+                autocomplete="email"
+                placeholder="nombre@email.com"
+                aria-describedby="identifier-hint identifier-error"
+                required
+              />
+              <small id="identifier-hint">Usa el email asociado a tu cuenta.</small>
+              <span class="field-error" id="identifier-error" aria-live="polite"></span>
+            </div>
+
+            <div class="form-field">
+              <div class="field-label-row">
+                <label for="login-password">Contraseña</label>
+                <a href="mailto:hola@atlasgym.com?subject=Recuperar%20contraseña">¿Olvidaste tu contraseña?</a>
+              </div>
+              <div class="password-wrap">
+                <input
+                  id="login-password"
+                  name="password"
+                  type="password"
+                  autocomplete="current-password"
+                  placeholder="Introduce tu contraseña"
+                  aria-describedby="password-error"
+                  required
+                />
+                <button class="password-toggle" type="button" aria-label="Mostrar contraseña" aria-pressed="false" data-password-toggle>Mostrar</button>
+              </div>
+              <span class="field-error" id="password-error" aria-live="polite"></span>
+            </div>
+
+            <label class="remember">
+              <input type="checkbox" name="remember" />
+              <span>Mantener mi sesión iniciada</span>
+            </label>
+
+            <div class="auth-error" role="alert" data-auth-error hidden>
+              <span aria-hidden="true">!</span>
+              <p>
+                <strong>No pudimos iniciar tu sesión.</strong>
+                <span data-auth-error-message>Revisa tus datos e inténtalo de nuevo.</span>
+              </p>
+            </div>
+
+            <button class="button submit-button" type="submit">
+              Iniciar sesión <span class="button-arrow" aria-hidden="true">→</span>
+            </button>
+            <p class="login-prompt">¿Aún no eres miembro? <a href="/registro.html">Crea tu cuenta</a></p>
+          </form>
+        </section>
+      </div>
+    </main>
+
+    <script type="module" src="/src/inicio-sesion.js"></script>
+  </body>
+</html>

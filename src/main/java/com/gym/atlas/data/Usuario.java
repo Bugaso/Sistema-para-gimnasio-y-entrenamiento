@@ -6,37 +6,43 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
 import java.sql.Date;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "usuario") // Usamos "_user" para evitar conflictos con palabras reservadas en SQL
+@Table(name = "Usuario") // Respetando mayúsculas como en el script original
 public class Usuario implements UserDetails {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idUsuario;
 
+    @Column(nullable = false, length = 150)
     private String nomApe;
 
     private Date fechaNacimiento;
 
+    @Column(unique = true, nullable = false)
     private Long dniUs;
-    private Long telUs;
 
+    private Long telUs;
+    private Long contacoE;
+
+    @Column(unique = true, length = 100)
     private String mailUs;
 
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "idCatUs", nullable = false)
-    private CategoriaUs categoria;
+    @Column(nullable = false)
     private String password;
 
+    private String dirFotoUs;
 
-
+    // CORRECCIÓN: La relación correcta con RolUs es OneToMany porque un Usuario puede tener varios registros en RolUs
+    // Utilizamos fetch EAGER para que cargue los roles inmediatamente y Spring Security pueda validar los accesos.
+    @OneToMany(mappedBy = "usuario", fetch = FetchType.EAGER)
+    private List<RolUs> rolesUsuario = new ArrayList<>();
 
     public Usuario() {}
-
-
 
     // --- Getters y Setters estándar ---
 
@@ -64,26 +70,6 @@ public class Usuario implements UserDetails {
         this.fechaNacimiento = fechaNacimiento;
     }
 
-    public String getMailUs() {
-        return mailUs;
-    }
-
-    public void setMailUs(String mailUs) {
-        this.mailUs = mailUs;
-    }
-
-    public void setPassword(String password) {
-        this.password = password;
-    }
-
-    public CategoriaUs getCategoria() {
-        return categoria;
-    }
-
-    public void setCategoria(CategoriaUs categoria) {
-        this.categoria = categoria;
-    }
-
     public Long getDniUs() {
         return dniUs;
     }
@@ -100,17 +86,64 @@ public class Usuario implements UserDetails {
         this.telUs = telUs;
     }
 
+    public Long getContacoE() {
+        return contacoE;
+    }
+
+    public void setContacoE(Long contacoE) {
+        this.contacoE = contacoE;
+    }
+
+    public String getMailUs() {
+        return mailUs;
+    }
+
+    public void setMailUs(String mailUs) {
+        this.mailUs = mailUs;
+    }
+
+    public String getDirFotoUs() {
+        return dirFotoUs;
+    }
+
+    public void setDirFotoUs(String dirFotoUs) {
+        this.dirFotoUs = dirFotoUs;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
+    }
+
+    public List<RolUs> getRolesUsuario() {
+        return rolesUsuario;
+    }
+
+    public void setRolesUsuario(List<RolUs> rolesUsuario) {
+        this.rolesUsuario = rolesUsuario;
+    }
+
     // --- Implementación de métodos de UserDetails ---
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        if (categoria != null && categoria.getNomCatUs() != null) {
-            return List.of(
-                    new SimpleGrantedAuthority("ROLE_" + categoria.getNomCatUs().toUpperCase()),
-                    new SimpleGrantedAuthority("PERMISO_" + categoria.getTipoPermiso().toUpperCase())
-            );
+        List<SimpleGrantedAuthority> authorities = new ArrayList<>();
+
+        // CORRECCIÓN: Iteramos sobre los registros intermedios para buscar el Rol y sus atributos
+        if (rolesUsuario != null) {
+            for (RolUs rolUsuario : rolesUsuario) {
+                if (rolUsuario.getRol() != null) {
+                    Rol rol = rolUsuario.getRol();
+
+                    if (rol.getNomCatUs() != null) {
+                        authorities.add(new SimpleGrantedAuthority("ROLE_" + rol.getNomCatUs().toUpperCase()));
+                    }
+                    if (rol.getTipoPermiso() != null) {
+                        authorities.add(new SimpleGrantedAuthority("PERMISO_" + rol.getTipoPermiso().toUpperCase()));
+                    }
+                }
+            }
         }
-        return List.of();
+        return authorities;
     }
 
     @Override
@@ -120,7 +153,6 @@ public class Usuario implements UserDetails {
 
     @Override
     public String getUsername() {
-        // En esta aplicación usamos el email como identificador (username)
         return mailUs;
     }
 
@@ -143,6 +175,4 @@ public class Usuario implements UserDetails {
     public boolean isEnabled() {
         return true;
     }
-
-
 }

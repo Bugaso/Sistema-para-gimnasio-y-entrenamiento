@@ -39,7 +39,9 @@ public class SecurityConfig {
             "/css/**",
             "/js/**",
             "/images/**",
-            "/favicon.ico"
+            "/favicon.ico",
+            "/assets/**",
+            "/templates/assets/**"
     };
 
     private static final String[] AUTH_ENDPOINTS = {

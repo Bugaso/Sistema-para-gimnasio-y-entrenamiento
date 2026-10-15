@@ -1,7 +1,8 @@
 package com.gym.atlas.controller;
 
-import com.gym.atlas.dto.CategoriaResponse;
-import com.gym.atlas.repository.CategoriaUsRepository;
+
+import com.gym.atlas.dto.RolResponse;
+import com.gym.atlas.repository.RolRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,17 +14,17 @@ import java.util.List;
 @RequestMapping("/api/v1/public/categorias")
 public class CategoriaUsController {
 
-    private final CategoriaUsRepository categoriaRepository;
+    private final RolRepository categoriaRepository;
 
-    public CategoriaUsController(CategoriaUsRepository categoriaRepository) {
+    public CategoriaUsController(RolRepository categoriaRepository) {
         this.categoriaRepository = categoriaRepository;
     }
 
     @GetMapping
-    public ResponseEntity<List<CategoriaResponse>> listarCategorias() {
-        List<CategoriaResponse> categorias = categoriaRepository.findAll().stream()
-                .map(cat -> new CategoriaResponse(cat.getIdCatUs(), cat.getNomCatUs()))
+    public ResponseEntity<List<RolResponse>> listarRoles() {
+        List<RolResponse> roles = categoriaRepository.findAll().stream()
+                .map(rolus-> new RolResponse(rolus.getIdRol(),rolus.getNomCatUs()))
                 .toList();
-        return ResponseEntity.ok(categorias);
+        return ResponseEntity.ok(roles);
     }
 }

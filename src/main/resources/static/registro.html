@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="es">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Crea tu cuenta de Atlas Gym y da el primer paso hacia tus objetivos." />
+    <title>Crear cuenta — Atlas Gym</title>
+    <script type="module" crossorigin src="/assets/registro-9_IbzHQx.js"></script>
+    <link rel="modulepreload" crossorigin href="/assets/api-fBwUDpBo.js">
+    <link rel="stylesheet" crossorigin href="/assets/api-D7YM4jpb.css">
+  </head>
+  <body class="signup-page">
+    <header class="site-header signup-header">
+      <nav class="nav container" aria-label="Navegación de registro">
+        <a class="logo" href="/#inicio" aria-label="Atlas Gym, volver al inicio">
+          <span class="logo-mark" aria-hidden="true">A</span>Atlas Gym
+        </a>
+        <a class="back-link" href="/#registro"><span aria-hidden="true">←</span> Volver al sitio</a>
+      </nav>
+    </header>
+
+    <main class="signup-main">
+      <div class="container signup-layout">
+        <section class="signup-intro" aria-labelledby="signup-title">
+          <div>
+            <p class="eyebrow">Únete a Atlas Gym</p>
+            <h1 id="signup-title">Tu fuerza<br /><span>empieza aquí.</span></h1>
+            <p class="signup-lead">Completa tus datos para crear tu cuenta. Nuestro equipo se pondrá en contacto contigo para coordinar tu evaluación inicial.</p>
+          </div>
+          <ol class="signup-steps" aria-label="Proceso de registro">
+            <li><span>01</span><p><strong>Crea tu cuenta</strong>Completa tus datos personales.</p></li>
+            <li><span>02</span><p><strong>Elige tu plan</strong>Te ayudamos a encontrar el ideal.</p></li>
+            <li><span>03</span><p><strong>Empieza a entrenar</strong>Recibe tu evaluación inicial.</p></li>
+          </ol>
+        </section>
+
+        <section class="signup-panel" aria-label="Formulario de registro">
+          <div class="form-heading">
+            <span class="form-index">01 / 01</span>
+            <div>
+              <h2>Datos personales</h2>
+              <p>Todos los campos son obligatorios.</p>
+            </div>
+          </div>
+
+          <form class="signup-form" data-signup-form>
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="first-name">Nombre</label>
+                <input id="first-name" name="firstName" type="text" autocomplete="given-name" placeholder="Tu nombre" required />
+              </div>
+              <div class="form-field">
+                <label for="last-name">Apellido</label>
+                <input id="last-name" name="lastName" type="text" autocomplete="family-name" placeholder="Tu apellido" required />
+              </div>
+              <div class="form-field">
+                <label for="birth-date">Fecha de nacimiento</label>
+                <input id="birth-date" name="birthDate" type="date" autocomplete="bday" required />
+              </div>
+              <div class="form-field">
+                <label for="dni">DNI</label>
+                <input id="dni" name="dni" type="text" inputmode="numeric" autocomplete="off" placeholder="Documento de identidad" minlength="6" maxlength="12" required />
+              </div>
+              <div class="form-field">
+                <label for="phone">Teléfono</label>
+                <input id="phone" name="phone" type="tel" autocomplete="tel" placeholder="+54 11 0000 0000" required />
+              </div>
+              <div class="form-field">
+                <label for="email">Email</label>
+                <input id="email" name="email" type="email" autocomplete="email" placeholder="nombre@email.com" required />
+              </div>
+              <div class="form-field form-field-wide">
+                <label for="emergency-contact">Contacto de emergencia</label>
+                <input id="emergency-contact" name="emergencyContact" type="tel" autocomplete="off" placeholder="Nombre y teléfono de contacto" required />
+                <small>Incluye nombre, relación y número de teléfono.</small>
+              </div>
+              <div class="form-field form-field-wide">
+                <label for="password">Contraseña</label>
+                <div class="password-wrap">
+                  <input id="password" name="password" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres" minlength="8" required />
+                  <button class="password-toggle" type="button" aria-label="Mostrar contraseña" aria-pressed="false" data-password-toggle>Mostrar</button>
+                </div>
+              </div>
+            </div>
+
+            <label class="consent">
+              <input type="checkbox" name="terms" required />
+              <span>Acepto los <a href="#">términos y condiciones</a> y la <a href="#">política de privacidad</a> de Atlas Gym.</span>
+            </label>
+
+            <button class="button submit-button" type="submit">
+              Crear mi cuenta <span class="button-arrow" aria-hidden="true">→</span>
+            </button>
+            <p class="form-status" role="status" aria-live="polite" data-form-status></p>
+            <p class="login-prompt">¿Ya tienes una cuenta? <a href="/login">Inicia sesión</a></p>
+          </form>
+
+          <div class="signup-success" data-signup-success hidden>
+            <span class="success-mark" aria-hidden="true">✓</span>
+            <p class="eyebrow">Registro completado</p>
+            <h2>Bienvenido a Atlas.</h2>
+            <p>Recibimos tus datos correctamente. Te contactaremos pronto para coordinar tu evaluación inicial.</p>
+            <a class="button" href="/">Volver al inicio <span class="button-arrow" aria-hidden="true">→</span></a>
+          </div>
+        </section>
+      </div>
+    </main>
+
+  </body>
+</html>

@@ -9,6 +9,7 @@ public record RegisterRequest(
         Long dniUs,
         String mailUs,
         Long telUs,
+        Long numContacto,
         String password,
-        Long idCatUs
+        Long idRol
 ) {}

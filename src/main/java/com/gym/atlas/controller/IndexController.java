@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RestController;
 public class IndexController {
     @GetMapping("/")
     public ResponseEntity<ClassPathResource> index(){
-        ClassPathResource resource = new ClassPathResource("templates/bienvenida.html");
+        ClassPathResource resource = new ClassPathResource("static/index.html");
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)
                 .body(resource);

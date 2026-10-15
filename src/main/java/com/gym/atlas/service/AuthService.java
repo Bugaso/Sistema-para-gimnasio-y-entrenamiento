@@ -2,12 +2,15 @@ package com.gym.atlas.service;
 
 
 import com.gym.atlas.Security.JwtService;
-import com.gym.atlas.data.CategoriaUs;
+import com.gym.atlas.data.Rol;
+import com.gym.atlas.data.RolUs;
+import com.gym.atlas.data.Roles;
 import com.gym.atlas.data.Usuario;
 import com.gym.atlas.dto.AuthRequest;
 import com.gym.atlas.dto.AuthResponse;
 import com.gym.atlas.dto.RegisterRequest;
-import com.gym.atlas.repository.CategoriaUsRepository;
+import com.gym.atlas.repository.RolRepository;
+import com.gym.atlas.repository.RolUsRepository;
 import com.gym.atlas.repository.UsuarioRepository;
 
 
@@ -15,39 +18,48 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class AuthService {
 
     private final UsuarioRepository userRepository;
-    private final CategoriaUsRepository catUsuarioRepository;
+    private final RolRepository catUsuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
 
+    private final RolUsRepository rolUsRepository;
+
     public AuthService(
             UsuarioRepository userRepository,
-            CategoriaUsRepository catUsuarioRepository,
+            RolRepository catUsuarioRepository,
             PasswordEncoder passwordEncoder,
             JwtService jwtService,
-            AuthenticationManager authenticationManager
+            AuthenticationManager authenticationManager, RolUsRepository rolUsRepository
     ) {
         this.userRepository = userRepository;
         this.catUsuarioRepository = catUsuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
+        this.rolUsRepository = rolUsRepository;
     }
 
     /**
      * Registro de usuario vinculando la entidad CatUsuario
      */
+    @Transactional
     public AuthResponse register(RegisterRequest request) {
+        System.out.println("Usuario: "+ request.toString());
+        System.out.println("IDE DE USUARIO OBTENIDA: "+request.idRol());
         // 1. Validar que la categoría exista en la base de datos
-        CategoriaUs categoria = catUsuarioRepository.findById(request.idCatUs())
+        Rol rol = catUsuarioRepository.findById(request.idRol())
                 .orElseThrow(() -> new IllegalArgumentException(
-                        "No existe la categoría de usuario con ID: " + request.idCatUs()
+                        "No existe la categoría de usuario con ID: " + request.idRol()
                 ));
+
+
 
         // 2. Crear y poblar la entidad Usuario
         Usuario usuario = new Usuario();
@@ -55,15 +67,27 @@ public class AuthService {
         usuario.setDniUs(request.dniUs());
         usuario.setFechaNacimiento(request.fechaNacimiento());
         usuario.setMailUs(request.mailUs());
+        usuario.setContacoE(request.numContacto());
         usuario.setPassword(passwordEncoder.encode(request.password())); // Contraseña encriptada con BCrypt
-        usuario.setCategoria(categoria); // Relación @ManyToOne asignada
 
-        // 3. Guardar en base de datos
+
+        // 3. Crear la entidad intermedia (RolUs)
+        RolUs vinculoRolUsuario = new RolUs();
+        vinculoRolUsuario.setUsuario(usuario); // Vinculamos el usuario
+        vinculoRolUsuario.setRol(rol);     // Vinculamos el rol
+        vinculoRolUsuario.setEstado(Roles.ACTIVO.toString());      // Estado por defecto
+
+
+        rolUsRepository.save(vinculoRolUsuario);
+        usuario.getRolesUsuario().add(vinculoRolUsuario);
+        // 4. Guardar en base de datos
+
         userRepository.save(usuario);
-
-        // 4. Generar y retornar el token JWT
+        // 5. Generar y retornar el token JWT
         String jwtToken = jwtService.generateToken(usuario);
         return new AuthResponse(jwtToken);
+
+
     }
 
     /**

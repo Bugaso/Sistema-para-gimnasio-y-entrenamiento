@@ -29,7 +29,7 @@ public class UsuarioController {
 
     @GetMapping("login")
     public ResponseEntity<ClassPathResource> login() {
-        ClassPathResource resource = new ClassPathResource("templates/security/login.html");
+        ClassPathResource resource = new ClassPathResource("static/inicio-sesion.html");
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)
                 .body(resource);
@@ -37,17 +37,11 @@ public class UsuarioController {
 
     @GetMapping("register")
     public ResponseEntity<ClassPathResource> register() {
-        ClassPathResource resource = new ClassPathResource("templates/security/register.html");
+        ClassPathResource resource = new ClassPathResource("static/registro.html");
         return ResponseEntity.ok()
                 .contentType(MediaType.TEXT_HTML)
                 .body(resource);
     }
-
-
-//    @GetMapping("/usuarios")
-//    public ResponseEntity<List<Usuario>> obtenerTodos() {
-//        return ResponseEntity.ok(usuarioRepository.findAll());
-//    }
 
     @GetMapping("usuarios")
     public ResponseEntity<List<Usuario>> obtenerClientes() {
