@@ -34,4 +34,13 @@ public class AdminController {
     public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
         return ResponseEntity.ok(usuarioService.registrarPersonal(request));
     }
+
+    @GetMapping("/")
+    public ResponseEntity<ClassPathResource> indexAdmin(){
+        ClassPathResource resource = new ClassPathResource("static/admin/index.html");
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_HTML)
+                .body(resource);
+    }
+
 }

@@ -52,7 +52,7 @@ public class SecurityConfig {
             "/api/v1/auth/register",
     };
 
-    private static final String ADMIN_ENDPOINTS = "/admin/**";
+    private static final String[] ADMIN_ENDPOINTS = {"/admin/**","/admin"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

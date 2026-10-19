@@ -19,7 +19,7 @@ const getErrorMessage = (data, fallback) => {
   return fallback
 }
 
-const request = async (path, { token, ...options } = {}) => {
+export const apiRequest = async (path, { token, ...options } = {}) => {
   let response
 
   try {
@@ -54,19 +54,19 @@ const request = async (path, { token, ...options } = {}) => {
 }
 
 export const register = (payload) =>
-  request("/api/v1/auth/register", {
+  apiRequest("/api/v1/auth/register", {
     method: "POST",
     body: JSON.stringify(payload),
   })
 
 export const login = (email, password) =>
-  request("/api/v1/auth/login", {
+  apiRequest("/api/v1/auth/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
   })
 
 export const getProfile = (token = getToken()) =>
-  request("/me", {
+  apiRequest("/me", {
     token,
   })
 
