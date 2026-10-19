@@ -52,6 +52,8 @@ public class SecurityConfig {
             "/api/v1/auth/register",
     };
 
+    private static final String ADMIN_ENDPOINTS = "/admin/**";
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -61,7 +63,8 @@ public class SecurityConfig {
                 // 2. Configurar la autorización de las peticiones HTTP
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(AUTH_ENDPOINTS).anonymous()
-                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll() // Acceso libre
+                        .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
+                        .requestMatchers(ADMIN_ENDPOINTS).hasRole("Admin")// Acceso libre
                         .anyRequest().authenticated()                  // El resto requiere JWT válido
                 )
 

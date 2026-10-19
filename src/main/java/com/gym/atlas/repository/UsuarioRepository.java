@@ -24,6 +24,8 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     List<Usuario> buscarPorDniONombre(@Param("criterio") String criterio);
 
 
-    @Query(value = "SELECT * FROM usuario WHERE idCatUs = :idCatUs", nativeQuery = true)
-    List<Usuario> findByIdCatUs(@Param("idCatUs") Integer idCatUs);
+    // Opción 1: Obtener usuarios por el NOMBRE de la categoría del rol (nomCatUs)
+    // Hace un JOIN desde Usuario -> RolUs (rolesUsuario) -> Rol
+    @Query("SELECT u FROM Usuario u JOIN u.rolesUsuario ru JOIN ru.rol r WHERE r.nomCatUs = :nombreRol")
+    List<Usuario> findByNombreRol(@Param("nombreRol") String nombreRol);
 }

@@ -24,7 +24,7 @@ import org.springframework.transaction.annotation.Transactional;
 public class AuthService {
 
     private final UsuarioRepository userRepository;
-    private final RolRepository catUsuarioRepository;
+    private final RolRepository RolUsuarioRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
     private final AuthenticationManager authenticationManager;
@@ -39,7 +39,7 @@ public class AuthService {
             AuthenticationManager authenticationManager, RolUsRepository rolUsRepository
     ) {
         this.userRepository = userRepository;
-        this.catUsuarioRepository = catUsuarioRepository;
+        this.RolUsuarioRepository = catUsuarioRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtService = jwtService;
         this.authenticationManager = authenticationManager;
@@ -54,7 +54,7 @@ public class AuthService {
         System.out.println("Usuario: "+ request.toString());
         System.out.println("IDE DE USUARIO OBTENIDA: "+request.idRol());
         // 1. Validar que la categoría exista en la base de datos
-        Rol rol = catUsuarioRepository.findById(request.idRol())
+        Rol rol = RolUsuarioRepository.findById(request.idRol())
                 .orElseThrow(() -> new IllegalArgumentException(
                         "No existe la categoría de usuario con ID: " + request.idRol()
                 ));
@@ -67,6 +67,7 @@ public class AuthService {
         usuario.setDniUs(request.dniUs());
         usuario.setFechaNacimiento(request.fechaNacimiento());
         usuario.setMailUs(request.mailUs());
+        usuario.setTelUs(request.telUs());
         usuario.setContacoE(request.numContacto());
         usuario.setPassword(passwordEncoder.encode(request.password())); // Contraseña encriptada con BCrypt
 
