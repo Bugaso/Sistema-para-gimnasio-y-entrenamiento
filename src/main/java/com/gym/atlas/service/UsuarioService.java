@@ -55,6 +55,8 @@ public class UsuarioService {
         return usuarios;
     }
 
+
+
     public String registrarPersonal(RegisterRequest request) {
 
         if (userRepo.findByDniUs(String.valueOf(request.dniUs())) != null){

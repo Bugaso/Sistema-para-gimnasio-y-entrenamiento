@@ -8,24 +8,15 @@ export default defineConfig({
   build: {
     outDir: '../src/main/resources/static',
     emptyOutDir: true,
-    sourcemap: false,
-    minify: true,
+    // ...
     rollupOptions: {
       input: {
         main: path.resolve(__dirname, 'index.html'),
         registro: path.resolve(__dirname, 'registro.html'),
         inicioSesion: path.resolve(__dirname, 'inicio-sesion.html'),
-        admin: path.resolve(__dirname, 'admin/index.html'),
+        admin: path.resolve(__dirname, 'admin/index.html') // <-- Añade esta línea
       },
     },
   },
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
+  // ...
 })

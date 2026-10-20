@@ -1,5 +1,6 @@
 package com.gym.atlas.Security;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -41,7 +42,8 @@ public class SecurityConfig {
             "/images/**",
             "/favicon.ico",
             "/assets/**",
-            "/templates/assets/**"
+            "/rol",
+            "/admin", "/admin/personal"
     };
 
     private static final String[] AUTH_ENDPOINTS = {
@@ -52,7 +54,8 @@ public class SecurityConfig {
             "/api/v1/auth/register",
     };
 
-    private static final String[] ADMIN_ENDPOINTS = {"/admin/**","/admin"};
+    private static final String[] ADMIN_ENDPOINTS = {
+            "/admin/validar", "/admin/personal/registrar"};
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -64,7 +67,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(AUTH_ENDPOINTS).anonymous()
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(ADMIN_ENDPOINTS).hasRole("Admin")// Acceso libre
+                        .requestMatchers(ADMIN_ENDPOINTS).hasRole("ADMIN")//hasRole("Admin")// Acceso libre
                         .anyRequest().authenticated()                  // El resto requiere JWT válido
                 )
 
@@ -73,8 +76,13 @@ public class SecurityConfig {
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .exceptionHandling(exception -> exception
+                        // Qué hacer cuando un usuario no está logueado (Error 401)
                         .authenticationEntryPoint((request, response, authException) -> {
-                            response.sendRedirect("/");
+                            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No autenticado");
+                        })
+                        // Qué hacer cuando un usuario está logueado pero NO tiene el rol (Error 403)
+                        .accessDeniedHandler((request, response, accessDeniedException) -> {
+                            response.sendError(HttpServletResponse.SC_FORBIDDEN, "Acceso denegado");
                         })
                 )
 

@@ -44,6 +44,13 @@ public class UsuarioController {
     }
 
     @GetMapping("usuarios")
+    public ResponseEntity<List<Usuario>> obtenerUsuarios() {
+        // Pasa fija la categoría 2 correspondiente a clientes
+        List<Usuario> clientes = usuarioService.obtenerUsuarios("Admin");
+        return ResponseEntity.ok(clientes);
+    }
+
+    @GetMapping("personal")
     public ResponseEntity<List<Usuario>> obtenerClientes() {
         // Pasa fija la categoría 2 correspondiente a clientes
         List<Usuario> clientes = usuarioService.obtenerUsuariosClientes();

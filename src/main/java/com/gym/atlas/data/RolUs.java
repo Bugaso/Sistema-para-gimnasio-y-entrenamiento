@@ -1,5 +1,6 @@
 package com.gym.atlas.data;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 @Entity
@@ -16,6 +17,7 @@ public class RolUs {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idUsuario")
+    @JsonIgnore
     private Usuario usuario;
 
     @Column(length = 50)

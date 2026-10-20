@@ -128,21 +128,23 @@ public class Usuario implements UserDetails {
     public Collection<? extends GrantedAuthority> getAuthorities() {
         List<SimpleGrantedAuthority> authorities = new ArrayList<>();
 
-        // CORRECCIÓN: Iteramos sobre los registros intermedios para buscar el Rol y sus atributos
         if (rolesUsuario != null) {
             for (RolUs rolUsuario : rolesUsuario) {
                 if (rolUsuario.getRol() != null) {
                     Rol rol = rolUsuario.getRol();
 
                     if (rol.getNomCatUs() != null) {
-                        authorities.add(new SimpleGrantedAuthority("ROLE_" + rol.getNomCatUs().toUpperCase()));
+                        // AGREGAMOS EL PREFIJO "ROLE_" AQUÍ
+                        authorities.add(new SimpleGrantedAuthority("ROLE_" + rol.getNomCatUs().trim().toUpperCase()));
                     }
                     if (rol.getTipoPermiso() != null) {
-                        authorities.add(new SimpleGrantedAuthority("PERMISO_" + rol.getTipoPermiso().toUpperCase()));
+                        // Los permisos no necesitan el prefijo ROLE_
+                        authorities.add(new SimpleGrantedAuthority(rol.getTipoPermiso().toUpperCase()));
                     }
                 }
             }
         }
+        System.out.println("ROLES DETECTADOS PARA EL USUARIO: " + authorities);
         return authorities;
     }
 

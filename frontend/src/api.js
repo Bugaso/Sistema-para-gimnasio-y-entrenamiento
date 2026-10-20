@@ -12,11 +12,16 @@ export class ApiError extends Error {
 }
 
 const getErrorMessage = (data, fallback) => {
-  if (typeof data === "string" && data.trim()) return data
-  if (data && typeof data === "object") {
-    return data.message || data.error || data.detail || fallback
+  if (typeof data === "string" && data.trim()) {
+    // Si la respuesta empieza con "<", es un HTML de error de Spring.
+    // Lo bloqueamos y devolvemos el mensaje genérico.
+    if (data.trim().startsWith("<")) return fallback;
+    return data;
   }
-  return fallback
+  if (data && typeof data === "object") {
+    return data.message || data.error || data.detail || fallback;
+  }
+  return fallback;
 }
 
 export const apiRequest = async (path, { token, ...options } = {}) => {
