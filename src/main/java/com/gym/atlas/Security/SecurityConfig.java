@@ -43,7 +43,11 @@ public class SecurityConfig {
             "/favicon.ico",
             "/assets/**",
             "/rol",
-            "/admin", "/admin/personal"
+            "/admin",
+            "/admin/**", // Permite servir todas las páginas estáticas de la carpeta admin
+            "/admin/personal",
+            "/personal.html",       // <- Permite el archivo si está en la raíz
+            "/admin/personal.html"  // <- Permite el archivo si está dentro de /admin/
     };
 
     private static final String[] AUTH_ENDPOINTS = {
@@ -55,7 +59,7 @@ public class SecurityConfig {
     };
 
     private static final String[] ADMIN_ENDPOINTS = {
-            "/admin/validar", "/admin/personal/registrar"};
+            "/admin/validar", "/admin/personal/registrar", "/api/admin/**"};  /*********/
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

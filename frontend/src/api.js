@@ -88,3 +88,12 @@ export const clearToken = () => {
   localStorage.removeItem(TOKEN_KEY)
   sessionStorage.removeItem(TOKEN_KEY)
 }
+
+
+/*****************************************************/
+export const registerEmployee = (payload) =>
+    apiRequest("/api/admin/empleados", {
+      method: "POST",
+      body: JSON.stringify(payload),
+      token: getToken() // Enviamos el token automáticamente usando tu función existente
+    })

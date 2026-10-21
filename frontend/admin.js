@@ -38,3 +38,45 @@ const verificarAccesoAdmin = async () => {
 document.addEventListener("DOMContentLoaded", () => {
     verificarAccesoAdmin();
 });
+
+/******************************************************/
+
+// Función para registrar un empleado (se llama al enviar el formulario)
+import { registerEmployee } from './src/api.js'; // Ajusta la ruta si es necesario
+
+// Función para registrar un empleado (conectada al evento submit del formulario)
+async function registrarEmpleado(event) {
+    event.preventDefault();
+
+    // Armar el objeto con los datos del formulario HTML
+    const datosEmpleado = {
+        nomApe: document.getElementById('nomApe').value,
+        fechaNacimiento: document.getElementById('fechaNacimiento').value,
+        dniUs: document.getElementById('dniUs').value,
+        telUs: document.getElementById('telUs').value,
+        mailUs: document.getElementById('mailUs').value,
+        contacoE: document.getElementById('contacoE').value,
+        password: document.getElementById('password').value,
+        idRol: parseInt(document.getElementById('idRol').value) // Recuerda: 3=Coach, 4=Recepcionista
+    };
+
+    try {
+        // Llamamos a tu función apiRequest de manera limpia
+        const response = await registerEmployee(datosEmpleado);
+
+        alert("Éxito: " + response.message);
+        document.getElementById('formCrearEmpleado').reset();
+
+    } catch (error) {
+        // Tu clase ApiError maneja los errores automáticamente
+        alert("Error al crear empleado: " + error.message);
+    }
+}
+
+// Conectar al formulario
+document.addEventListener('DOMContentLoaded', () => {
+    const formulario = document.getElementById('formCrearEmpleado');
+    if (formulario) {
+        formulario.addEventListener('submit', registrarEmpleado);
+    }
+});
