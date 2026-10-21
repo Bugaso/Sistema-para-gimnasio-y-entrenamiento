@@ -7,8 +7,10 @@ const inputBuscar = document.getElementById('inputBuscar');
 const filtroRol = document.getElementById('filtroRol');
 const cantResultados = document.getElementById('cantResultados');
 const toast = document.getElementById('toast');
+const contenedorRoles = document.getElementById('contenedorRoles');
 
 let empleadosTotales = [];
+let rolesDisponibles = [];
 let idEliminarSeleccionado = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -24,20 +26,53 @@ document.addEventListener('DOMContentLoaded', async () => {
         window.location.href = '/inicio-sesion.html';
     });
 
-    // Filtros
+    // Eventos de filtros
     inputBuscar?.addEventListener('input', aplicarFiltros);
     filtroRol?.addEventListener('change', aplicarFiltros);
 
-    // Modal Cancelar
-    document.getElementById('btnCancelarModal')?.addEventListener('click', () => {
-        confirmDialog.close();
-    });
-
-    // Confirmar eliminación
+    // Modal Cancelar / Confirmar
+    document.getElementById('btnCancelarModal')?.addEventListener('click', () => confirmDialog.close());
     document.getElementById('btnConfirmarEliminar')?.addEventListener('click', procesarEliminacion);
 
+    // Cargar roles dinámicamente y luego la lista de empleados
+    await cargarRoles();
     await cargarEmpleados();
 });
+
+// GET: Cargar roles desde /rol y generar los checkboxes dinámicamente
+async function cargarRoles() {
+    try {
+        const token = getToken();
+        rolesDisponibles = await apiRequest('/rol', { token });
+
+        // 1. Renderizar Checkboxes en el formulario
+        if (contenedorRoles) {
+            if (rolesDisponibles.length === 0) {
+                contenedorRoles.innerHTML = '<p style="color: var(--muted); padding: 12px;">No hay roles registrados.</p>';
+                return;
+            }
+
+            contenedorRoles.innerHTML = rolesDisponibles.map(rol => `
+                <label>
+                    <input type="checkbox" name="roles" value="${rol.idRol}" />
+                    <span>${rol.nomCatUs}</span>
+                </label>
+            `).join('');
+        }
+
+        // 2. Actualizar las opciones del filtro dropdown arriba de la tabla
+        if (filtroRol) {
+            filtroRol.innerHTML = '<option value="">Todos los puestos</option>' +
+                rolesDisponibles.map(rol => `<option value="${rol.idRol}">${rol.nomCatUs}</option>`).join('');
+        }
+
+    } catch (error) {
+        console.error("Error al cargar roles:", error);
+        if (contenedorRoles) {
+            contenedorRoles.innerHTML = '<p style="color: #ef9d89; padding: 12px;">Error al obtener roles del servidor.</p>';
+        }
+    }
+}
 
 // GET: Cargar la lista de empleados desde el Backend
 async function cargarEmpleados() {
@@ -50,7 +85,7 @@ async function cargarEmpleados() {
     }
 }
 
-// Renderizar filas en la tabla
+// Renderizar la tabla de empleados
 function renderizarTabla(lista) {
     tabla.innerHTML = '';
     cantResultados.textContent = `${lista.length} registro(s)`;
@@ -62,9 +97,13 @@ function renderizarTabla(lista) {
 
     lista.forEach(emp => {
         const tr = document.createElement('tr');
-        const esCoach = emp.idRol === 3;
-        const rolTexto = esCoach ? 'Coach' : 'Recepcionista';
         const iniciales = emp.nomApe ? emp.nomApe.substring(0, 2).toUpperCase() : 'US';
+
+        // Mapear los IDs de roles a sus nombres correspondientes para mostrarlos en la tabla
+        const nombresRoles = (emp.rolesIds || []).map(idRol => {
+            const r = rolesDisponibles.find(item => item.idRol === idRol);
+            return r ? r.nomCatUs : `Rol #${idRol}`;
+        }).join(', ') || 'Sin rol';
 
         tr.innerHTML = `
             <td class="person-cell">
@@ -75,7 +114,7 @@ function renderizarTabla(lista) {
                 </div>
             </td>
             <td>
-                <span class="role-label">${rolTexto}</span>
+                <span class="role-label">${nombresRoles}</span>
             </td>
             <td>
                 <strong>${emp.telUs || '-'}</strong>
@@ -97,23 +136,26 @@ function renderizarTabla(lista) {
     });
 }
 
-// Filtrar la tabla localmente por búsqueda y rol
+// Aplicar filtros de texto y rol seleccionado
 function aplicarFiltros() {
     const texto = inputBuscar.value.toLowerCase().trim();
-    const rol = filtroRol.value;
+    const rolFiltroId = filtroRol.value ? parseInt(filtroRol.value) : null;
 
     const filtrados = empleadosTotales.filter(emp => {
         const coincideTexto = emp.nomApe.toLowerCase().includes(texto) ||
             emp.mailUs.toLowerCase().includes(texto) ||
             emp.dniUs.includes(texto);
-        const coincideRol = rol === "" || emp.idRol === parseInt(rol);
+
+        // Si hay un rol seleccionado en el filtro, verificamos que el usuario lo contenga en sus roles
+        const coincideRol = !rolFiltroId || (emp.rolesIds && emp.rolesIds.includes(rolFiltroId));
+
         return coincideTexto && coincideRol;
     });
 
     renderizarTabla(filtrados);
 }
 
-// POST / PUT: Guardar cambios del formulario
+// POST / PUT: Guardar cambios
 form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const statusMsg = document.getElementById('formStatus');
@@ -122,20 +164,28 @@ form.addEventListener('submit', async (e) => {
     const id = document.getElementById('empId').value;
     const token = getToken();
 
+    // Recolectar dinámicamente todos los checkboxes marcados
+    const checkboxes = document.querySelectorAll('input[name="roles"]:checked');
+    const rolesIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
+
+    if (rolesIds.length === 0) {
+        statusMsg.textContent = "Debes seleccionar al menos un rol.";
+        return;
+    }
+
     const payload = {
         nomApe: document.getElementById('nomApe').value,
         dniUs: document.getElementById('dniUs').value,
         mailUs: document.getElementById('mailUs').value,
         telUs: document.getElementById('telUs').value,
         fechaNacimiento: document.getElementById('fechaNacimiento').value,
-        idRol: parseInt(document.getElementById('idRol').value),
+        rolesIds: rolesIds,
         contacoE: document.getElementById('contacoE').value,
         password: document.getElementById('password').value
     };
 
     try {
         if (id) {
-            // Edición (PUT)
             await apiRequest(`/api/admin/empleados/${id}`, {
                 method: 'PUT',
                 body: JSON.stringify(payload),
@@ -143,7 +193,6 @@ form.addEventListener('submit', async (e) => {
             });
             mostrarToast("Empleado actualizado con éxito.");
         } else {
-            // Alta (POST)
             await apiRequest('/api/admin/empleados', {
                 method: 'POST',
                 body: JSON.stringify(payload),
@@ -159,7 +208,7 @@ form.addEventListener('submit', async (e) => {
     }
 });
 
-// Pasar datos del empleado seleccionado al formulario para Modificar
+// Cargar datos en el formulario al presionar "Modificar"
 function prepararEdicion(emp) {
     document.getElementById('empId').value = emp.idUsuario;
     document.getElementById('nomApe').value = emp.nomApe;
@@ -167,9 +216,17 @@ function prepararEdicion(emp) {
     document.getElementById('mailUs').value = emp.mailUs;
     document.getElementById('telUs').value = emp.telUs || '';
     document.getElementById('fechaNacimiento').value = emp.fechaNacimiento;
-    document.getElementById('idRol').value = emp.idRol;
     document.getElementById('contacoE').value = emp.contacoE || '';
     document.getElementById('password').value = '';
+
+    // Marcar los checkboxes de los roles asignados a este empleado
+    document.querySelectorAll('input[name="roles"]').forEach(cb => cb.checked = false);
+    if (emp.rolesIds && Array.isArray(emp.rolesIds)) {
+        emp.rolesIds.forEach(idRol => {
+            const cb = document.querySelector(`input[name="roles"][value="${idRol}"]`);
+            if (cb) cb.checked = true;
+        });
+    }
 
     document.getElementById('form-kicker').textContent = "Edición de Registro";
     document.getElementById('form-title').textContent = `Modificando a ${emp.nomApe}`;
@@ -183,13 +240,14 @@ window.resetearFormulario = () => {
     form.reset();
     document.getElementById('empId').value = '';
     document.getElementById('formStatus').textContent = '';
+    document.querySelectorAll('input[name="roles"]').forEach(cb => cb.checked = false);
     document.getElementById('form-kicker').textContent = "Nuevo Registro";
     document.getElementById('form-title').textContent = "Alta de Empleado";
     document.getElementById('btnGuardar').textContent = "Guardar Personal";
     document.getElementById('btnCancelar').style.display = 'none';
 };
 
-// DELETE: Procesar eliminación
+// DELETE: Eliminar empleado
 function abrirModalEliminar(id) {
     idEliminarSeleccionado = id;
     confirmDialog.showModal();

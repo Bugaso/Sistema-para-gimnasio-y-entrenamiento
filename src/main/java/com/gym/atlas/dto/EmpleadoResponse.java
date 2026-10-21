@@ -1,6 +1,7 @@
 package com.gym.atlas.dto;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record EmpleadoResponse(
         Integer idUsuario,
@@ -10,5 +11,5 @@ public record EmpleadoResponse(
         String telUs,
         String mailUs,
         String contacoE,
-        Integer idRol
+        List<Integer> rolesIds // Devuelve la lista de roles asignados
 ) {}

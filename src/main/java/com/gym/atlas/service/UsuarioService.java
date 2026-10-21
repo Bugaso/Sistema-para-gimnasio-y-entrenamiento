@@ -139,7 +139,7 @@ public class UsuarioService {
 
     /************************************************************/
 
-    @Transactional // Asegura que si falla algo, no se guarde información a medias
+    @Transactional
     public MessageResponse crearEmpleado(EmpleadoRequest request) {
 
         // 1. Validar que el DNI o Email no existan ya en la base de datos
@@ -156,36 +156,45 @@ public class UsuarioService {
         nuevoUsuario.setTelUs(Long.valueOf(request.telUs()));
         nuevoUsuario.setMailUs(request.mailUs());
         nuevoUsuario.setContacoE(Long.valueOf(request.contacoE()));
-
-        // ¡Importante! Encriptar la contraseña para JWT y Spring Security
         nuevoUsuario.setPassword(passwordEncoder.encode(request.password()));
 
         Usuario usuarioGuardado = usuarioRepository.save(nuevoUsuario);
 
-        // 3. Buscar el rol (Coach o Recepcionista) y asignarlo en la tabla RolUs
-        Rol rolAsignar = rolRepository.findById(Long.valueOf(request.idRol()))
-                .orElseThrow(() -> new RuntimeException("El rol especificado no existe."));
+        // 3. Guardar en RolUs todos los roles seleccionados en el checklist
+        if (request.rolesIds() != null && !request.rolesIds().isEmpty()) {
+            for (Integer idRol : request.rolesIds()) {
+                Rol rolAsignar = rolRepository.findById(Long.valueOf(idRol))
+                        .orElseThrow(() -> new RuntimeException("El rol especificado no existe: " + idRol));
 
-        RolUs nuevoRolUs = new RolUs();
-        nuevoRolUs.setUsuario(usuarioGuardado); // Ajusta esto si tu entidad RolUs usa setUsuario o setIdUsuario
-        nuevoRolUs.setRol(rolAsignar);          // Ajusta esto si tu entidad RolUs usa setRol o setIdRol
-        nuevoRolUs.setEstado("ACTIVO");
+                RolUs nuevoRolUs = new RolUs();
+                nuevoRolUs.setUsuario(usuarioGuardado);
+                nuevoRolUs.setRol(rolAsignar);
+                nuevoRolUs.setEstado("ACTIVO");
 
-        rolUsRepository.save(nuevoRolUs);
+                rolUsRepository.save(nuevoRolUs);
+            }
+        }
 
-        return new MessageResponse("Empleado registrado exitosamente");
+        return new MessageResponse("Empleado registrado exitosamente con sus roles.");
     }
 
-    // 1. OBTENER / LISTAR EMPLEADOS (Coaches y Recepcionistas)
-    public List<EmpleadoResponse> obtenerEmpleados() {
-        // Filtramos las relaciones de roles para Coaches (idRol=3) y Recepcionistas (idRol=4)
-        List<RolUs> rolesEmpleados = rolUsRepository.findAll().stream()
-                .filter(ru -> ru.getRol() != null &&
-                        (ru.getRol().getIdRol().equals(3L) || ru.getRol().getIdRol().equals(4L)))
-                .toList();
 
-        return rolesEmpleados.stream().map(ru -> {
-            Usuario u = ru.getUsuario();
+
+    // OBTENER EMPLEADOS CON SUS ROLES (Comparación segura con longValue)
+    public List<EmpleadoResponse> obtenerEmpleados() {
+        List<Usuario> usuarios = usuarioRepository.findAll();
+
+        return usuarios.stream().map(u -> {
+            // Comparamos usando .longValue() para evitar que Java falle al comparar Long con Integer
+            List<Integer> rolesIds = rolUsRepository.findAll().stream()
+                    .filter(ru -> ru.getUsuario() != null
+                            && ru.getUsuario().getIdUsuario() != null
+                            && u.getIdUsuario() != null
+                            && ru.getUsuario().getIdUsuario().longValue() == u.getIdUsuario().longValue())
+                    .filter(ru -> ru.getRol() != null && ru.getRol().getIdRol() != null)
+                    .map(ru -> ru.getRol().getIdRol().intValue())
+                    .toList();
+
             return new EmpleadoResponse(
                     u.getIdUsuario().intValue(),
                     u.getNomApe(),
@@ -194,12 +203,11 @@ public class UsuarioService {
                     u.getTelUs() != null ? String.valueOf(u.getTelUs()) : "",
                     u.getMailUs(),
                     u.getContacoE() != null ? String.valueOf(u.getContacoE()) : "",
-                    ru.getRol().getIdRol().intValue()
+                    rolesIds
             );
         }).toList();
     }
 
-    // 2. ACTUALIZAR / MODIFICAR EMPLEADO
     @Transactional
     public MessageResponse actualizarEmpleado(Integer id, EmpleadoRequest request) {
         Long idUsuario = Long.valueOf(id);
@@ -222,24 +230,37 @@ public class UsuarioService {
             usuario.setContacoE(Long.valueOf(request.contacoE()));
         }
 
-        // Si se envió una nueva contraseña, la actualizamos encriptada
         if (request.password() != null && !request.password().isBlank()) {
             usuario.setPassword(passwordEncoder.encode(request.password()));
         }
 
         usuarioRepository.save(usuario);
 
-        // Actualizar el rol en la tabla intermedia RolUs si fue modificado
-        RolUs rolUs = rolUsRepository.findAll().stream()
-                .filter(ru -> ru.getUsuario() != null && ru.getUsuario().getIdUsuario().equals(idUsuario))
-                .findFirst()
-                .orElse(null);
+        // Actualizar la lista de roles en RolUs
+        if (request.rolesIds() != null) {
+            // 1. Eliminar los roles anteriores vinculados a este usuario
+            List<RolUs> rolesAnteriores = rolUsRepository.findAll().stream()
+                    .filter(ru -> ru.getUsuario() != null
+                            && ru.getUsuario().getIdUsuario() != null
+                            && ru.getUsuario().getIdUsuario().longValue() == idUsuario.longValue())
+                    .toList();
 
-        if (rolUs != null && request.idRol() != null) {
-            Rol nuevoRol = rolRepository.findById(Long.valueOf(request.idRol()))
-                    .orElseThrow(() -> new RuntimeException("El rol especificado no existe."));
-            rolUs.setRol(nuevoRol);
-            rolUsRepository.save(rolUs);
+            if (!rolesAnteriores.isEmpty()) {
+                rolUsRepository.deleteAll(rolesAnteriores);
+            }
+
+            // 2. Insertar las nuevas asociaciones de roles
+            for (Integer idRol : request.rolesIds()) {
+                Rol nuevoRol = rolRepository.findById(Long.valueOf(idRol))
+                        .orElseThrow(() -> new RuntimeException("El rol especificado no existe: " + idRol));
+
+                RolUs nuevoRolUs = new RolUs();
+                nuevoRolUs.setUsuario(usuario);
+                nuevoRolUs.setRol(nuevoRol);
+                nuevoRolUs.setEstado("ACTIVO");
+
+                rolUsRepository.save(nuevoRolUs);
+            }
         }
 
         return new MessageResponse("Empleado actualizado exitosamente.");

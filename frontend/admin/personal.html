@@ -101,13 +101,13 @@
                             <input type="date" id="fechaNacimiento" name="fechaNacimiento" required />
                         </label>
 
-                        <label class="admin-field">
-                            <span>Puesto / Rol</span>
-                            <select id="idRol" name="idRol" required>
-                                <option value="3">Coach</option>
-                                <option value="4">Recepcionista</option>
-                            </select>
-                        </label>
+                        <!-- Reemplaza el bloque de roles por esto -->
+                        <div class="admin-field admin-field-wide">
+                            <span>Roles Asignados</span>
+                            <div id="contenedorRoles" class="admin-permissions">
+                                <p style="color: var(--muted); font-size: 0.75rem; padding: 12px;">Cargando roles...</p>
+                            </div>
+                        </div>
 
                         <label class="admin-field">
                             <span>Contacto Emergencia</span>

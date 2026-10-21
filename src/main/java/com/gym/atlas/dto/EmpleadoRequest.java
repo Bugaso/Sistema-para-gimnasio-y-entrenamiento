@@ -2,6 +2,7 @@ package com.gym.atlas.dto;
 
 
 import java.time.LocalDate;
+import java.util.List;
 
 public record EmpleadoRequest(
         String nomApe,
@@ -11,5 +12,5 @@ public record EmpleadoRequest(
         String mailUs,
         String contacoE,
         String password,
-        Integer idRol // Recibimos el ID del Rol (Ej: 2 para Coach, 3 para Recepcionista)
+        List<Integer> rolesIds
 ) {}
