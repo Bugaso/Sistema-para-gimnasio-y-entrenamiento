@@ -1,9 +1,8 @@
 package com.gym.atlas.controller;
 
-import com.gym.atlas.dto.EmpleadoRequest;
-import com.gym.atlas.dto.EmpleadoResponse;
-import com.gym.atlas.dto.MessageResponse;
-import com.gym.atlas.dto.RegisterRequest;
+import com.gym.atlas.data.Rol;
+import com.gym.atlas.dto.*;
+import com.gym.atlas.service.RolService;
 import com.gym.atlas.service.UsuarioService;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
@@ -17,8 +16,11 @@ public class AdminController {
 
     private final UsuarioService usuarioService;
 
-    public AdminController(UsuarioService usuarioService) {
+    private final RolService rolService;
+
+    public AdminController(UsuarioService usuarioService, RolService rolService) {
         this.usuarioService = usuarioService;
+        this.rolService = rolService;
     }
 
     // ==========================================
@@ -92,5 +94,41 @@ public class AdminController {
     @PostMapping("/admin/personal/registrar")
     public ResponseEntity<String> register(@RequestBody RegisterRequest request) {
         return ResponseEntity.ok(usuarioService.registrarPersonal(request));
+    }
+
+
+
+
+    /***************************************/
+    //ROLES
+
+    // 1. Vista HTML
+    @GetMapping("/admin/roles")
+    public ResponseEntity<ClassPathResource> indexRoles() {
+        ClassPathResource resource = new ClassPathResource("static/admin/roles.html");
+        return ResponseEntity.ok()
+                .contentType(MediaType.TEXT_HTML)
+                .body(resource);
+    }
+
+    // 2. Endpoints REST API para Roles
+    @GetMapping("/api/admin/roles")
+    public ResponseEntity<List<Rol>> listarRoles() {
+        return ResponseEntity.ok(rolService.obtenerRoles());
+    }
+
+    @PostMapping("/api/admin/roles")
+    public ResponseEntity<MessageResponse> crearRol(@RequestBody RolRequest request) {
+        return ResponseEntity.ok(rolService.crearRol(request));
+    }
+
+    @PutMapping("/api/admin/roles/{id}")
+    public ResponseEntity<MessageResponse> actualizarRol(@PathVariable Long id, @RequestBody RolRequest request) {
+        return ResponseEntity.ok(rolService.actualizarRol(id, request));
+    }
+
+    @DeleteMapping("/api/admin/roles/{id}")
+    public ResponseEntity<MessageResponse> eliminarRol(@PathVariable Long id) {
+        return ResponseEntity.ok(rolService.eliminarRol(id));
     }
 }
