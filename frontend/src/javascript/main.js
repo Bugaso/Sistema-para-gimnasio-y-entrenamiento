@@ -1,4 +1,4 @@
-import "./index.css"
+import "../css/index/index.css"
 import { clearToken, getProfile, getToken } from "./api.js"
 
 const toggle = document.querySelector(".menu-toggle")

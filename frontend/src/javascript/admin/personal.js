@@ -1,4 +1,4 @@
-import { apiRequest, getToken, clearToken } from './api.js';
+import { apiRequest, getToken, clearToken } from '../api.js';
 
 const form = document.getElementById('formEmpleado');
 const tabla = document.getElementById('tablaEmpleados');

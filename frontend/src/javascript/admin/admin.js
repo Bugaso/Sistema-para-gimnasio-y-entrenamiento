@@ -1,8 +1,8 @@
 // 1. Importar los estilos de Tailwind/CSS para que Vite los procese y aplique
-import "./admin.css";
-import "/src/index.css";
+import "../../css/admin/admin.css";
+import "../../css/index/index.css";
 // Importar funciones de utilidad de la API
-import { apiRequest, getToken } from "./src/api.js";
+import { apiRequest, getToken } from "../api.js";
 
 /**
  * Función para verificar el acceso al panel de administrador
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
 /******************************************************/
 
 // Función para registrar un empleado (se llama al enviar el formulario)
-import { registerEmployee } from './src/api.js'; // Ajusta la ruta si es necesario
+import { registerEmployee } from '../api.js'; // Ajusta la ruta si es necesario
 
 // Función para registrar un empleado (conectada al evento submit del formulario)
 async function registrarEmpleado(event) {

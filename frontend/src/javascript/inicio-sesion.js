@@ -1,4 +1,4 @@
-import "./index.css"
+import "../css/index/index.css"
 import { getToken, login, saveToken } from "./api.js"
 
 const form = document.querySelector("[data-login-form]")

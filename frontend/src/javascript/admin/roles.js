@@ -1,6 +1,6 @@
-import './index.css';
-import '../admin.css';
-import { apiRequest, getToken, clearToken } from './api.js';
+import '../../css/index/index.css';
+import '../../css/admin/admin.css';
+import { apiRequest, getToken, clearToken } from '../api.js';
 
 const form = document.getElementById('formRol');
 const tabla = document.getElementById('tablaRoles');
@@ -180,7 +180,7 @@ function mostrarToast(mensaje) {
 
 /****************************/
 //Dinamico
-import { renderAdminLayout } from './javascript/layout.js';
+import { renderAdminLayout } from '../layout-admin.js';
 
 document.addEventListener('DOMContentLoaded', async () => {
     // Renderiza la barra lateral y activa la pestaña "02 Roles"

@@ -1,4 +1,4 @@
-import { clearToken } from '../api.js';
+import { clearToken } from './api.js';
 
 export function renderAdminLayout(activeNav) {
     const sidebarContainer = document.querySelector('[data-layout-sidebar]');
