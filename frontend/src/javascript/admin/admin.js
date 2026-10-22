@@ -1,82 +1,52 @@
-// 1. Importar los estilos de Tailwind/CSS para que Vite los procese y aplique
+// 1. Importar los estilos de Tailwind/CSS
 import "../../css/admin/admin.css";
 import "../../css/index/index.css";
-// Importar funciones de utilidad de la API
+
+// 2. Importar funciones de la API y el Layout
 import { apiRequest, getToken } from "../api.js";
+import { renderAdminLayout } from "../layout-admin.js";
 
 /**
  * Función para verificar el acceso al panel de administrador
  */
 const verificarAccesoAdmin = async () => {
-    // ... (el resto del código que ya tenías)
     const accessMessage = document.querySelector("[data-access-message]");
     const accessCopy = document.querySelector("[data-access-copy]");
     const accessAction = document.querySelector("[data-access-action]");
     const adminShell = document.querySelector("[data-admin-shell]");
 
     try {
-        // Ahora consultamos la ruta correcta de la API
+        // Consultamos la ruta protegida de la API
         await apiRequest("/admin/validar", {
             method: "GET",
             token: getToken()
         });
 
-
+        // Si la promesa se resuelve correctamente
         if (accessMessage) accessMessage.hidden = true;
         if (adminShell) adminShell.hidden = false;
-        console.log("Usuario con permisos a ingresado")
-    } catch (error) {
+        console.log("Usuario con permisos ha ingresado exitosamente.");
 
+    } catch (error) {
         console.error("Error de acceso:", error.message);
+
+        // Si falla, mostramos el mensaje de error y el botón de iniciar sesión
         if (accessCopy) accessCopy.textContent = "Acceso denegado. No tienes los permisos necesarios para ver esta página.";
         if (accessAction) accessAction.hidden = false;
-        console.log("Redirigiendo wey")
-        window.location.href = "/";
+
+        console.log("Redirigiendo al login...");
+
+        // Redirigimos automáticamente después de 2.5 segundos
+        setTimeout(() => {
+            window.location.href = "/inicio-sesion.html";
+        }, 2500);
     }
 };
 
 document.addEventListener("DOMContentLoaded", () => {
+    // Inyectamos la barra lateral y superior, marcando "overview" (Resumen) como activo
+    renderAdminLayout('overview');
+
+    // Validamos el token
     verificarAccesoAdmin();
-});
-
-/******************************************************/
-
-// Función para registrar un empleado (se llama al enviar el formulario)
-import { registerEmployee } from '../api.js'; // Ajusta la ruta si es necesario
-
-// Función para registrar un empleado (conectada al evento submit del formulario)
-async function registrarEmpleado(event) {
-    event.preventDefault();
-
-    // Armar el objeto con los datos del formulario HTML
-    const datosEmpleado = {
-        nomApe: document.getElementById('nomApe').value,
-        fechaNacimiento: document.getElementById('fechaNacimiento').value,
-        dniUs: document.getElementById('dniUs').value,
-        telUs: document.getElementById('telUs').value,
-        mailUs: document.getElementById('mailUs').value,
-        contacoE: document.getElementById('contacoE').value,
-        password: document.getElementById('password').value,
-        idRol: parseInt(document.getElementById('idRol').value) // Recuerda: 3=Coach, 4=Recepcionista
-    };
-
-    try {
-        // Llamamos a tu función apiRequest de manera limpia
-        const response = await registerEmployee(datosEmpleado);
-
-        alert("Éxito: " + response.message);
-        document.getElementById('formCrearEmpleado').reset();
-
-    } catch (error) {
-        // Tu clase ApiError maneja los errores automáticamente
-        alert("Error al crear empleado: " + error.message);
-    }
-}
-
-// Conectar al formulario
-document.addEventListener('DOMContentLoaded', () => {
-    const formulario = document.getElementById('formCrearEmpleado');
-    if (formulario) {
-        formulario.addEventListener('submit', registrarEmpleado);
-    }
 });

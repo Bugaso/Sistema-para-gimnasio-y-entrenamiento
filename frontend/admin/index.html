@@ -6,8 +6,13 @@
     <meta name="description" content="Panel de administración de Atlas Gym." />
     <title>Administración — Atlas Gym</title>
 
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../src/css/admin/admin.css" />
+    <link rel="stylesheet" href="../src/css/index/index.css" />
 </head>
 <body class="admin-page">
+
+<!-- PANTALLA DE CARGA Y VALIDACIÓN DE ACCESO -->
 <main class="admin-access" data-access-message>
     <a class="logo" href="/" aria-label="Atlas Gym, volver al inicio">
         <span class="logo-mark" aria-hidden="true">A</span>Atlas Gym
@@ -16,51 +21,20 @@
         <p class="eyebrow">Acceso restringido</p>
         <h1>Panel de administración</h1>
         <p data-access-copy>Validando tus permisos de acceso…</p>
-        <a class="button" href="/login" data-access-action hidden>
+        <a class="button" href="/inicio-sesion.html" data-access-action hidden>
             Iniciar sesión <span class="button-arrow" aria-hidden="true">→</span>
         </a>
     </div>
 </main>
 
+<!-- LAYOUT PRINCIPAL (Oculto hasta que se valide el token en admin.js) -->
 <div class="admin-shell" data-admin-shell hidden>
-    <aside class="admin-sidebar">
-        <a class="logo admin-logo" href="/" aria-label="Atlas Gym, volver al inicio">
-            <span class="logo-mark" aria-hidden="true">A</span>Atlas Gym
-        </a>
-
-        <nav class="admin-nav" aria-label="Navegación del administrador">
-            <p>Gestión</p>
-            <button class="admin-nav-link is-active" type="button" data-view-target="overview">
-                <span aria-hidden="true">01</span>Resumen
-            </button>
-            <button class="admin-nav-link is-active" type="button" data-view-target="roles">
-                <span aria-hidden="true">02</span>Roles
-            </button>
-            <a href="/admin/personal" class="admin-nav-link is-active" >
-                 <span aria-hidden="true">03</span>Personal
-            </a>
-        </nav>
-
-        <div class="admin-sidebar-footer">
-            <a href="/">Volver al sitio <span aria-hidden="true">↗</span></a>
-            <button type="button" data-logout>Cerrar sesión</button>
-        </div>
-    </aside>
+    <!-- BARRA LATERAL DINÁMICA -->
+    <aside data-layout-sidebar></aside>
 
     <div class="admin-workspace">
-        <header class="admin-topbar">
-            <button class="admin-menu-toggle" type="button" aria-label="Abrir navegación" aria-expanded="false" data-admin-menu>
-                <span></span><span></span>
-            </button>
-            <div>
-                <p>Atlas Gym</p>
-                <strong>Administración</strong>
-            </div>
-            <div class="admin-user">
-                <span class="admin-user-avatar" aria-hidden="true" data-admin-initials>AD</span>
-                <p><strong data-admin-name>Administrador</strong><span>Control total</span></p>
-            </div>
-        </header>
+        <!-- HEADER DINÁMICO -->
+        <header data-layout-topbar></header>
 
         <div class="admin-content">
             <section class="admin-view" data-view="overview">
@@ -70,11 +44,13 @@
                         <h1>Equipo Atlas</h1>
                         <p>Gestiona permisos, roles y el personal que mantiene el gimnasio en movimiento.</p>
                     </div>
-                    <a href="/admin/personal.html" class="admin-primary-action">
+                    <!-- BOTÓN QUE DIRIGE A PERSONAL -->
+                    <a href="admin/personal.html" class="admin-primary-action">
                         Añadir personal <span aria-hidden="true">+</span>
                     </a>
                 </div>
 
+                <!-- MÉTRICAS PRINCIPALES -->
                 <div class="admin-metrics">
                     <article>
                         <span>Personal activo</span>
@@ -98,150 +74,38 @@
                     </article>
                 </div>
 
+                <!-- CUADRÍCULA DEL DASHBOARD -->
                 <div class="admin-overview-grid">
                     <section class="admin-panel">
                         <div class="admin-panel-heading">
-                            <div><span>Actividad</span><h2>Personal reciente</h2></div>
-                            <button type="button" data-view-target="personnel">Ver todo</button>
+                            <div>
+                                <span>Actividad</span>
+                                <h2>Personal reciente</h2>
+                            </div>
+                            <a href="./personal.html" style="color: var(--lime); font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Ver todo</a>
                         </div>
-                        <div class="recent-personnel" data-recent-personnel></div>
+                        <div class="recent-personnel" data-recent-personnel>
+                            <p style="padding: 16px; color: var(--muted); font-size: 0.875rem;">Cargando datos recientes...</p>
+                        </div>
                     </section>
 
                     <section class="admin-panel admin-role-summary">
                         <div class="admin-panel-heading">
-                            <div><span>Distribución</span><h2>Equipo por rol</h2></div>
+                            <div>
+                                <span>Distribución</span>
+                                <h2>Equipo por rol</h2>
+                            </div>
                         </div>
-                        <div data-role-summary></div>
+                        <div data-role-summary>
+                            <p style="padding: 16px; color: var(--muted); font-size: 0.875rem;">Cargando distribución...</p>
+                        </div>
                     </section>
-                </div>
-            </section>
-
-            <section class="admin-view" data-view="roles" hidden>
-                <div class="admin-heading admin-heading-compact">
-                    <div>
-                        <p class="eyebrow">Control de acceso</p>
-                        <h1>Roles</h1>
-                        <p>Define responsabilidades y permisos para cada área del equipo.</p>
-                    </div>
-                    <button class="admin-primary-action" type="button" data-open-role>
-                        Crear rol <span aria-hidden="true">+</span>
-                    </button>
-                </div>
-                <div class="admin-panel">
-                    <div class="admin-toolbar">
-                        <label class="admin-search">
-                            <span class="sr-only">Buscar roles</span>
-                            <span aria-hidden="true">⌕</span>
-                            <input type="search" placeholder="Buscar rol…" data-role-search />
-                        </label>
-                        <span data-role-results></span>
-                    </div>
-                    <div class="admin-table-wrap">
-                        <table class="admin-table">
-                            <thead><tr><th>Rol</th><th>Permisos</th><th>Personal</th><th>Estado</th><th><span class="sr-only">Acciones</span></th></tr></thead>
-                            <tbody data-role-table></tbody>
-                        </table>
-                    </div>
-                </div>
-            </section>
-
-            <section class="admin-view" data-view="personnel" hidden>
-                <div class="admin-heading admin-heading-compact">
-                    <div>
-                        <p class="eyebrow">Gestión interna</p>
-                        <h1>Personal</h1>
-                        <p>Administra entrenadores, recepcionistas y sus accesos al sistema.</p>
-                    </div>
-                    <button class="admin-primary-action" type="button" data-open-personnel>
-                        Añadir personal <span aria-hidden="true">+</span>
-                    </button>
-                </div>
-                <div class="admin-panel">
-                    <div class="admin-toolbar">
-                        <label class="admin-search">
-                            <span class="sr-only">Buscar personal</span>
-                            <span aria-hidden="true">⌕</span>
-                            <input type="search" placeholder="Nombre, email o DNI…" data-personnel-search />
-                        </label>
-                        <label class="admin-filter">
-                            <span class="sr-only">Filtrar por rol</span>
-                            <select data-role-filter><option value="">Todos los roles</option></select>
-                        </label>
-                        <span data-personnel-results></span>
-                    </div>
-                    <div class="admin-table-wrap">
-                        <table class="admin-table admin-personnel-table">
-                            <thead><tr><th>Personal</th><th>Rol</th><th>Contacto</th><th>Estado</th><th><span class="sr-only">Acciones</span></th></tr></thead>
-                            <tbody data-personnel-table></tbody>
-                        </table>
-                    </div>
                 </div>
             </section>
         </div>
     </div>
 </div>
 
-<dialog class="admin-dialog" data-role-dialog>
-    <form method="dialog" data-role-form>
-        <div class="admin-dialog-heading">
-            <div><span data-role-kicker>Nuevo perfil</span><h2 data-role-dialog-title>Crear rol</h2></div>
-            <button type="button" aria-label="Cerrar" data-close-dialog>×</button>
-        </div>
-        <input type="hidden" name="id" />
-        <label class="admin-field"><span>Nombre del rol</span><input name="name" type="text" placeholder="Ej. Coordinador" required /></label>
-        <label class="admin-field"><span>Descripción</span><textarea name="description" rows="3" placeholder="Responsabilidad principal del rol" required></textarea></label>
-        <fieldset class="admin-permissions">
-            <legend>Permisos</legend>
-            <label><input type="checkbox" name="permissions" value="usuarios" /> Gestionar usuarios</label>
-            <label><input type="checkbox" name="permissions" value="membresias" /> Gestionar membresías</label>
-            <label><input type="checkbox" name="permissions" value="rutinas" /> Gestionar rutinas</label>
-            <label><input type="checkbox" name="permissions" value="reportes" /> Consultar reportes</label>
-        </fieldset>
-        <p class="admin-form-status" role="status" data-role-form-status></p>
-        <div class="admin-dialog-actions">
-            <button type="button" data-close-dialog>Cancelar</button>
-            <button class="admin-primary-action" type="submit">Guardar rol</button>
-        </div>
-    </form>
-</dialog>
-
-<dialog class="admin-dialog" data-personnel-dialog>
-    <form method="dialog" data-personnel-form>
-        <div class="admin-dialog-heading">
-            <div><span data-personnel-kicker>Nuevo integrante</span><h2 data-personnel-dialog-title>Añadir personal</h2></div>
-            <button type="button" aria-label="Cerrar" data-close-dialog>×</button>
-        </div>
-        <input type="hidden" name="id" />
-        <div class="admin-form-grid">
-            <label class="admin-field admin-field-wide"><span>Nombre y apellido</span><input name="nomApe" type="text" autocomplete="name" placeholder="Nombre completo" required /></label>
-            <label class="admin-field"><span>Email</span><input name="mailUs" type="email" autocomplete="email" placeholder="nombre@atlasgym.com" required /></label>
-            <label class="admin-field"><span>DNI</span><input name="dniUs" type="text" inputmode="numeric" minlength="6" maxlength="12" required /></label>
-            <label class="admin-field"><span>Teléfono</span><input name="telUs" type="tel" autocomplete="tel" required /></label>
-            <label class="admin-field"><span>Rol</span><select name="roleId" required></select></label>
-            <label class="admin-field"><span>Estado</span><select name="status"><option value="Activo">Activo</option><option value="Inactivo">Inactivo</option></select></label>
-            <label class="admin-field"><span>Contraseña temporal</span><input name="password" type="password" minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres" /></label>
-        </div>
-        <p class="admin-form-status" role="status" data-personnel-form-status></p>
-        <div class="admin-dialog-actions">
-            <button type="button" data-close-dialog>Cancelar</button>
-            <button class="admin-primary-action" type="submit">Guardar personal</button>
-        </div>
-    </form>
-</dialog>
-
-<dialog class="admin-dialog admin-confirm-dialog" data-confirm-dialog>
-    <form method="dialog">
-        <span class="admin-warning" aria-hidden="true">!</span>
-        <h2>Confirmar eliminación</h2>
-        <p data-confirm-copy>Esta acción no se puede deshacer.</p>
-        <div class="admin-dialog-actions">
-            <button type="button" data-close-dialog>Cancelar</button>
-            <button class="admin-danger-action" type="button" data-confirm-delete>Eliminar</button>
-        </div>
-    </form>
-</dialog>
-
-<div class="admin-toast" role="status" aria-live="polite" data-toast hidden></div>
 <script type="module" src="../src/javascript/admin/admin.js"></script>
 </body>
 </html>

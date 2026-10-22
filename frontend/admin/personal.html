@@ -11,43 +11,13 @@
 <body class="admin-page">
 
 <div class="admin-shell" data-admin-shell>
-    <!-- BARRA LATERAL -->
-    <aside class="admin-sidebar">
-        <a class="logo admin-logo" href="/" aria-label="Atlas Gym, volver al inicio">
-            <span class="logo-mark" aria-hidden="true">A</span>Atlas Gym
-        </a>
-
-        <nav class="admin-nav" aria-label="Navegación del administrador">
-            <p>Gestión</p>
-            <a class="admin-nav-link" href="./index.html">
-                <span aria-hidden="true">01</span>Resumen
-            </a>
-            <a class="admin-nav-link" href="./index.html#roles">
-                <span aria-hidden="true">02</span>Roles
-            </a>
-            <a class="admin-nav-link is-active" href="./personal.html">
-                <span aria-hidden="true">03</span>Personal
-            </a>
-        </nav>
-
-        <div class="admin-sidebar-footer">
-            <a href="/">Volver al sitio <span aria-hidden="true">↗</span></a>
-            <button type="button" data-logout>Cerrar sesión</button>
-        </div>
-    </aside>
+    <!-- CONTENEDOR DE BARRA LATERAL -->
+    <aside data-layout-sidebar></aside>
 
     <!-- ÁREA DE TRABAJO -->
     <div class="admin-workspace">
-        <header class="admin-topbar">
-            <div>
-                <p>Atlas Gym</p>
-                <strong>Administración de Personal</strong>
-            </div>
-            <div class="admin-user">
-                <span class="admin-user-avatar" aria-hidden="true">AD</span>
-                <p><strong>Administrador</strong><span>Control total</span></p>
-            </div>
-        </header>
+        <!-- CONTENEDOR DE HEADER -->
+        <header data-layout-topbar></header>
 
         <div class="admin-content">
 
@@ -101,7 +71,6 @@
                             <input type="date" id="fechaNacimiento" name="fechaNacimiento" required />
                         </label>
 
-                        <!-- Reemplaza el bloque de roles por esto -->
                         <div class="admin-field admin-field-wide">
                             <span>Roles Asignados</span>
                             <div id="contenedorRoles" class="admin-permissions">
@@ -146,8 +115,6 @@
                     <label class="admin-filter">
                         <select id="filtroRol">
                             <option value="">Todos los puestos</option>
-                            <option value="3">Coach</option>
-                            <option value="4">Recepcionista</option>
                         </select>
                     </label>
                     <span id="cantResultados">0 registros</span>
@@ -175,7 +142,6 @@
     </div>
 </div>
 
-<!-- MODAL DE CONFIRMACIÓN DE ELIMINACIÓN -->
 <dialog class="admin-dialog admin-confirm-dialog" id="confirmDialog">
     <form method="dialog">
         <span class="admin-warning" aria-hidden="true">!</span>

@@ -1,3 +1,5 @@
+// Importamos el layout y la API subiendo un nivel (../)
+import { renderAdminLayout } from '../layout-admin.js';
 import { apiRequest, getToken, clearToken } from '../api.js';
 
 const form = document.getElementById('formEmpleado');
@@ -14,17 +16,14 @@ let rolesDisponibles = [];
 let idEliminarSeleccionado = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+    // 1. Renderizar la barra lateral y superior marcando "03 Personal"
+    renderAdminLayout('personnel');
+
     const token = getToken();
     if (!token) {
         window.location.href = '/inicio-sesion.html';
         return;
     }
-
-    // Botón Logout
-    document.querySelector('[data-logout]')?.addEventListener('click', () => {
-        clearToken();
-        window.location.href = '/inicio-sesion.html';
-    });
 
     // Eventos de filtros
     inputBuscar?.addEventListener('input', aplicarFiltros);
@@ -45,7 +44,6 @@ async function cargarRoles() {
         const token = getToken();
         rolesDisponibles = await apiRequest('/rol', { token });
 
-        // 1. Renderizar Checkboxes en el formulario
         if (contenedorRoles) {
             if (rolesDisponibles.length === 0) {
                 contenedorRoles.innerHTML = '<p style="color: var(--muted); padding: 12px;">No hay roles registrados.</p>';
@@ -60,7 +58,6 @@ async function cargarRoles() {
             `).join('');
         }
 
-        // 2. Actualizar las opciones del filtro dropdown arriba de la tabla
         if (filtroRol) {
             filtroRol.innerHTML = '<option value="">Todos los puestos</option>' +
                 rolesDisponibles.map(rol => `<option value="${rol.idRol}">${rol.nomCatUs}</option>`).join('');
@@ -99,7 +96,6 @@ function renderizarTabla(lista) {
         const tr = document.createElement('tr');
         const iniciales = emp.nomApe ? emp.nomApe.substring(0, 2).toUpperCase() : 'US';
 
-        // Mapear los IDs de roles a sus nombres correspondientes para mostrarlos en la tabla
         const nombresRoles = (emp.rolesIds || []).map(idRol => {
             const r = rolesDisponibles.find(item => item.idRol === idRol);
             return r ? r.nomCatUs : `Rol #${idRol}`;
@@ -136,7 +132,6 @@ function renderizarTabla(lista) {
     });
 }
 
-// Aplicar filtros de texto y rol seleccionado
 function aplicarFiltros() {
     const texto = inputBuscar.value.toLowerCase().trim();
     const rolFiltroId = filtroRol.value ? parseInt(filtroRol.value) : null;
@@ -146,7 +141,6 @@ function aplicarFiltros() {
             emp.mailUs.toLowerCase().includes(texto) ||
             emp.dniUs.includes(texto);
 
-        // Si hay un rol seleccionado en el filtro, verificamos que el usuario lo contenga en sus roles
         const coincideRol = !rolFiltroId || (emp.rolesIds && emp.rolesIds.includes(rolFiltroId));
 
         return coincideTexto && coincideRol;
@@ -164,7 +158,6 @@ form.addEventListener('submit', async (e) => {
     const id = document.getElementById('empId').value;
     const token = getToken();
 
-    // Recolectar dinámicamente todos los checkboxes marcados
     const checkboxes = document.querySelectorAll('input[name="roles"]:checked');
     const rolesIds = Array.from(checkboxes).map(cb => parseInt(cb.value));
 
@@ -208,7 +201,6 @@ form.addEventListener('submit', async (e) => {
     }
 });
 
-// Cargar datos en el formulario al presionar "Modificar"
 function prepararEdicion(emp) {
     document.getElementById('empId').value = emp.idUsuario;
     document.getElementById('nomApe').value = emp.nomApe;
@@ -219,7 +211,6 @@ function prepararEdicion(emp) {
     document.getElementById('contacoE').value = emp.contacoE || '';
     document.getElementById('password').value = '';
 
-    // Marcar los checkboxes de los roles asignados a este empleado
     document.querySelectorAll('input[name="roles"]').forEach(cb => cb.checked = false);
     if (emp.rolesIds && Array.isArray(emp.rolesIds)) {
         emp.rolesIds.forEach(idRol => {
@@ -247,7 +238,6 @@ window.resetearFormulario = () => {
     document.getElementById('btnCancelar').style.display = 'none';
 };
 
-// DELETE: Eliminar empleado
 function abrirModalEliminar(id) {
     idEliminarSeleccionado = id;
     confirmDialog.showModal();
