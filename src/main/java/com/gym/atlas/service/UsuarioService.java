@@ -191,7 +191,7 @@ public class UsuarioService {
                             && ru.getUsuario().getIdUsuario() != null
                             && u.getIdUsuario() != null
                             && ru.getUsuario().getIdUsuario().longValue() == u.getIdUsuario().longValue())
-                    .filter(ru -> ru.getRol() != null && ru.getRol().getIdRol() != null)
+                    .filter(ru -> ru.getEstado().equalsIgnoreCase("ACTIVO"))
                     .map(ru -> ru.getRol().getIdRol().intValue())
                     .toList();
 
@@ -276,15 +276,12 @@ public class UsuarioService {
                 .filter(ru -> ru.getUsuario() != null && ru.getUsuario().getIdUsuario().equals(idUsuario))
                 .toList();
 
-        if (!rolesAsociados.isEmpty()) {
-            rolUsRepository.deleteAll(rolesAsociados);
-        }
-
+        rolesAsociados.forEach(rolUs -> rolUs.setEstado("INACTIVO"));
         // 2. Eliminar el registro del usuario
         if (!usuarioRepository.existsById(idUsuario)) {
             throw new RuntimeException("El empleado no existe.");
         }
-        usuarioRepository.deleteById(idUsuario);
+
 
         return new MessageResponse("Empleado eliminado exitosamente.");
     }

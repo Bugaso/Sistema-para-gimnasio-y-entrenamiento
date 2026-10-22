@@ -20,16 +20,27 @@ public class RolService {
     }
 
     public List<Rol>obtenerRoles(){
-        return rolRepository.findAll();
+
+        return rolRepository.findAll().stream().filter(rol -> {
+            return rol.getEstado();
+        }).toList();
     }
 
     @Transactional
     public MessageResponse crearRol(RolRequest request) {
-        Rol nuevoRol = new Rol();
-        nuevoRol.setNomCatUs(request.nomCatUs());
-        nuevoRol.setTipoPermiso(request.tipoPermiso());
-        rolRepository.save(nuevoRol);
-        return new MessageResponse("Rol creado exitosamente.");
+        Rol nuevoRol = rolRepository.findBynomCatUs(request.nomCatUs());
+
+        if(nuevoRol == null){
+            nuevoRol = new Rol();
+            nuevoRol.setNomCatUs(request.nomCatUs());
+            //nuevoRol.setTipoPermiso("1");
+            nuevoRol.setEstado(true);
+            rolRepository.save(nuevoRol);
+            return new MessageResponse("Rol creado exitosamente.");
+        }
+
+        rolRepository.findById(nuevoRol.getIdRol()).get().setEstado(true);
+        return new MessageResponse("Rol dado de alta exitosamente.");
     }
 
     @Transactional
@@ -38,7 +49,7 @@ public class RolService {
                 .orElseThrow(() -> new RuntimeException("El rol especificado no existe."));
 
         rol.setNomCatUs(request.nomCatUs());
-        rol.setTipoPermiso(request.tipoPermiso());
+        //rol.setTipoPermiso(request.tipoPermiso());
         rolRepository.save(rol);
 
         return new MessageResponse("Rol actualizado exitosamente.");
@@ -49,7 +60,8 @@ public class RolService {
         if (!rolRepository.existsById(id)) {
             throw new RuntimeException("El rol especificado no existe.");
         }
-        rolRepository.deleteById(id);
+
+        rolRepository.findById(id).get().setEstado(false);
         return new MessageResponse("Rol eliminado exitosamente.");
     }
 }

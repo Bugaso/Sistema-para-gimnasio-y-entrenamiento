@@ -15,14 +15,14 @@ let idEliminarSeleccionado = null;
 document.addEventListener('DOMContentLoaded', async () => {
     const token = getToken();
     if (!token) {
-        window.location.href = '/inicio-sesion.html';
+        window.location.href = '/login';
         return;
     }
 
     // Logout
     document.querySelector('[data-logout]')?.addEventListener('click', () => {
         clearToken();
-        window.location.href = '/inicio-sesion.html';
+        window.location.href = '/login';
     });
 
     // Filtro de búsqueda
@@ -46,6 +46,13 @@ async function cargarRoles() {
     }
 }
 
+function esActivo(estado){
+    if(estado){
+        return "Activo"
+    }
+    else return "Inactivo"
+}
+
 // Renderizar filas en la tabla
 function renderizarTabla(lista) {
     tabla.innerHTML = '';
@@ -62,7 +69,8 @@ function renderizarTabla(lista) {
         tr.innerHTML = `
             <td>#${rol.idRol}</td>
             <td><strong>${rol.nomCatUs}</strong></td>
-            <td><span class="permission-count">${rol.tipoPermiso || 'Sin especificar'}</span></td>
+            <td><span class="permission-count">${esActivo(rol.estado)}
+        </span></td>
             <td>
                 <div class="table-actions">
                     <button type="button" data-edit="${rol.idRol}">Modificar</button>
@@ -95,7 +103,8 @@ form.addEventListener('submit', async (e) => {
 
     const payload = {
         nomCatUs: document.getElementById('nomCatUs').value,
-        tipoPermiso: document.getElementById('tipoPermiso').value
+        //tipoPermiso: 2
+        //document.getElementById('tipoPermiso').value
     };
 
     try {
@@ -125,7 +134,7 @@ form.addEventListener('submit', async (e) => {
 function prepararEdicion(rol) {
     document.getElementById('rolId').value = rol.idRol;
     document.getElementById('nomCatUs').value = rol.nomCatUs;
-    document.getElementById('tipoPermiso').value = rol.tipoPermiso || '';
+   // document.getElementById('tipoPermiso').value = rol.tipoPermiso || '';
 
     document.getElementById('form-kicker').textContent = "Edición de Rol";
     document.getElementById('form-title').textContent = `Modificando: ${rol.nomCatUs}`;
@@ -188,7 +197,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const token = getToken();
     if (!token) {
-        window.location.href = '/inicio-sesion.html';
+        window.location.href = '/login';
         return;
     }
 

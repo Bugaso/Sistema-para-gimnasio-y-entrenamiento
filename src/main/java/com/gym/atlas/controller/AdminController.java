@@ -119,6 +119,7 @@ public class AdminController {
 
     @PostMapping("/api/admin/roles")
     public ResponseEntity<MessageResponse> crearRol(@RequestBody RolRequest request) {
+        System.out.println(request.toString());
         return ResponseEntity.ok(rolService.crearRol(request));
     }
 

@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const token = getToken();
     if (!token) {
-        window.location.href = '/inicio-sesion.html';
+        window.location.href = '/login';
         return;
     }
 
@@ -93,6 +93,8 @@ function renderizarTabla(lista) {
     }
 
     lista.forEach(emp => {
+
+
         const tr = document.createElement('tr');
         const iniciales = emp.nomApe ? emp.nomApe.substring(0, 2).toUpperCase() : 'US';
 
@@ -128,7 +130,10 @@ function renderizarTabla(lista) {
         tr.querySelector(`[data-edit="${emp.idUsuario}"]`).addEventListener('click', () => prepararEdicion(emp));
         tr.querySelector(`[data-delete="${emp.idUsuario}"]`).addEventListener('click', () => abrirModalEliminar(emp.idUsuario));
 
-        tabla.appendChild(tr);
+        if(nombresRoles != "Sin rol"){
+            tabla.appendChild(tr);
+        }
+
     });
 }
 

@@ -52,7 +52,7 @@ export function renderAdminLayout(activeNav) {
 
     document.getElementById('btnLogout')?.addEventListener('click', () => {
         clearToken();
-        window.location.href = '/inicio-sesion.html';
+        window.location.href = '/login';
     });
 
     document.getElementById('btnToggleMenu')?.addEventListener('click', () => {

@@ -137,10 +137,10 @@ public class Usuario implements UserDetails {
                         // AGREGAMOS EL PREFIJO "ROLE_" AQUÍ
                         authorities.add(new SimpleGrantedAuthority("ROLE_" + rol.getNomCatUs().trim().toUpperCase()));
                     }
-                    if (rol.getTipoPermiso() != null) {
-                        // Los permisos no necesitan el prefijo ROLE_
-                        authorities.add(new SimpleGrantedAuthority(rol.getTipoPermiso().toUpperCase()));
-                    }
+//                    if (rol.getTipoPermiso() != null) {
+//                        // Los permisos no necesitan el prefijo ROLE_
+//                        authorities.add(new SimpleGrantedAuthority(rol.getTipoPermiso().toUpperCase()));
+//                    }
                 }
             }
         }

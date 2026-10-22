@@ -52,7 +52,7 @@ public class RolUs {
     }
 
     public String getEstado() {
-        return estado;
+        return estado.toUpperCase();
     }
 
     public void setEstado(String estado) {
