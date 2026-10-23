@@ -22,6 +22,18 @@ export function renderAdminLayout(activeNav) {
                     <a class="admin-nav-link ${activeNav === 'personnel' ? 'is-active' : ''}" href="/admin/personal.html">
                         <span aria-hidden="true">03</span>Personal
                     </a>
+                    <a class="admin-nav-link ${activeNav === 'cat_ejercicios' ? 'is-active' : ''}" href="/admin/categorias-ejercicios.html">
+                        <span aria-hidden="true">04</span>Categorías Ejercicios
+                    </a>
+                    <a class="admin-nav-link ${activeNav === 'equipamiento' ? 'is-active' : ''}" href="/admin/equipamiento.html">
+                        <span aria-hidden="true">05</span>Equipamiento
+                    </a>
+                    <a class="admin-nav-link ${activeNav === 'grupo_muscular' ? 'is-active' : ''}" href="/admin/grupos-musculares.html">
+                        <span aria-hidden="true">06</span>Grupos Musculares
+                    </a>
+                    <a class="admin-nav-link ${activeNav === 'ejercicios' ? 'is-active' : ''}" href="/admin/ejercicios.html">
+                        <span aria-hidden="true">07</span>Ejercicios
+                    </a>
                 </nav>
 
                 <div class="admin-sidebar-footer">

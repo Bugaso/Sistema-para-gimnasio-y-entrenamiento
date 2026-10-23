@@ -16,7 +16,11 @@ export default defineConfig({
         inicioSesion: path.resolve(__dirname, 'inicio-sesion.html'),
         admin: path.resolve(__dirname, 'admin/index.html'),
         personal: path.resolve(__dirname, 'admin/personal.html'),
-        roles: path.resolve(__dirname, 'admin/roles.html')
+        roles: path.resolve(__dirname, 'admin/roles.html'),
+        categoriasEjercicios: path.resolve(__dirname, 'admin/categorias-ejercicios.html'),
+        equipamientos: path.resolve(__dirname, 'admin/equipamiento.html'),
+        gruposMusculares: path.resolve(__dirname, 'admin/grupos-musculares.html'),
+        ejercicios: path.resolve(__dirname, 'admin/ejercicios.html')
       },
     },
   },
