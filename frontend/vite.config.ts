@@ -20,7 +20,8 @@ export default defineConfig({
         categoriasEjercicios: path.resolve(__dirname, 'admin/categorias-ejercicios.html'),
         equipamientos: path.resolve(__dirname, 'admin/equipamiento.html'),
         gruposMusculares: path.resolve(__dirname, 'admin/grupos-musculares.html'),
-        ejercicios: path.resolve(__dirname, 'admin/ejercicios.html')
+        ejercicios: path.resolve(__dirname, 'admin/ejercicios.html'),
+        musculosAsociados: path.resolve(__dirname, 'admin/musculos-asociados.html')
       },
     },
   },

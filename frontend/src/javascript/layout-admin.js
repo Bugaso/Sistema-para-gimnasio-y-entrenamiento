@@ -34,6 +34,9 @@ export function renderAdminLayout(activeNav) {
                     <a class="admin-nav-link ${activeNav === 'ejercicios' ? 'is-active' : ''}" href="/admin/ejercicios.html">
                         <span aria-hidden="true">07</span>Ejercicios
                     </a>
+                    <a class="admin-nav-link ${activeNav === 'musculos_asociados' ? 'is-active' : ''}" href="/admin/musculos-asociados.html">
+                        <span aria-hidden="true">08</span>Músculos Asociados
+                    </a>
                 </nav>
 
                 <div class="admin-sidebar-footer">
