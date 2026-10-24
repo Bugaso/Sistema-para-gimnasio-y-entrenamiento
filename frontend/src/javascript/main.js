@@ -57,3 +57,34 @@ if (authLink && token) {
       if (error.status === 401 || error.status === 403) clearToken()
     })
 }
+
+
+import { apiRequest } from './api.js';
+
+document.addEventListener('DOMContentLoaded', async () => {
+    await verificarAdminNavBar();
+});
+
+async function verificarAdminNavBar() {
+    const token = getToken();
+    const navAdminLink = document.getElementById('navAdminLink');
+
+    // Si no hay token o no existe el enlace en el HTML, no hacemos nada
+    if (!token || !navAdminLink) return;
+
+    try {
+        // Consultamos al backend si este token tiene permisos de administrador
+        await apiRequest("/admin/validar", {
+            method: "GET",
+            token: token
+        });
+
+        // Si la promesa se resuelve correctamente, el usuario es Admin.
+        // Removemos el atributo hidden para que aparezca el botón.
+        navAdminLink.hidden = false;
+
+    } catch (error) {
+        // Si da error (es un cliente normal o el token expiró), se queda oculto.
+        console.log("Usuario regular, pestaña de administración oculta.");
+    }
+}

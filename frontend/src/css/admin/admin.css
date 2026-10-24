@@ -75,6 +75,33 @@
     border-right: 1px solid var(--line);
     background: #080a0a;
 }
+/**********/
+
+.admin-nav {
+    display: grid;
+    gap: 5px;
+    margin-top: 38px;
+
+    /* NUEVO: Habilita el scroll interno solo para los enlaces */
+    flex: 1;
+    overflow-y: auto;
+    align-content: start;
+    padding-right: 5px; /* Espacio para que el scroll no pise los textos */
+}
+
+.admin-nav::-webkit-scrollbar {
+    width: 5px;
+}
+.admin-nav::-webkit-scrollbar-track {
+    background: transparent;
+}
+.admin-nav::-webkit-scrollbar-thumb {
+    background: #2a2e2b;
+    border-radius: 10px;
+}
+.admin-nav::-webkit-scrollbar-thumb:hover {
+    background: var(--lime);
+}
 
 .admin-logo {
     padding: 0 8px 32px;

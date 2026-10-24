@@ -22,17 +22,19 @@ export function renderAdminLayout(activeNav) {
                     <a class="admin-nav-link ${activeNav === 'personnel' ? 'is-active' : ''}" href="/admin/personal.html">
                         <span aria-hidden="true">03</span>Personal
                     </a>
+                    <p style="margin-top: 24px;">Ejercicios</p>
                     <a class="admin-nav-link ${activeNav === 'cat_ejercicios' ? 'is-active' : ''}" href="/admin/categorias-ejercicios.html">
                         <span aria-hidden="true">04</span>Categorías Ejercicios
                     </a>
-                    <a class="admin-nav-link ${activeNav === 'equipamiento' ? 'is-active' : ''}" href="/admin/equipamiento.html">
-                        <span aria-hidden="true">05</span>Equipamiento
-                    </a>
-                    <a class="admin-nav-link ${activeNav === 'grupo_muscular' ? 'is-active' : ''}" href="/admin/grupos-musculares.html">
-                        <span aria-hidden="true">06</span>Grupos Musculares
-                    </a>
                     <a class="admin-nav-link ${activeNav === 'ejercicios' ? 'is-active' : ''}" href="/admin/ejercicios.html">
-                        <span aria-hidden="true">07</span>Ejercicios
+                        <span aria-hidden="true">05</span>Ejercicios
+                    </a>
+                    <a class="admin-nav-link ${activeNav === 'equipamiento' ? 'is-active' : ''}" href="/admin/equipamiento.html">
+                        <span aria-hidden="true">06</span>Equipamiento   
+                    </a>
+                    <p style="margin-top: 24px;">Músculos</p>
+                    <a class="admin-nav-link ${activeNav === 'grupo_muscular' ? 'is-active' : ''}" href="/admin/grupos-musculares.html">
+                        <span aria-hidden="true">07</span>Grupos Musculares
                     </a>
                     <a class="admin-nav-link ${activeNav === 'musculos_asociados' ? 'is-active' : ''}" href="/admin/musculos-asociados.html">
                         <span aria-hidden="true">08</span>Músculos Asociados

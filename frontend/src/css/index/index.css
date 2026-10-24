@@ -383,3 +383,15 @@ img { display: block; width: 100%; }
   .login-panel { padding: 28px 20px; }
   .field-label-row { align-items: start; flex-direction: column; gap: 7px; }
 }
+
+.nav-admin-btn {
+  color: var(--lime) !important;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  transition: opacity 200ms;
+}
+
+.nav-admin-btn:hover {
+  opacity: 0.8;
+}
