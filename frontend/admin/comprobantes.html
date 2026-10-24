@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Gestión de Comprobantes — Atlas Gym" />
+    <title>Comprobantes — Atlas Gym</title>
+    <link rel="stylesheet" href="../src/css/admin/admin.css" />
+    <link rel="stylesheet" href="../src/css/index/index.css" />
+</head>
+<body class="admin-page">
+
+<div class="admin-shell" data-admin-shell>
+    <aside data-layout-sidebar></aside>
+    <div class="admin-workspace">
+        <header data-layout-topbar></header>
+
+        <div class="admin-content">
+            <div class="admin-heading admin-heading-compact">
+                <div>
+                    <p class="eyebrow">Gestión Financiera</p>
+                    <h1>Comprobantes y Gastos</h1>
+                    <p>Registra tickets, facturas y salidas de dinero del gimnasio.</p>
+                </div>
+                <a class="admin-primary-action" href="/admin/index.html">← Volver al panel</a>
+            </div>
+
+            <!-- FORMULARIO -->
+            <div class="admin-panel" style="margin-bottom: 40px;">
+                <div class="admin-panel-heading">
+                    <div>
+                        <span id="form-kicker">Nuevo Registro</span>
+                        <h2 id="form-title">Ingresar Comprobante</h2>
+                    </div>
+                </div>
+
+                <form id="formComprobante" style="padding: 24px;">
+                    <input type="hidden" id="idComprobante" name="id" />
+
+                    <div class="admin-form-grid">
+                        <label class="admin-field admin-field-wide">
+                            <span>Descripción del Gasto</span>
+                            <input type="text" id="descripcionGasto" name="descripcionGasto" placeholder="Ej. Pago de luz eléctrica Enero" required />
+                        </label>
+
+                        <label class="admin-field">
+                            <span>Categoría de Gasto</span>
+                            <select id="idCatGasto" name="idCatGasto" required>
+                                <option value="">Selecciona una categoría...</option>
+                            </select>
+                        </label>
+
+                        <label class="admin-field">
+                            <span>Estado</span>
+                            <select id="estado" name="estado" required>
+                                <option value="Pagado">Pagado</option>
+                                <option value="Pendiente">Pendiente</option>
+                                <option value="Anulado">Anulado</option>
+                            </select>
+                        </label>
+
+                        <label class="admin-field">
+                            <span>Fecha del Comprobante (Físico)</span>
+                            <input type="date" id="fechaDelComprobante" name="fechaDelComprobante" required />
+                        </label>
+
+                        <label class="admin-field">
+                            <span>Monto Total ($)</span>
+                            <input type="number" step="0.01" min="0" id="monto" name="monto" placeholder="0.00" required />
+                        </label>
+                    </div>
+
+                    <p class="admin-form-status" id="formStatus" role="status"></p>
+
+                    <div class="admin-dialog-actions" style="margin-top: 10px; padding-top: 16px;">
+                        <button type="button" id="btnCancelar" class="hidden" onclick="window.resetearFormulario()" style="display:none;">Cancelar edición</button>
+                        <button class="admin-primary-action" type="submit" id="btnGuardar">Guardar Comprobante</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TABLA -->
+            <div class="admin-panel">
+                <div class="admin-panel-heading">
+                    <div>
+                        <span>Libro Diario</span>
+                        <h2>Historial de Comprobantes</h2>
+                    </div>
+                </div>
+
+                <div class="admin-toolbar">
+                    <label class="admin-search">
+                        <span aria-hidden="true">⌕</span>
+                        <input type="search" id="inputBuscar" placeholder="Buscar por descripción..." />
+                    </label>
+                    <label class="admin-filter">
+                        <select id="filtroCategoria">
+                            <option value="">Todas las Categorías</option>
+                        </select>
+                    </label>
+                    <span id="cantResultados">0 registros</span>
+                </div>
+
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                        <tr>
+                            <th>Descripción</th>
+                            <th>Categoría</th>
+                            <th>Fecha</th>
+                            <th>Monto</th>
+                            <th>Estado</th>
+                            <th style="text-align: right;">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaComprobantes">
+                        <!-- Dinámico -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<dialog class="admin-dialog admin-confirm-dialog" id="confirmDialog">
+    <form method="dialog">
+        <span class="admin-warning" aria-hidden="true">!</span>
+        <h2>Confirmar eliminación</h2>
+        <p>¿Estás seguro de eliminar este comprobante? Esta acción no se puede deshacer.</p>
+        <div class="admin-dialog-actions">
+            <button type="button" id="btnCancelarModal">Cancelar</button>
+            <button class="admin-danger-action" type="button" id="btnConfirmarEliminar">Eliminar</button>
+        </div>
+    </form>
+</dialog>
+
+<div class="admin-toast" id="toast" hidden></div>
+
+<script type="module" src="../src/javascript/admin/comprobantes.js"></script>
+</body>
+</html>

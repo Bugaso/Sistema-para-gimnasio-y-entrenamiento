@@ -24,6 +24,12 @@ public class EquipamientoService {
 
     @Transactional
     public MessageResponse crearEquipamiento(EquipamientoRequest request) {
+        String nombreEquipamiento = request.nomEquipamiento().trim();
+
+        if(equipamientoRepository.existsByNomEquipamientoIgnoreCase(nombreEquipamiento)){
+            throw new RuntimeException("El equipamiento '" + nombreEquipamiento + "' ya existe en el sistema.");
+        }
+
         Equipamiento nuevoEquip = new Equipamiento();
         nuevoEquip.setNomEquipamiento(request.nomEquipamiento());
         equipamientoRepository.save(nuevoEquip);
@@ -34,6 +40,13 @@ public class EquipamientoService {
     public MessageResponse actualizarEquipamiento(Integer id, EquipamientoRequest request) {
         Equipamiento equip = equipamientoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("El equipamiento especificado no existe."));
+
+        String nuevoNombre = request.nomEquipamiento().trim();
+
+        if(!equip.getNomEquipamiento().equalsIgnoreCase(nuevoNombre)
+                && equipamientoRepository.existsByNomEquipamientoIgnoreCase(nuevoNombre)) {
+                    throw new RuntimeException("El equipamiento '" +nuevoNombre+ "' ya existe");
+        }
 
         equip.setNomEquipamiento(request.nomEquipamiento());
         equipamientoRepository.save(equip);

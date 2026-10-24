@@ -24,8 +24,15 @@ public class CatGenEjerService {
 
     @Transactional
     public MessageResponse crearCategoria(CatGenEjerRequest request) {
+        String nombreLimpio = request.nombreCat().trim();
+
+        // 1. Verificamos si ya existe antes de guardar
+        if (catGenEjerRepository.existsByNombreCatIgnoreCase(nombreLimpio)) {
+            throw new RuntimeException("La categoría '" + nombreLimpio + "' ya existe en el sistema.");
+        }
+
         CatGenEjer nuevaCat = new CatGenEjer();
-        nuevaCat.setNombreCat(request.nombreCat());
+        nuevaCat.setNombreCat(nombreLimpio);
         catGenEjerRepository.save(nuevaCat);
         return new MessageResponse("Categoría creada exitosamente.");
     }
@@ -35,7 +42,15 @@ public class CatGenEjerService {
         CatGenEjer categoria = catGenEjerRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("La categoría especificada no existe."));
 
-        categoria.setNombreCat(request.nombreCat());
+        String nuevoNombre = request.nombreCat().trim();
+
+        // 2. Si se cambió el nombre, verificamos que el nuevo no esté repetido
+        if (!categoria.getNombreCat().equalsIgnoreCase(nuevoNombre) &&
+                catGenEjerRepository.existsByNombreCatIgnoreCase(nuevoNombre)) {
+            throw new RuntimeException("La categoría '" + nuevoNombre + "' ya existe en el sistema.");
+        }
+
+        categoria.setNombreCat(nuevoNombre);
         catGenEjerRepository.save(categoria);
         return new MessageResponse("Categoría actualizada exitosamente.");
     }

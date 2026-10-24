@@ -37,6 +37,13 @@ export function renderAdminLayout(activeNav) {
                     <a class="admin-nav-link ${activeNav === 'musculos_asociados' ? 'is-active' : ''}" href="/admin/musculos-asociados.html">
                         <span aria-hidden="true">08</span>Músculos Asociados
                     </a>
+                    <p style="margin-top: 24px;">Finanzas</p>
+                    <a class="admin-nav-link ${activeNav === 'cat_gastos' ? 'is-active' : ''}" href="/admin/categorias-gastos.html">
+                        <span aria-hidden="true">09</span>Categorías de Gastos
+                    </a>    
+                    <a class="admin-nav-link ${activeNav === 'comprobantes' ? 'is-active' : ''}" href="/admin/comprobantes.html">
+                        <span aria-hidden="true">10</span>Comprobantes
+                    </a>              
                 </nav>
 
                 <div class="admin-sidebar-footer">

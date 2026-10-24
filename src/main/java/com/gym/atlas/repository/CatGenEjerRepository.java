@@ -6,4 +6,5 @@ import org.springframework.stereotype.Repository;
 
 @Repository
 public interface CatGenEjerRepository extends JpaRepository<CatGenEjer, Integer> {
+    boolean existsByNombreCatIgnoreCase(String nombreCat);
 }
