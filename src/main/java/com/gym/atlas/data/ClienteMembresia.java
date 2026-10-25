@@ -6,12 +6,12 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "cliente-membresia")
+@Table(name = "cliente_membresia")
 public class ClienteMembresia {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idCliMem")
+    @Column(name = "idClienteMembresia")
     private Long idCliMem;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
@@ -25,8 +25,9 @@ public class ClienteMembresia {
     @Column(name = "fechaPago")
     private LocalDateTime fechaPago;
 
-    private LocalDate fechaVenc;
-
+    @Column(name = "tipoPago")
+    private String tipoPago;
+    @Column(name = "costoTotal")
     private Double costoTotal;
 
     public ClienteMembresia() {}
@@ -67,13 +68,12 @@ public class ClienteMembresia {
         this.costoTotal = costoTotal;
     }
 
-    public LocalDate getFechaVenc() {
-
-        return fechaVenc;
+    public String getTipoPago() {
+        return tipoPago;
     }
 
-    public void setFechaVenc(LocalDate fechaVenc) {
-        this.fechaVenc = fechaVenc;
+    public void setTipoPago(String tipoPago) {
+        this.tipoPago = tipoPago;
     }
 
     public void setFechaPago(LocalDateTime fechaPago) {
