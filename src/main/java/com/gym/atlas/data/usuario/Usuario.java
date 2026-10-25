@@ -1,4 +1,4 @@
-package com.gym.atlas.data;
+package com.gym.atlas.data.usuario;
 
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;

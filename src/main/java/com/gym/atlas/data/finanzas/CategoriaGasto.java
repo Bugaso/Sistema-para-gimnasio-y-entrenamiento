@@ -1,4 +1,4 @@
-package com.gym.atlas.data;
+package com.gym.atlas.data.finanzas;
 
 import jakarta.persistence.*;
 

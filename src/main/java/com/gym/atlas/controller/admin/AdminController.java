@@ -1,6 +1,6 @@
 package com.gym.atlas.controller.admin;
 
-import com.gym.atlas.data.Rol;
+import com.gym.atlas.data.usuario.Rol;
 import com.gym.atlas.dto.*;
 import com.gym.atlas.dto.auth.RegisterRequest;
 import com.gym.atlas.dto.personal.EmpleadoRequest;

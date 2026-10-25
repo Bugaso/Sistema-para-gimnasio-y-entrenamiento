@@ -2,7 +2,7 @@ package com.gym.atlas.controller.usuarios;
 
 
 import com.gym.atlas.dto.rol.RolResponse;
-import com.gym.atlas.repository.RolRepository;
+import com.gym.atlas.repository.usuario.RolRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

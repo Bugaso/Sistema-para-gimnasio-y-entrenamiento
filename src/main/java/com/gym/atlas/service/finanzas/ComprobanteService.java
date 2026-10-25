@@ -1,12 +1,12 @@
 package com.gym.atlas.service.finanzas;
 
-import com.gym.atlas.data.CategoriaGasto;
-import com.gym.atlas.data.Comprobante;
+import com.gym.atlas.data.finanzas.CategoriaGasto;
+import com.gym.atlas.data.finanzas.Comprobante;
 import com.gym.atlas.dto.finanzas.ComprobanteRequest;
 import com.gym.atlas.dto.finanzas.ComprobanteResponse;
 import com.gym.atlas.dto.MessageResponse;
-import com.gym.atlas.repository.CategoriaGastoRepository;
-import com.gym.atlas.repository.ComprobanteRepository;
+import com.gym.atlas.repository.finanzas.CategoriaGastoRepository;
+import com.gym.atlas.repository.finanzas.ComprobanteRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,7 +1,7 @@
-package com.gym.atlas.repository;
+package com.gym.atlas.repository.usuario;
 
 
-import com.gym.atlas.data.Usuario;
+import com.gym.atlas.data.usuario.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;

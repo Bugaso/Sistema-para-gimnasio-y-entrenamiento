@@ -1,4 +1,4 @@
-package com.gym.atlas.data;
+package com.gym.atlas.data.ejercicio;
 
 import jakarta.persistence.*;
 

@@ -1,6 +1,6 @@
 package com.gym.atlas.Security;
 
-import com.gym.atlas.repository.UsuarioRepository;
+import com.gym.atlas.repository.usuario.UsuarioRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;

@@ -1,9 +1,9 @@
 package com.gym.atlas.service.ejercicio;
 
-import com.gym.atlas.data.CatGenEjer;
+import com.gym.atlas.data.ejercicio.CatGenEjer;
 import com.gym.atlas.dto.ejercicio.CatGenEjerRequest;
 import com.gym.atlas.dto.MessageResponse;
-import com.gym.atlas.repository.CatGenEjerRepository;
+import com.gym.atlas.repository.ejercicio.CatGenEjerRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

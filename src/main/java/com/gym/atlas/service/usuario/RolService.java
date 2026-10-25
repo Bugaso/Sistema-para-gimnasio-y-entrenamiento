@@ -1,9 +1,9 @@
 package com.gym.atlas.service.usuario;
 
-import com.gym.atlas.data.Rol;
+import com.gym.atlas.data.usuario.Rol;
 import com.gym.atlas.dto.MessageResponse;
 import com.gym.atlas.dto.rol.RolRequest;
-import com.gym.atlas.repository.RolRepository;
+import com.gym.atlas.repository.usuario.RolRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,12 +1,12 @@
 package com.gym.atlas.service.membresia;
 
-import com.gym.atlas.data.ClienteMembresia;
-import com.gym.atlas.data.Membresia;
-import com.gym.atlas.data.Usuario;
+import com.gym.atlas.data.membresia.ClienteMembresia;
+import com.gym.atlas.data.membresia.Membresia;
+import com.gym.atlas.data.usuario.Usuario;
 import com.gym.atlas.dto.membresia.RegistrarClienteMembresiaRequest;
-import com.gym.atlas.repository.ClienteMembresiaRepository;
-import com.gym.atlas.repository.MembresiaRepository;
-import com.gym.atlas.repository.UsuarioRepository;
+import com.gym.atlas.repository.membresia.ClienteMembresiaRepository;
+import com.gym.atlas.repository.membresia.MembresiaRepository;
+import com.gym.atlas.repository.usuario.UsuarioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

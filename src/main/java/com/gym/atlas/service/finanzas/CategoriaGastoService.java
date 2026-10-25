@@ -1,9 +1,9 @@
 package com.gym.atlas.service.finanzas;
 
-import com.gym.atlas.data.CategoriaGasto;
+import com.gym.atlas.data.finanzas.CategoriaGasto;
 import com.gym.atlas.dto.finanzas.CategoriaGastoRequest;
 import com.gym.atlas.dto.MessageResponse;
-import com.gym.atlas.repository.CategoriaGastoRepository;
+import com.gym.atlas.repository.finanzas.CategoriaGastoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

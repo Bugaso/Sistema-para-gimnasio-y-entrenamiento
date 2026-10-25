@@ -1,6 +1,6 @@
 package com.gym.atlas.controller.rutinas;
 
-import com.gym.atlas.data.GrupoMuscular;
+import com.gym.atlas.data.ejercicio.GrupoMuscular;
 import com.gym.atlas.dto.ejercicio.GrupoMuscularRequest;
 import com.gym.atlas.dto.MessageResponse;
 import com.gym.atlas.service.ejercicio.GrupoMuscularService;

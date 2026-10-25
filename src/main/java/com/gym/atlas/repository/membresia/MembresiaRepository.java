@@ -1,10 +1,7 @@
-package com.gym.atlas.repository;
+package com.gym.atlas.repository.membresia;
 
-import com.gym.atlas.data.Membresia;
-import com.gym.atlas.data.Usuario;
+import com.gym.atlas.data.membresia.Membresia;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.Optional;
 
 public interface MembresiaRepository extends JpaRepository<Membresia, Long> {
 

@@ -1,6 +1,6 @@
-package com.gym.atlas.repository;
+package com.gym.atlas.repository.ejercicio;
 
-import com.gym.atlas.data.Equipamiento;
+import com.gym.atlas.data.ejercicio.Equipamiento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

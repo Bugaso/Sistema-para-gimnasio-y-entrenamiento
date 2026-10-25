@@ -1,17 +1,17 @@
 package com.gym.atlas.service.usuario;
 
-import com.gym.atlas.data.Rol;
-import com.gym.atlas.data.RolUs;
-import com.gym.atlas.data.Roles;
-import com.gym.atlas.data.Usuario;
+import com.gym.atlas.data.usuario.Rol;
+import com.gym.atlas.data.usuario.RolUs;
+import com.gym.atlas.data.usuario.Roles;
+import com.gym.atlas.data.usuario.Usuario;
 import com.gym.atlas.dto.*;
 import com.gym.atlas.dto.auth.RegisterRequest;
 import com.gym.atlas.dto.auth.UserProfileResponse;
 import com.gym.atlas.dto.personal.EmpleadoRequest;
 import com.gym.atlas.dto.personal.EmpleadoResponse;
-import com.gym.atlas.repository.RolRepository;
-import com.gym.atlas.repository.RolUsRepository;
-import com.gym.atlas.repository.UsuarioRepository;
+import com.gym.atlas.repository.usuario.RolRepository;
+import com.gym.atlas.repository.usuario.RolUsRepository;
+import com.gym.atlas.repository.usuario.UsuarioRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -20,7 +20,7 @@ import java.sql.Date;
 import java.util.List;
 import java.util.Optional;
 
-import static com.gym.atlas.data.Roles.INACTIVO;
+import static com.gym.atlas.data.usuario.Roles.INACTIVO;
 
 @Service
 

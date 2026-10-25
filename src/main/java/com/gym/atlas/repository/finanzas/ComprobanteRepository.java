@@ -1,6 +1,6 @@
-package com.gym.atlas.repository;
+package com.gym.atlas.repository.finanzas;
 
-import com.gym.atlas.data.Comprobante;
+import com.gym.atlas.data.finanzas.Comprobante;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

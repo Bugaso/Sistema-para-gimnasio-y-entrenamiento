@@ -1,6 +1,6 @@
 package com.gym.atlas.controller.rutinas;
 
-import com.gym.atlas.data.Equipamiento;
+import com.gym.atlas.data.ejercicio.Equipamiento;
 import com.gym.atlas.dto.ejercicio.EquipamientoRequest;
 import com.gym.atlas.dto.MessageResponse;
 import com.gym.atlas.service.ejercicio.EquipamientoService;

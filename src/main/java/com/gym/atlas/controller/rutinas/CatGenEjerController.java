@@ -1,6 +1,6 @@
 package com.gym.atlas.controller.rutinas;
 
-import com.gym.atlas.data.CatGenEjer;
+import com.gym.atlas.data.ejercicio.CatGenEjer;
 import com.gym.atlas.dto.ejercicio.CatGenEjerRequest;
 import com.gym.atlas.dto.MessageResponse;
 import com.gym.atlas.service.ejercicio.CatGenEjerService;

@@ -1,14 +1,14 @@
 package com.gym.atlas.service.ejercicio;
 
-import com.gym.atlas.data.CatGenEjer;
-import com.gym.atlas.data.Ejercicio;
-import com.gym.atlas.data.Equipamiento;
+import com.gym.atlas.data.ejercicio.CatGenEjer;
+import com.gym.atlas.data.ejercicio.Ejercicio;
+import com.gym.atlas.data.ejercicio.Equipamiento;
 import com.gym.atlas.dto.ejercicio.EjercicioRequest;
 import com.gym.atlas.dto.ejercicio.EjercicioResponse;
 import com.gym.atlas.dto.MessageResponse;
-import com.gym.atlas.repository.CatGenEjerRepository;
-import com.gym.atlas.repository.EjercicioRepository;
-import com.gym.atlas.repository.EquipamientoRepository;
+import com.gym.atlas.repository.ejercicio.CatGenEjerRepository;
+import com.gym.atlas.repository.ejercicio.EjercicioRepository;
+import com.gym.atlas.repository.ejercicio.EquipamientoRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

@@ -1,7 +1,7 @@
 package com.gym.atlas.controller.usuarios;
 
 
-import com.gym.atlas.data.Usuario;
+import com.gym.atlas.data.usuario.Usuario;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;

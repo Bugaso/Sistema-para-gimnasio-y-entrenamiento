@@ -1,8 +1,8 @@
-package com.gym.atlas.data;
+package com.gym.atlas.data.membresia;
 
+import com.gym.atlas.data.usuario.Usuario;
 import jakarta.persistence.*;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Entity

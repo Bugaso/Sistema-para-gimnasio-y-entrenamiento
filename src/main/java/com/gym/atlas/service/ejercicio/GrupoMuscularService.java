@@ -1,9 +1,9 @@
 package com.gym.atlas.service.ejercicio;
 
-import com.gym.atlas.data.GrupoMuscular;
+import com.gym.atlas.data.ejercicio.GrupoMuscular;
 import com.gym.atlas.dto.ejercicio.GrupoMuscularRequest;
 import com.gym.atlas.dto.MessageResponse;
-import com.gym.atlas.repository.GrupoMuscularRepository;
+import com.gym.atlas.repository.ejercicio.GrupoMuscularRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 

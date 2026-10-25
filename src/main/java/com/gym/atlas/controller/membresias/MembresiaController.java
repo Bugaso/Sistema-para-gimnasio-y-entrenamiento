@@ -1,6 +1,6 @@
 package com.gym.atlas.controller.membresias;
 
-import com.gym.atlas.data.Membresia;
+import com.gym.atlas.data.membresia.Membresia;
 import com.gym.atlas.dto.membresia.RegistrarMembresiaRequest;
 import com.gym.atlas.service.membresia.MembresiaService;
 import org.springframework.core.io.ClassPathResource;

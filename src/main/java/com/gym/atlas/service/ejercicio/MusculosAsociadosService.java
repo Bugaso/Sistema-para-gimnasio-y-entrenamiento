@@ -1,14 +1,14 @@
 package com.gym.atlas.service.ejercicio;
 
-import com.gym.atlas.data.Ejercicio;
-import com.gym.atlas.data.GrupoMuscular;
-import com.gym.atlas.data.MusculosAsociados;
+import com.gym.atlas.data.ejercicio.Ejercicio;
+import com.gym.atlas.data.ejercicio.GrupoMuscular;
+import com.gym.atlas.data.ejercicio.MusculosAsociados;
 import com.gym.atlas.dto.MessageResponse;
 import com.gym.atlas.dto.ejercicio.MusculosAsociadosRequest;
 import com.gym.atlas.dto.ejercicio.MusculosAsociadosResponse;
-import com.gym.atlas.repository.EjercicioRepository;
-import com.gym.atlas.repository.GrupoMuscularRepository;
-import com.gym.atlas.repository.MusculosAsociadosRepository;
+import com.gym.atlas.repository.ejercicio.EjercicioRepository;
+import com.gym.atlas.repository.ejercicio.GrupoMuscularRepository;
+import com.gym.atlas.repository.ejercicio.MusculosAsociadosRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

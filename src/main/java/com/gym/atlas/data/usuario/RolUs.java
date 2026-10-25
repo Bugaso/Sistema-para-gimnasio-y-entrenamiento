@@ -1,4 +1,4 @@
-package com.gym.atlas.data;
+package com.gym.atlas.data.usuario;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;

@@ -1,6 +1,6 @@
 package com.gym.atlas.controller.usuarios;
 
-import com.gym.atlas.data.Rol;
+import com.gym.atlas.data.usuario.Rol;
 import com.gym.atlas.service.usuario.RolService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
