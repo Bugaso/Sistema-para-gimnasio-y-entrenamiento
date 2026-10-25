@@ -2,21 +2,19 @@ package com.gym.atlas.data.membresia;
 
 import jakarta.persistence.*;
 
-@Entity
-        (name="tipomembresia")
+@Entity(name="tipomembresia")
 public class TipoMembresia {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idTipoMem")
     private Long id;
 
-
     @ManyToOne
-    @JoinColumn(name = "membresia_id_membresia")
+    @JoinColumn(name = "idMembresia")
     private Membresia membresia;
 
     @Column(name = "duracionDiaMes")
     private int duracionMembresia;
-
-
     private int diasAsistencia;
     private boolean planificacion;
     private double costoMembresia;

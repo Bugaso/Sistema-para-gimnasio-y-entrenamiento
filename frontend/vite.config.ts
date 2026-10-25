@@ -23,7 +23,8 @@ export default defineConfig({
         ejercicios: path.resolve(__dirname, 'admin/ejercicios.html'),
         musculosAsociados: path.resolve(__dirname, 'admin/musculos-asociados.html'),
         categoriasGastos: path.resolve(__dirname, 'admin/categorias-gastos.html'),
-        comprobantes: path.resolve(__dirname, 'admin/comprobantes.html')
+        comprobantes: path.resolve(__dirname, 'admin/comprobantes.html'),
+        membresias: path.resolve(__dirname, 'admin/membresias.html')
       },
     },
   },

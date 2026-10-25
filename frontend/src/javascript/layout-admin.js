@@ -12,6 +12,7 @@ export function renderAdminLayout(activeNav) {
                 </a>
 
                 <nav class="admin-nav" aria-label="Navegación del administrador">
+                
                     <p>Gestión</p>
                     <a class="admin-nav-link ${activeNav === 'overview' ? 'is-active' : ''}" href="/admin">
                         <span aria-hidden="true">01</span>Resumen
@@ -21,6 +22,9 @@ export function renderAdminLayout(activeNav) {
                     </a>
                     <a class="admin-nav-link ${activeNav === 'personnel' ? 'is-active' : ''}" href="/admin/personal.html">
                         <span aria-hidden="true">03</span>Personal
+                    </a>
+                    <a class="admin-nav-link ${activeNav === 'membresias' ? 'is-active' : ''}" href="/admin/membresias.html">
+                        <span aria-hidden="true">04</span>Membresías
                     </a>
                     <p style="margin-top: 24px;">Ejercicios</p>
                     <a class="admin-nav-link ${activeNav === 'cat_ejercicios' ? 'is-active' : ''}" href="/admin/categorias-ejercicios.html">
@@ -46,6 +50,7 @@ export function renderAdminLayout(activeNav) {
                     <a class="admin-nav-link ${activeNav === 'comprobantes' ? 'is-active' : ''}" href="/admin/comprobantes.html">
                         <span aria-hidden="true">10</span>Comprobantes
                     </a>              
+                    
                 </nav>
 
                 <div class="admin-sidebar-footer">

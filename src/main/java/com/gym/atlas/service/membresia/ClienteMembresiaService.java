@@ -55,7 +55,7 @@ public class ClienteMembresiaService {
 
         //clienteMembresia.setFechaVenc(LocalDate.from(LocalDateTime.now().plusDays(membresia.getDuracionMembresia()*cantCuotas)));
         
-        clienteMembresia.setCostoTotal((double) (cantCuotas*membresia.getCostoMembresia()));
+        //clienteMembresia.setCostoTotal((double) (cantCuotas*membresia.getCostoMembresia()));
         return clienteMembresiaRepository.save(clienteMembresia);
     }
 

@@ -2,12 +2,17 @@ package com.gym.atlas.service.membresia;
 
 import com.gym.atlas.data.membresia.Membresia;
 import com.gym.atlas.data.membresia.TipoMembresia;
+import com.gym.atlas.dto.MessageResponse;
+import com.gym.atlas.dto.membresia.MembresiaResponse;
 import com.gym.atlas.dto.membresia.RegistrarMembresiaRequest;
+import com.gym.atlas.dto.membresia.RegistrarTipoMembresiaRequest;
+import com.gym.atlas.dto.membresia.TipoMembresiaResponse;
 import com.gym.atlas.repository.membresia.MembresiaRepository;
 import com.gym.atlas.repository.membresia.TipoMembresiaRepository;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class MembresiaService {
@@ -44,8 +49,84 @@ public class MembresiaService {
         return membresia;
     }
 
-    public List<Membresia> listaMembresias(){
-        return memRep.findAll();
+    public Optional<Membresia> obtenerMembresia(Long id){
+        return memRep.findById(id);
     }
 
+    public MessageResponse bajaMembresia(Long id){
+        Membresia membresia = memRep.findById(id).orElseThrow();
+        membresia.setEstado("INACTIVO");
+        memRep.save(membresia);
+        return new MessageResponse("Membresia dada de baja");
+    }
+    public List<MembresiaResponse> listaMembresias() {
+        List<Membresia> membresias = memRep.findAll();
+
+        return membresias.stream().map(m -> {
+            // Mapeamos la lista interna de tipos a TipoMembresiaDTO
+            List<TipoMembresiaResponse> tiposDto = m.getTipos() != null ?
+                    m.getTipos().stream().map(t -> new TipoMembresiaResponse(
+                            t.getId(),
+                            t.getDuracionMembresia(),
+                            t.getDiasAsistencia(),
+                            t.isPlanificacion(),
+                            t.getCostoMembresia()
+                    )).toList() : List.of();
+
+            // Retornamos el DTO principal
+            return new MembresiaResponse(
+                    m.getIdMembresia(),
+                    m.getDescripMembresia(),
+                    m.getEstado(),
+                    tiposDto
+            );
+        }).toList();
+    }
+
+    public MessageResponse registrarTipoMembresia(RegistrarTipoMembresiaRequest request) {
+
+        Membresia membresia = memRep.findById(request.idMembresia()).orElseThrow();
+        if(membresia.getEstado() == "INACTIVO"){
+            return new MessageResponse("Membresia inactiva");
+        }
+        TipoMembresia tipoMembresia = new TipoMembresia();
+
+        tipoMembresia.setCostoMembresia(request.costoMembresia());
+        tipoMembresia.setDiasAsistencia(request.diasAsistencia());
+        tipoMembresia.setPlanificacion(request.planificacion());
+        tipoMembresia.setDuracionMembresia(request.duracionDiaMes());
+        tipoMembresia.setMembresia(membresia);
+
+        tipoMemRep.save(tipoMembresia);
+
+        return new MessageResponse("Tipo creado");
+    }
+
+
+
+
+    public List<TipoMembresiaResponse> obtenerTipoMembresia(Long request) {
+        Membresia mem = memRep.findById(request).orElseThrow();
+
+        List<TipoMembresia> tipoMemList = mem.getTipos();
+        // Verificamos que la lista no sea null y mapeamos cada entidad al DTO
+        if (tipoMemList == null || tipoMemList.isEmpty()) {
+            return List.of(); // Retornamos lista vacía si no tiene tipos
+        }
+
+        return tipoMemList.stream().map(
+                tipoMembresia -> new TipoMembresiaResponse(
+                            tipoMembresia.getId(),
+                            tipoMembresia.getDuracionMembresia(),
+                            tipoMembresia.getDiasAsistencia(),
+                            tipoMembresia.isPlanificacion(),
+                            tipoMembresia.getCostoMembresia()
+                    )).toList();
+    }
+
+    public MessageResponse bajaTipoMembresia(Long id) {
+        TipoMembresia tipo = tipoMemRep.findById(id).orElseThrow();
+        tipoMemRep.delete(tipo);
+        return new MessageResponse("Eliminacion exitosa");
+    }
 }
