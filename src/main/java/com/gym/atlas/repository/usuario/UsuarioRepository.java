@@ -28,4 +28,11 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     // Hace un JOIN desde Usuario -> RolUs (rolesUsuario) -> Rol
     @Query("SELECT u FROM Usuario u JOIN u.rolesUsuario ru JOIN ru.rol r WHERE r.nomCatUs = :nombreRol")
     List<Usuario> findByNombreRol(@Param("nombreRol") String nombreRol);
+
+    // Filtra cruzando la tabla usuario con rolus y rol para buscar solo "CLIENTE"
+    @Query(value = "SELECT u.* FROM usuario u " +
+            "INNER JOIN rolus ru ON u.idUsuario = ru.idUsuario " +
+            "INNER JOIN rol r ON ru.idRol = r.idRol " +
+            "WHERE r.nomCatUs = 'CLIENTE'", nativeQuery = true)
+    List<Usuario> findSoloClientes();
 }

@@ -43,11 +43,17 @@ public class SecurityConfig {
             "/favicon.ico",
             "/assets/**",
             "/rol",
+
+            // HTMLs de Admin (Públicos)
             "/admin",
             "/admin/**", // Permite servir todas las páginas estáticas de la carpeta admin
             "/admin/personal",
             "/personal.html",       // <- Permite el archivo si está en la raíz
-            "/admin/personal.html"  // <- Permite el archivo si está dentro de /admin/
+            "/admin/personal.html",  // <- Permite el archivo si está dentro de /admin/
+
+            //HTMLs de Recepción (Públicos)
+            "/recepcionista",
+            "/recepcionista/**"
     };
 
     private static final String[] AUTH_ENDPOINTS = {
@@ -61,36 +67,44 @@ public class SecurityConfig {
     private static final String[] ADMIN_ENDPOINTS = {
             "/admin/validar", "/admin/personal/registrar", "/api/admin/**"};  /*********/
 
+    //ARREGLO PARA RECEPCIÓN
+    private static final String[] RECEPCION_ENDPOINTS = {
+                    "/api/recepcion/**"
+            };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // 1. Deshabilitar CSRF (Cross-Site Request Forgery) ya que usamos JWT
                 .csrf(AbstractHttpConfigurer::disable)
 
-                // 2. Configurar la autorización de las peticiones HTTP
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(AUTH_ENDPOINTS).anonymous()
+
+                        // 1. ¡CAMBIO CLAVE! Ponemos PRIMERO las rutas restringidas por Rol.
+                        // Al estar arriba, Spring verificará el rol ANTES de ver si es una ruta pública.
+                        .requestMatchers(ADMIN_ENDPOINTS).hasRole("ADMIN")
+                        .requestMatchers(RECEPCION_ENDPOINTS).hasAnyRole("RECEPCIONISTA", "ADMIN")
+
+                        // 2. DESPUÉS ponemos las rutas públicas.
+                        // Así, los HTML estáticos de /admin/** siguen siendo accesibles,
+                        // pero los endpoints de validación y de la API ya fueron protegidos arriba.
                         .requestMatchers(PUBLIC_ENDPOINTS).permitAll()
-                        .requestMatchers(ADMIN_ENDPOINTS).hasRole("ADMIN")//hasRole("Admin")// Acceso libre
-                        .anyRequest().authenticated()                  // El resto requiere JWT válido
+
+                        // 3. Cualquier otra ruta no especificada requiere autenticación básica
+                        .anyRequest().authenticated()
                 )
 
-                // 3. Configurar la gestión de sesiones como STATELESS
                 .sessionManagement(session -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .exceptionHandling(exception -> exception
-                        // Qué hacer cuando un usuario no está logueado (Error 401)
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "No autenticado");
                         })
-                        // Qué hacer cuando un usuario está logueado pero NO tiene el rol (Error 403)
                         .accessDeniedHandler((request, response, accessDeniedException) -> {
                             response.sendError(HttpServletResponse.SC_FORBIDDEN, "Acceso denegado");
                         })
                 )
-
-                // 4. Añadir nuestro filtro JWT antes del filtro de autenticación estándar
                 .addFilterBefore(jwtAuthFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();

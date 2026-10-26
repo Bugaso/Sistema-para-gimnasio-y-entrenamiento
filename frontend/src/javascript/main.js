@@ -87,4 +87,9 @@ async function verificarAdminNavBar() {
         // Si da error (es un cliente normal o el token expiró), se queda oculto.
         console.log("Usuario regular, pestaña de administración oculta.");
     }
+    /*RECEPCIONISTA*/
+    try {
+        await apiRequest("/api/recepcion/validar", { method: "GET", token });
+        document.getElementById('navRecepcionLink').hidden = false;
+    } catch (error) { /* No es recepcionista */ }
 }
