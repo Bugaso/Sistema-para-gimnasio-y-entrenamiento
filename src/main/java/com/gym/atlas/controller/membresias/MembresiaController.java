@@ -47,6 +47,12 @@ public class MembresiaController {
         return ResponseEntity.ok(memServ.listaMembresias());
     }
 
+    @PutMapping("/{id}/alta")
+    public ResponseEntity<MessageResponse> AltaMembresia(@PathVariable Long id) {
+
+        return ResponseEntity.ok(memServ.altaLogicaMembresia(id));
+    }
+
     @PutMapping("/{id}/baja")
     public ResponseEntity<MessageResponse> bajaLogicaMembresia(@PathVariable Long id) {
 

@@ -129,4 +129,11 @@ public class MembresiaService {
         tipoMemRep.delete(tipo);
         return new MessageResponse("Eliminacion exitosa");
     }
+
+    public MessageResponse altaLogicaMembresia(Long id) {
+        Membresia mem = memRep.findById(id).orElseThrow();
+        mem.setEstado("ACTIVO");
+        memRep.save(mem);
+        return new MessageResponse("Alta de membresia exitosa");
+    }
 }

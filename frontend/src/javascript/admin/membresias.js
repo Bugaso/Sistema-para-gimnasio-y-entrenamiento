@@ -6,11 +6,14 @@ const btnSiguiente = document.getElementById('btnSiguiente');
 const btnGuardarTipo = document.getElementById('btnGuardarTipo');
 const btnFinalizar = document.getElementById('btnFinalizar');
 let membresiaActualId = null;
+let todasLasMembresias = [];
 
 document.addEventListener('DOMContentLoaded', () => {
     renderAdminLayout('membresias');
     cargarMembresias();
 });
+
+
 
 // PASO 1: Crear la Membresía Base
 btnSiguiente.addEventListener('click', async () => {
@@ -76,6 +79,7 @@ btnGuardarTipo.addEventListener('click', async () => {
 window.resetFormularioMembresia = () => {
     form.reset();
     membresiaActualId = null;
+    document.getElementById('pasoMembresia').style.display = 'block';
     document.getElementById('descMembresia').disabled = false;
     document.getElementById('pasoTipos').style.display = 'none';
     btnSiguiente.style.display = 'inline-flex';
@@ -85,34 +89,92 @@ window.resetFormularioMembresia = () => {
 
 async function cargarMembresias() {
     try {
-        // Asegúrate de que la ruta coincida con tu @RequestMapping + @GetMapping
-        // Si tu controlador tiene @RequestMapping("/api/admin/membresias"), la ruta será:
-        const membresias = await apiRequest('/membresia/listar', { token: getToken() });
-
-        const tbody = document.getElementById('tablaMembresias');
-
-        tbody.innerHTML = membresias.map(m => `
-            <tr>
-                <!-- Usamos descripMembresia tal como está en la entidad Java -->
-                <td><strong>${m.descripMembresia || 'Sin nombre'}</strong></td>
-                
-                <!-- Verificamos si la lista de tipos existe para contarla -->
-                <td><span class="permission-count">${m.tipos ? m.tipos.length : 0} opciones</span></td>
-                
-                <td><span class="role-label">${m.estado || 'ACTIVO'}</span></td>
-                
-                <td>
-                    <div class="table-actions">
-                        <!-- Pasamos el idMembresia -->
-                        <button type="button" onclick="verDetalles(${m.idMembresia})">Ver/Editar Tipos</button>
-                        <button type="button" class="is-danger" onclick="bajaLogica(${m.idMembresia})">Eliminar</button>
-                    </div>
-                </td>
-            </tr>
-        `).join('');
+        todasLasMembresias = await apiRequest('/membresia/listar', { token: getToken() });
+        // Una vez que llegan los datos, llamamos a la función que dibuja
+        window.renderizarTablaMembresias();
     } catch (error) {
         console.error("Error al cargar la tabla de membresías:", error);
     }
+}
+
+window.renderizarTablaMembresias = () => {
+    const tbody = document.getElementById('tablaMembresias');
+    const chkInactivos = document.getElementById('chkInactivos');
+    const mostrarInactivos = chkInactivos ? chkInactivos.checked : false;
+
+    // Filtramos la lista según el estado del checkbox
+    const membresiasFiltradas = todasLasMembresias.filter(m => {
+        if (mostrarInactivos) return true; // Si está marcado, mostramos todas
+        return m.estado !== 'INACTIVO';    // Si no, ocultamos las inactivas
+    });
+
+    tbody.innerHTML = membresiasFiltradas.map(m => {
+        const esInactiva = m.estado === 'INACTIVO';
+
+        // Lógica para cambiar los botones si está INACTIVA
+        let botonesAccion = '';
+        if (esInactiva) {
+            botonesAccion = `
+                <button type="button" onclick="window.darAlta(${m.idMembresia})" style="padding: 4px 12px;">Dar Alta</button>
+                <button type="button" onclick="window.verDetalles(${m.idMembresia})">Ver Tipos</button>
+            `;
+        } else {
+            botonesAccion = `
+                <button type="button" onclick="window.añadirTipo(${m.idMembresia}, '${m.descripMembresia}')">Añadir Tipo</button>
+                <button type="button" onclick="window.verDetalles(${m.idMembresia})">Ver/Editar Tipos</button>
+                <button type="button" class="is-danger" onclick="window.bajaLogica(${m.idMembresia})">Eliminar</button>
+            `;
+        }
+
+        return `
+            <tr>
+                <td><strong style="${esInactiva ? 'color: var(--muted); text-decoration: line-through;' : ''}">${m.descripMembresia || 'Sin nombre'}</strong></td>
+                <td><span class="permission-count">${m.tipos ? m.tipos.length : 0} opciones</span></td>
+                <td>
+                    <span class="role-label" style="${esInactiva ? 'background: #333; color: #aaa;' : ''}">
+                        ${m.estado || 'ACTIVO'}
+                    </span>
+                </td>
+                <td>
+                    <div class="table-actions">
+                        ${botonesAccion}
+                    </div>
+                </td>
+            </tr>
+        `;
+    }).join('');
+};
+
+window.darAlta = async (id) => {
+    if(confirm("¿Deseas reactivar esta membresía?")) {
+        try {
+            // Asegúrate de crear este endpoint en tu controlador Java (similiar al de baja)
+            await apiRequest(`/membresia/${id}/alta`, {
+                method: 'PUT',
+                token: getToken()
+            });
+
+            // Recargamos la lista actualizada desde el backend
+            await cargarMembresias();
+        } catch (error) {
+            alert("Error al dar de alta: " + error.message);
+        }
+    }
+};
+
+window.añadirTipo = async (idMembresia , descMembresia) =>{
+    membresiaActualId = idMembresia
+    document.getElementById('nombreMembresiaSeleccionada').textContent = descMembresia;
+    document.getElementById('descMembresia').disabled = true;
+    document.getElementById('form-title').textContent = "Nuevo tipo de membresia"
+    document.getElementById('pasoMembresia').style.display = 'none';
+    // Cambiar vista al Paso 2
+    document.getElementById('pasoTipos').style.display = 'block';
+    btnSiguiente.style.display = 'none';
+    btnGuardarTipo.style.display = 'inline-flex';
+    btnFinalizar.style.display = 'inline-flex';
+
+    cargarMembresias();
 }
 
 window.bajaLogica = async (id) => {

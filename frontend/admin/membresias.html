@@ -89,6 +89,14 @@
             </div>
         </div>
 
+        <!-- AQUÍ AGREGAS EL CHECKBOX -->
+        <div class="admin-toolbar" style="padding: 16px 24px; border-bottom: 1px solid var(--border);">
+            <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                <input type="checkbox" id="chkInactivos" onchange="renderizarTablaMembresias()" style="width: auto;" />
+                <span style="font-size: 0.875rem; color: var(--muted);">Mostrar membresías inactivas</span>
+            </label>
+        </div>
+
         <div class="admin-table-wrap">
             <table class="admin-table">
                 <thead>
