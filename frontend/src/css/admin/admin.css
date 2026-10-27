@@ -339,6 +339,16 @@
     font-weight: 400;
 }
 
+.admin-secundary-action{
+    display: inline-flex;
+    min-height: 50px;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    gap: 22px;
+    padding: 0 20px;
+}
+
 .admin-metrics {
     display: grid;
     margin-bottom: 24px;

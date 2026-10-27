@@ -3,10 +3,7 @@ package com.gym.atlas.service.membresia;
 import com.gym.atlas.data.membresia.Membresia;
 import com.gym.atlas.data.membresia.TipoMembresia;
 import com.gym.atlas.dto.MessageResponse;
-import com.gym.atlas.dto.membresia.MembresiaResponse;
-import com.gym.atlas.dto.membresia.RegistrarMembresiaRequest;
-import com.gym.atlas.dto.membresia.RegistrarTipoMembresiaRequest;
-import com.gym.atlas.dto.membresia.TipoMembresiaResponse;
+import com.gym.atlas.dto.membresia.*;
 import com.gym.atlas.repository.membresia.MembresiaRepository;
 import com.gym.atlas.repository.membresia.TipoMembresiaRepository;
 import org.springframework.stereotype.Service;
@@ -70,7 +67,8 @@ public class MembresiaService {
                             t.getDuracionMembresia(),
                             t.getDiasAsistencia(),
                             t.isPlanificacion(),
-                            t.getCostoMembresia()
+                            t.getCostoMembresia(),
+                            t.isEstado()
                     )).toList() : List.of();
 
             // Retornamos el DTO principal
@@ -85,11 +83,23 @@ public class MembresiaService {
 
     public MessageResponse registrarTipoMembresia(RegistrarTipoMembresiaRequest request) {
 
+
         Membresia membresia = memRep.findById(request.idMembresia()).orElseThrow();
         if(membresia.getEstado() == "INACTIVO"){
             return new MessageResponse("Membresia inactiva");
         }
-        TipoMembresia tipoMembresia = new TipoMembresia();
+
+        TipoMembresia tipoMembresia;
+        MessageResponse mensaje;
+
+        if(request.idTipoMem() == null){
+            tipoMembresia = new TipoMembresia();
+            tipoMembresia.setEstado(true);
+            mensaje = new MessageResponse("Tipo registrado exitosamente");
+        }else{
+            tipoMembresia = tipoMemRep.findById(request.idTipoMem()).orElseThrow();
+            mensaje = new MessageResponse("Tipo modificado exitosamente");
+        }
 
         tipoMembresia.setCostoMembresia(request.costoMembresia());
         tipoMembresia.setDiasAsistencia(request.diasAsistencia());
@@ -99,11 +109,30 @@ public class MembresiaService {
 
         tipoMemRep.save(tipoMembresia);
 
-        return new MessageResponse("Tipo creado");
+        return mensaje;
     }
 
+    public MessageResponse modificarTipoMembresia(ModificarTipoMembresiaRequest request) {
 
 
+
+        TipoMembresia tipoMembresia;
+        MessageResponse mensaje;
+
+
+        tipoMembresia = tipoMemRep.findById(request.idTipoMem()).orElseThrow();
+        mensaje = new MessageResponse("Tipo modificado exitosamente");
+
+
+        tipoMembresia.setCostoMembresia(request.costoMembresia());
+        tipoMembresia.setDiasAsistencia(request.diasAsistencia());
+        tipoMembresia.setPlanificacion(request.planificacion());
+        tipoMembresia.setDuracionMembresia(request.duracionDiaMes());
+
+        tipoMemRep.save(tipoMembresia);
+
+        return mensaje;
+    }
 
     public List<TipoMembresiaResponse> obtenerTipoMembresia(Long request) {
         Membresia mem = memRep.findById(request).orElseThrow();
@@ -120,15 +149,25 @@ public class MembresiaService {
                             tipoMembresia.getDuracionMembresia(),
                             tipoMembresia.getDiasAsistencia(),
                             tipoMembresia.isPlanificacion(),
-                            tipoMembresia.getCostoMembresia()
+                            tipoMembresia.getCostoMembresia(),
+                            tipoMembresia.isEstado()
                     )).toList();
+    }
+
+    public MessageResponse altaTipoMembresia(Long id) {
+        TipoMembresia tipo = tipoMemRep.findById(id).orElseThrow();
+        tipo.setEstado(true);
+        tipoMemRep.save(tipo);
+        return new MessageResponse("Alta exitosa");
     }
 
     public MessageResponse bajaTipoMembresia(Long id) {
         TipoMembresia tipo = tipoMemRep.findById(id).orElseThrow();
-        tipoMemRep.delete(tipo);
-        return new MessageResponse("Eliminacion exitosa");
+        tipo.setEstado(false);
+        tipoMemRep.save(tipo);
+        return new MessageResponse("Baja exitosa");
     }
+
 
     public MessageResponse altaLogicaMembresia(Long id) {
         Membresia mem = memRep.findById(id).orElseThrow();

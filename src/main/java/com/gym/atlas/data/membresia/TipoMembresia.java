@@ -19,6 +19,9 @@ public class TipoMembresia {
     private boolean planificacion;
     private double costoMembresia;
 
+    @Column(name = "estado")
+    private boolean estado;
+
     public Membresia getMembresia() {
         return membresia;
     }
@@ -65,5 +68,13 @@ public class TipoMembresia {
 
     public void setCostoMembresia(double costoMembresia) {
         this.costoMembresia = costoMembresia;
+    }
+
+    public boolean isEstado() {
+        return estado;
+    }
+
+    public void setEstado(boolean estado) {
+        this.estado = estado;
     }
 }

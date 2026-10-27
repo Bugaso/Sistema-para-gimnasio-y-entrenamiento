@@ -47,30 +47,54 @@ btnSiguiente.addEventListener('click', async () => {
 
 // PASO 2: Agregar Tipo a la Membresía actual
 btnGuardarTipo.addEventListener('click', async () => {
+    // Verificamos si existe el tipoId (Si existe, es MODIFICACIÓN. Si no, es CREACIÓN)
+    const idTipo = document.getElementById('tipoId').value;
+
+    // Armamos el cuerpo del mensaje asegurando los nombres de variables que espera tu DTO
     const payload = {
-        idMembresia: membresiaActualId,
         duracionDiaMes: document.getElementById('duracion').value,
         diasAsistencia: document.getElementById('diasAsistencia').value,
-        planificacion: document.getElementById('planificacion').checked,
-        costoMembresia: document.getElementById('costo').value
-
+        costoMembresia: document.getElementById('costo').value,
+        planificacion: document.getElementById('planificacion').checked
     };
 
     try {
-        await apiRequest('/membresia/tipo-membresia', {
-            method: 'POST',
-            body: JSON.stringify(payload),
-            token: getToken()
-        });
-        alert("Tipo añadido exitosamente.");
+        if (idTipo) {
+            // ----- LÓGICA DE MODIFICACIÓN -----
+            payload.idTipoMem = idTipo;
 
-        // Limpiar solo los campos del tipo
+            await apiRequest('/membresia/tipo-membresia/modificar', {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                token: getToken()
+            });
+            alert("Tipo actualizado exitosamente.");
+        } else {
+            // ----- LÓGICA DE CREACIÓN (la que ya tenías) -----
+            payload.idMembresia = membresiaActualId;
+
+
+            await apiRequest('/membresia/tipo-membresia', {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                token: getToken()
+            });
+            alert("Tipo añadido exitosamente.");
+        }
+
+        // Limpiar el formulario solo de los campos del Tipo
+        document.getElementById('tipoId').value = '';
         document.getElementById('diasAsistencia').value = '';
         document.getElementById('duracion').value = '';
         document.getElementById('costo').value = '';
         document.getElementById('planificacion').checked = false;
 
-        cargarMembresias();
+        // Restaurar estado del botón y título
+        btnGuardarTipo.textContent = 'Guardar Tipo de Membresía';
+
+        // Refrescar la tabla
+        await cargarMembresias();
+
     } catch (error) {
         alert("Error: " + error.message);
     }
@@ -162,6 +186,44 @@ window.darAlta = async (id) => {
     }
 };
 
+window.modificarTipo = async ({tipoMem}) =>{
+
+    document.getElementById('tipoId').value = tipoMem.value
+    document.getElementById('diasAsistencia').value = tipoMem.diasAsistencia;
+    document.getElementById('duracion').value = tipoMem.duracionDiaMes;
+    document.getElementById('costo').value = tipoMem.costoMembresia;
+    document.getElementById('planificacion').checked = tipoMem.planificacion;
+
+    const payload = {
+        idTipoMem : document.getElementById('tipoId').value,
+        duracionDiaMes: document.getElementById('duracion').value,
+        diasAsistencia: document.getElementById('diasAsistencia').value,
+        planificacion: document.getElementById('planificacion').checked,
+        costoMembresia: document.getElementById('costo').value
+
+    };
+
+    document.getElementById('nombreMembresiaSeleccionada').textContent = "";
+    document.getElementById('descMembresia').disabled = true;
+    document.getElementById('form-title').textContent = "Modificacion de plan"
+    document.getElementById('pasoMembresia').style.display = 'none';
+    // Cambiar vista al Paso 2
+    document.getElementById('pasoTipos').style.display = 'block';
+    btnSiguiente.style.display = 'none';
+    btnGuardarTipo.style.display = 'inline-flex';
+    btnFinalizar.style.display = 'inline-flex';
+
+    await apiRequest('/membresia/tipo-membresia/modificar', {
+        method: 'POST',
+        body: JSON.stringify(payload),
+        token: getToken()
+    });
+
+    cargarMembresias();
+
+
+}
+
 window.añadirTipo = async (idMembresia , descMembresia) =>{
     membresiaActualId = idMembresia
     document.getElementById('nombreMembresiaSeleccionada').textContent = descMembresia;
@@ -218,6 +280,7 @@ window.verDetalles = async (id) => {
                 <td>
                     <div class="table-actions">
                         <!-- Aquí puedes agregar a futuro la función para eliminar o editar un tipo específico -->
+                        <button type="button" onclick="prepararModificacionTipo(${tipo.idTipoMem}, ${tipo.diasAsistencia}, ${tipo.duracionMembresia}, ${tipo.costoMembresia}, ${tipo.planificacion})">Modificar</button>
                         <button type="button" class="is-danger" onclick="eliminarTipo(${tipo.idTipoMem})">Borrar</button>
                     </div>
                 </td>
@@ -247,4 +310,34 @@ window.eliminarTipo = async (idTipo) => {
             alert("Error al eliminar: " + error.message);
         }
     }
+};
+
+window.prepararModificacionTipo = (idTipoMem, diasAsistencia, duracionMembresia, costoMembresia, planificacion) => {
+    // 1. Cerrar el modal para que el usuario pueda ver el formulario
+    document.getElementById('modalDetalles').close();
+
+    // 2. Cargar los datos en el formulario (incluyendo el ID oculto)
+    document.getElementById('tipoId').value = idTipoMem;
+    document.getElementById('diasAsistencia').value = diasAsistencia;
+    document.getElementById('duracion').value = duracionMembresia;
+    document.getElementById('costo').value = costoMembresia;
+    document.getElementById('planificacion').checked = planificacion;
+
+    // 3. Cambiar la apariencia de la interfaz
+    document.getElementById('pasoMembresia').style.display = 'none';
+    document.getElementById('pasoTipos').style.display = 'block';
+
+    document.getElementById('form-title').textContent = "Modificación de plan";
+    document.getElementById('nombreMembresiaSeleccionada').textContent = "";
+
+    // Visibilidad de botones
+    if (btnSiguiente) btnSiguiente.style.display = 'none';
+    if (btnGuardarTipo) {
+        btnGuardarTipo.style.display = 'inline-flex';
+        btnGuardarTipo.textContent = 'Actualizar Tipo'; // Cambiamos el texto del botón
+    }
+    if (btnFinalizar) btnFinalizar.style.display = 'inline-flex';
+
+    // Subir la pantalla hacia el formulario
+    window.scrollTo({ top: 0, behavior: 'smooth' });
 };

@@ -2,10 +2,7 @@ package com.gym.atlas.controller.membresias;
 
 import com.gym.atlas.data.membresia.Membresia;
 import com.gym.atlas.dto.MessageResponse;
-import com.gym.atlas.dto.membresia.MembresiaResponse;
-import com.gym.atlas.dto.membresia.RegistrarMembresiaRequest;
-import com.gym.atlas.dto.membresia.RegistrarTipoMembresiaRequest;
-import com.gym.atlas.dto.membresia.TipoMembresiaResponse;
+import com.gym.atlas.dto.membresia.*;
 import com.gym.atlas.service.membresia.MembresiaService;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.http.MediaType;
@@ -13,8 +10,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
-
-import static org.springframework.data.jpa.domain.AbstractPersistable_.id;
 
 @RestController
 @RequestMapping("/membresia")
@@ -65,6 +60,11 @@ public class MembresiaController {
         // ... lógica del service
 
         return ResponseEntity.ok(memServ.registrarTipoMembresia(request));
+    }
+
+    @PostMapping("/tipo-membresia/modificar")
+    public ResponseEntity<MessageResponse> modificarTipoMembresia(@RequestBody ModificarTipoMembresiaRequest request){
+        return ResponseEntity.ok(memServ.modificarTipoMembresia(request));
     }
 
     @GetMapping("/tipo-membresia/{id}")

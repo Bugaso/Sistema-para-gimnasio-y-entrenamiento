@@ -5,6 +5,7 @@ public record TipoMembresiaResponse(
         int duracionMembresia,
         int diasAsistencia,
         boolean planificacion,
-        double costoMembresia
+        double costoMembresia,
+        boolean estado
 ) {
 }
