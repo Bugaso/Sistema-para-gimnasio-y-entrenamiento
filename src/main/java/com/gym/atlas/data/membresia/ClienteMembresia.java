@@ -22,6 +22,9 @@ public class ClienteMembresia {
     @JoinColumn(name = "idMembresia", nullable = false)
     private Membresia membresia;
 
+    @Column(name="cantCuotas")
+    private int cantCuotas;
+
     @Column(name = "fechaPago")
     private LocalDateTime fechaPago;
 
@@ -78,5 +81,13 @@ public class ClienteMembresia {
 
     public void setFechaPago(LocalDateTime fechaPago) {
         this.fechaPago = fechaPago;
+    }
+
+    public int getCantCuotas() {
+        return cantCuotas;
+    }
+
+    public void setCantCuotas(int cantCuotas) {
+        this.cantCuotas = cantCuotas;
     }
 }

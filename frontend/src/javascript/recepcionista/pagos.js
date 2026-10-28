@@ -178,6 +178,7 @@ document.getElementById('formPago').addEventListener('submit', async (e) => {
         idClienteMembresia: null,
         idUsuario: clienteSeleccionado.id,
         idMembresia: membresiaSeleccionada.idMembresia, // Se usa idMembresia según la clase record solicitada
+        cantCuotas : selectCuotas.value,
         costoTotal: costoTotal,
         tipoPago: selectTipoPago.value,
         fechaPago: fecha

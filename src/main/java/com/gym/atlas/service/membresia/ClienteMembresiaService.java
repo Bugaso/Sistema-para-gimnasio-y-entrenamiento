@@ -48,6 +48,7 @@ public class ClienteMembresiaService {
         ClienteMembresia clienteMembresia = new ClienteMembresia();
         clienteMembresia.setUsuario(usuario);
         clienteMembresia.setMembresia(membresia);
+        clienteMembresia.setCantCuotas(request.cantCuotas());
         clienteMembresia.setFechaPago(request.fechaPago());
         clienteMembresia.setCostoTotal(request.costoTotal());
         clienteMembresia.setTipoPago(request.tipoPago());

@@ -117,6 +117,12 @@
                             <option value="">Todos los puestos</option>
                         </select>
                     </label>
+
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="chkInactivos" onchange="aplicarFiltros()" style="width: auto;" />
+                            <span style="font-size: 0.875rem; color: var(--muted);">Mostrar personal inactivo</span>
+                        </label>
+
                     <span id="cantResultados">0 registros</span>
                 </div>
 

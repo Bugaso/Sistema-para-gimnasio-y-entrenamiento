@@ -10,6 +10,7 @@ const filtroRol = document.getElementById('filtroRol');
 const cantResultados = document.getElementById('cantResultados');
 const toast = document.getElementById('toast');
 const contenedorRoles = document.getElementById('contenedorRoles');
+let chkInactivos = document.getElementById('chkInactivos');
 
 let empleadosTotales = [];
 let rolesDisponibles = [];
@@ -28,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // Eventos de filtros
     inputBuscar?.addEventListener('input', aplicarFiltros);
     filtroRol?.addEventListener('change', aplicarFiltros);
-
+    chkInactivos?.addEventListener('change', aplicarFiltros);
     // Modal Cancelar / Confirmar
     document.getElementById('btnCancelarModal')?.addEventListener('click', () => confirmDialog.close());
     document.getElementById('btnConfirmarEliminar')?.addEventListener('click', procesarEliminacion);
@@ -85,68 +86,104 @@ async function cargarEmpleados() {
 // Renderizar la tabla de empleados
 function renderizarTabla(lista) {
     tabla.innerHTML = '';
+
+    // Contamos solo los que realmente se van a mostrar
     cantResultados.textContent = `${lista.length} registro(s)`;
 
     if (lista.length === 0) {
-        tabla.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 28px; color: var(--muted);">No se encontraron empleados registrados.</td></tr>`;
+        tabla.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 28px; color: var(--muted);">No se encontraron empleados.</td></tr>`;
         return;
     }
 
     lista.forEach(emp => {
-
-
         const tr = document.createElement('tr');
         const iniciales = emp.nomApe ? emp.nomApe.substring(0, 2).toUpperCase() : 'US';
 
-        const nombresRoles = (emp.rolesIds || []).map(idRol => {
+        const tieneRoles = emp.rolesIds && emp.rolesIds.length > 0;
+
+        const nombresRoles = tieneRoles ? emp.rolesIds.map(idRol => {
             const r = rolesDisponibles.find(item => item.idRol === idRol);
             return r ? r.nomCatUs : `Rol #${idRol}`;
-        }).join(', ') || 'Sin rol';
+        }).join(', ') : 'Sin rol';
+
+        // Estilos condicionales para inactivos
+        const estiloTexto = !tieneRoles ? 'color: var(--muted); text-decoration: line-through;' : '';
+        const estiloAvatar = !tieneRoles ? 'opacity: 0.5; filter: grayscale(1);' : '';
+        const estiloEtiquetaRol = !tieneRoles ? 'background: #333; color: #aaa;' : '';
+
+        // Botones de acción condicionales
+        // Si no tiene rol (inactivo), no mostramos el botón eliminar.
+        let botonesHTML = '';
+        if (!tieneRoles) {
+            botonesHTML = `
+                <button type="button" data-edit="${emp.idUsuario}">Modificar / Reactivar</button>
+            `;
+        } else {
+            botonesHTML = `
+                <button type="button" data-edit="${emp.idUsuario}">Modificar</button>
+                <button type="button" class="is-danger" data-delete="${emp.idUsuario}">Eliminar</button>
+            `;
+        }
 
         tr.innerHTML = `
-            <td class="person-cell">
+            <td class="person-cell" style="${estiloAvatar}">
                 <span class="person-avatar">${iniciales}</span>
                 <div>
-                    <strong>${emp.nomApe}</strong>
+                    <strong style="${estiloTexto}">${emp.nomApe}</strong>
                     <small>${emp.mailUs}</small>
                 </div>
             </td>
             <td>
-                <span class="role-label">${nombresRoles}</span>
+                <span class="role-label" style="${estiloEtiquetaRol}">${nombresRoles}</span>
             </td>
             <td>
-                <strong>${emp.telUs || '-'}</strong>
+                <strong style="${estiloTexto}">${emp.telUs || '-'}</strong>
                 <small>${emp.contacoE || 'Sin contacto emerg.'}</small>
             </td>
-            <td>${emp.dniUs}</td>
+            <td style="${estiloTexto}">${emp.dniUs}</td>
             <td>
                 <div class="table-actions">
-                    <button type="button" data-edit="${emp.idUsuario}">Modificar</button>
-                    <button type="button" class="is-danger" data-delete="${emp.idUsuario}">Eliminar</button>
+                    ${botonesHTML}
                 </div>
             </td>
         `;
 
-        tr.querySelector(`[data-edit="${emp.idUsuario}"]`).addEventListener('click', () => prepararEdicion(emp));
-        tr.querySelector(`[data-delete="${emp.idUsuario}"]`).addEventListener('click', () => abrirModalEliminar(emp.idUsuario));
-
-        if(nombresRoles != "Sin rol"){
-            tabla.appendChild(tr);
+        // Asignamos eventos solo a los botones que existan
+        const btnEdit = tr.querySelector(`[data-edit="${emp.idUsuario}"]`);
+        if (btnEdit) {
+            btnEdit.addEventListener('click', () => prepararEdicion(emp));
         }
 
+        const btnDelete = tr.querySelector(`[data-delete="${emp.idUsuario}"]`);
+        if (btnDelete) {
+            btnDelete.addEventListener('click', () => abrirModalEliminar(emp.idUsuario));
+        }
+
+        tabla.appendChild(tr);
     });
 }
 
 function aplicarFiltros() {
     const texto = inputBuscar.value.toLowerCase().trim();
     const rolFiltroId = filtroRol.value ? parseInt(filtroRol.value) : null;
+    const mostrarInactivos = chkInactivos ? chkInactivos.checked : false;
 
     const filtrados = empleadosTotales.filter(emp => {
+        // 1. Filtro por texto (Nombre, Email, DNI)
         const coincideTexto = emp.nomApe.toLowerCase().includes(texto) ||
             emp.mailUs.toLowerCase().includes(texto) ||
             emp.dniUs.includes(texto);
 
+        // 2. Filtro por Rol seleccionado en el dropdown
         const coincideRol = !rolFiltroId || (emp.rolesIds && emp.rolesIds.includes(rolFiltroId));
+
+        // 3. Filtro por estado Inactivo (Sin rol)
+        const tieneRoles = emp.rolesIds && emp.rolesIds.length > 0;
+
+        // Si el checkbox NO está marcado y el usuario NO tiene roles, lo ocultamos
+        if (!mostrarInactivos && !tieneRoles) {
+            return false;
+        }
 
         return coincideTexto && coincideRol;
     });
