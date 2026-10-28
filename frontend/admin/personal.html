@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Gestión de Personal — Atlas Gym" />
+    <title>Gestión de Personal — Atlas Gym</title>
+    <link rel="stylesheet" href="../src/css/admin/admin.css" />
+    <link rel="stylesheet" href="../src/css/index/index.css" />
+</head>
+<body class="admin-page">
+
+<div class="admin-shell" data-admin-shell>
+    <!-- CONTENEDOR DE BARRA LATERAL -->
+    <aside data-layout-sidebar></aside>
+
+    <!-- ÁREA DE TRABAJO -->
+    <div class="admin-workspace">
+        <!-- CONTENEDOR DE HEADER -->
+        <header data-layout-topbar></header>
+
+        <div class="admin-content">
+
+            <!-- ENCABEZADO DE LA PÁGINA -->
+            <div class="admin-heading admin-heading-compact">
+                <div>
+                    <p class="eyebrow">Gestión Interna</p>
+                    <h1>Personal</h1>
+                    <p>Registra, actualiza y elimina entrenadores y recepcionistas del sistema.</p>
+                </div>
+                <a class="admin-primary-action" href="./index.html">
+                    ← Volver al panel
+                </a>
+            </div>
+
+            <!-- FORMULARIO DE ALTA / MODIFICACIÓN -->
+            <div class="admin-panel" style="margin-bottom: 40px;">
+                <div class="admin-panel-heading">
+                    <div>
+                        <span id="form-kicker">Nuevo Registro</span>
+                        <h2 id="form-title">Alta de Empleado</h2>
+                    </div>
+                </div>
+
+                <form id="formEmpleado" style="padding: 24px;">
+                    <input type="hidden" id="empId" name="id" />
+
+                    <div class="admin-form-grid">
+                        <label class="admin-field admin-field-wide">
+                            <span>Nombre y apellido</span>
+                            <input type="text" id="nomApe" name="nomApe" placeholder="Nombre completo" required />
+                        </label>
+
+                        <label class="admin-field">
+                            <span>DNI</span>
+                            <input type="text" id="dniUs" name="dniUs" inputmode="numeric" minlength="6" maxlength="12" required />
+                        </label>
+
+                        <label class="admin-field">
+                            <span>Email</span>
+                            <input type="email" id="mailUs" name="mailUs" placeholder="ejemplo@atlasgym.com" required />
+                        </label>
+
+                        <label class="admin-field">
+                            <span>Teléfono</span>
+                            <input type="tel" id="telUs" name="telUs" placeholder="Ej. 3851234567" required />
+                        </label>
+
+                        <label class="admin-field">
+                            <span>Fecha de Nacimiento</span>
+                            <input type="date" id="fechaNacimiento" name="fechaNacimiento" required />
+                        </label>
+
+                        <div class="admin-field admin-field-wide">
+                            <span>Roles Asignados</span>
+                            <div id="contenedorRoles" class="admin-permissions">
+                                <p style="color: var(--muted); font-size: 0.75rem; padding: 12px;">Cargando roles...</p>
+                            </div>
+                        </div>
+
+                        <label class="admin-field">
+                            <span>Contacto Emergencia</span>
+                            <input type="text" id="contacoE" name="contacoE" placeholder="Nombre y Teléfono de contacto" />
+                        </label>
+
+                        <label class="admin-field admin-field-wide">
+                            <span>Contraseña</span>
+                            <input type="password" id="password" name="password" minlength="8" autocomplete="new-password" placeholder="Mínimo 8 caracteres (dejar en blanco si sólo estás modificando los datos)" />
+                        </label>
+                    </div>
+
+                    <p class="admin-form-status" id="formStatus" role="status"></p>
+
+                    <div class="admin-dialog-actions" style="margin-top: 10px; padding-top: 16px;">
+                        <button type="button" id="btnCancelar" class="hidden" onclick="window.resetearFormulario()" style="display:none;">Cancelar edición</button>
+                        <button class="admin-primary-action" type="submit" id="btnGuardar">Guardar Personal</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TABLA / LISTA DE EMPLEADOS REGISTRADOS -->
+            <div class="admin-panel">
+                <div class="admin-panel-heading">
+                    <div>
+                        <span>Equipo Registrado</span>
+                        <h2>Lista de Personal</h2>
+                    </div>
+                </div>
+
+                <div class="admin-toolbar">
+                    <label class="admin-search">
+                        <span aria-hidden="true">⌕</span>
+                        <input type="search" id="inputBuscar" placeholder="Buscar por nombre, email o DNI…" />
+                    </label>
+                    <label class="admin-filter">
+                        <select id="filtroRol">
+                            <option value="">Todos los puestos</option>
+                        </select>
+                    </label>
+
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer;">
+                            <input type="checkbox" id="chkInactivos" onchange="aplicarFiltros()" style="width: auto;" />
+                            <span style="font-size: 0.875rem; color: var(--muted);">Mostrar personal inactivo</span>
+                        </label>
+
+                    <span id="cantResultados">0 registros</span>
+                </div>
+
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                        <tr>
+                            <th>Personal</th>
+                            <th>Puesto</th>
+                            <th>Contacto</th>
+                            <th>DNI</th>
+                            <th style="text-align: right;">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaEmpleados">
+                        <!-- Filas insertadas dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<dialog class="admin-dialog admin-confirm-dialog" id="confirmDialog">
+    <form method="dialog">
+        <span class="admin-warning" aria-hidden="true">!</span>
+        <h2>Confirmar eliminación</h2>
+        <p>¿Estás seguro de eliminar a este empleado? Esta acción afectará los registros vinculados en la base de datos.</p>
+        <div class="admin-dialog-actions">
+            <button type="button" id="btnCancelarModal">Cancelar</button>
+            <button class="admin-danger-action" type="button" id="btnConfirmarEliminar">Eliminar</button>
+        </div>
+    </form>
+</dialog>
+
+<div class="admin-toast" id="toast" hidden></div>
+
+<script type="module" src="../src/javascript/admin/personal.js"></script>
+</body>
+</html>

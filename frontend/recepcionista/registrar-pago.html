@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Panel de Recepción — Atlas Gym" />
+    <title>Recepción — Atlas Gym</title>
+    <link rel="stylesheet" href="../src/css/admin/admin.css" />
+    <link rel="stylesheet" href="../src/css/index/index.css" />
+</head>
+<body class="admin-page">
+
+<div class="admin-shell" data-admin-shell>
+    <aside data-layout-sidebar></aside>
+    <div class="admin-workspace">
+        <header data-layout-topbar></header>
+        <div class="admin-content">
+<admin-layout active="pagos">
+
+    <div class="admin-heading admin-heading-compact">
+        <div>
+            <p class="eyebrow">Gestión de Cobros</p>
+            <h1>Registrar Pago</h1>
+            <p>Vincula un cliente a una membresía y registra su pago en el sistema.</p>
+        </div>
+    </div>
+
+    <div class="admin-panel">
+        <div class="admin-panel-heading">
+            <div>
+                <span id="form-kicker">Paso a paso</span>
+                <h2>Formulario de Pago</h2>
+            </div>
+        </div>
+
+        <form id="formPago" style="padding: 24px;">
+            <!-- PASO 1: CLIENTE -->
+            <div class="admin-form-grid" style="border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 24px;">
+                <div class="admin-field admin-field-wide">
+                    <span>1. Selección de Cliente</span>
+                    <div style="display: flex; gap: 12px; align-items: center; margin-top: 8px;">
+                        <button type="button" id="btnAbrirModalClientes" class="admin-primary-action" style="padding: 8px 16px;">
+                            Seleccionar Cliente
+                        </button>
+                        <span id="txtClienteSeleccionado" style="color: var(--lime); font-weight: bold;">Ningún cliente seleccionado</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- PASO 2 Y 3: MEMBRESÍA Y TIPO -->
+            <div class="admin-form-grid" id="seccionMembresia" style="opacity: 0.5; pointer-events: none; border-bottom: 1px solid var(--border); padding-bottom: 24px; margin-bottom: 24px;">
+                <label class="admin-field">
+                    <span>2. Membresía Base</span>
+                    <select id="selectMembresia" required disabled>
+                        <option value="">Seleccione una membresía...</option>
+                    </select>
+                </label>
+
+                <label class="admin-field">
+                    <span>3. Tipo de Membresía (Plan)</span>
+                    <select id="selectTipoMembresia" required disabled>
+                        <option value="">Seleccione primero la base...</option>
+                    </select>
+                </label>
+            </div>
+
+            <!-- PASO 4: DETALLES DE PAGO -->
+            <div class="admin-form-grid" id="seccionPago" style="opacity: 0.5; pointer-events: none;">
+                <label class="admin-field" id="campoCuotas" style="display: none;">
+                    <span>Cantidad de Meses (Cuotas)</span>
+                    <select id="selectCuotas">
+                        <option value="1">1 Mes</option>
+                        <option value="2">2 Meses</option>
+                        <option value="3">3 Meses</option>
+                        <option value="6">6 Meses</option>
+                        <option value="12">12 Meses</option>
+                    </select>
+                </label>
+
+                <label class="admin-field">
+                    <span>Fecha de Registro</span>
+                    <input type="date" id="fechaPago" required />
+                </label>
+
+                <label class="admin-field">
+                    <span>Método de Pago</span>
+                    <select id="selectTipoPago" required>
+                        <option value="Efectivo">Efectivo</option>
+                        <option value="Transferencia">Transferencia</option>
+                        <option value="Ambos">Ambos</option>
+                    </select>
+                </label>
+
+                <label class="admin-field" id="campoMontoTransferencia" style="display: none;">
+                    <span>Monto en Transferencia ($)</span>
+                    <input type="number" id="montoTransferencia" placeholder="Ej. 2500" min="0" />
+                </label>
+            </div>
+
+            <!-- RESUMEN Y CONFIRMACIÓN -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-top: 32px; padding-top: 24px; border-top: 1px solid var(--border);">
+                <div>
+                    <span style="display: block; color: var(--muted); font-size: 0.875rem;">Total a Pagar</span>
+                    <strong id="lblTotal" style="font-size: 2rem; color: var(--lime);">$0.00</strong>
+                </div>
+                <button type="submit" id="btnRegistrarPago" class="admin-primary-action" disabled>Registrar Pago Oficial</button>
+            </div>
+        </form>
+    </div>
+</admin-layout>
+
+<!-- MODAL: SELECCIÓN DE CLIENTES -->
+<dialog class="admin-dialog" id="modalClientes" style="width: 100%; max-width: 600px;">
+    <div class="admin-dialog-heading" style="padding: 24px; border-bottom: 1px solid var(--border);">
+        <h2>Seleccionar Cliente</h2>
+        <button type="button" onclick="document.getElementById('modalClientes').close()">×</button>
+    </div>
+    <div style="padding: 24px;">
+        <div class="admin-toolbar" style="margin-bottom: 16px;">
+            <label class="admin-search" style="width: 100%;">
+                <span aria-hidden="true">⌕</span>
+                <input type="search" id="buscarCliente" placeholder="Buscar por Nombre o DNI..." />
+            </label>
+        </div>
+        <div class="admin-table-wrap" style="max-height: 300px; overflow-y: auto;">
+            <table class="admin-table">
+                <thead><tr><th>DNI</th><th>Nombre y Apellido</th></tr></thead>
+                <tbody id="tablaClientesBody"></tbody>
+            </table>
+        </div>
+    </div>
+</dialog>
+
+<!-- MODAL: CONFIRMACIÓN DE ÉXITO -->
+<dialog class="admin-dialog" id="modalExito">
+    <div class="admin-dialog-heading" style="padding: 24px; border-bottom: 1px solid var(--border);">
+        <span style="color: var(--lime); font-size: 2rem;">✓</span>
+        <h2>Pago Registrado Exitosamente</h2>
+    </div>
+    <div style="padding: 24px; line-height: 1.6;">
+        <p><strong>Cliente:</strong> <span id="exitoNombre"></span> (DNI: <span id="exitoDni"></span>)</p>
+        <p><strong>Membresía:</strong> <span id="exitoMembresia"></span></p>
+        <p><strong>Asistencia:</strong> <span id="exitoAsistencia"></span></p>
+        <div style="margin-top: 16px; padding: 16px; background: #1a1a1a; border-radius: 6px;">
+            <p style="color: var(--muted); font-size: 0.875rem; margin: 0;">Fecha de Vencimiento</p>
+            <p id="exitoVencimiento" style="font-size: 1.25rem; font-weight: bold; color: var(--lime); margin: 0;"></p>
+        </div>
+        <div class="admin-dialog-actions" style="margin-top: 24px;">
+            <button type="button" class="admin-primary-action" onclick="window.location.reload()">Nuevo Pago</button>
+        </div>
+    </div>
+</dialog>
+        </div>
+    </div>
+</div>
+<script type="module" src="../src/javascript/recepcionista/pagos.js"></script>
+</body>
+</html>

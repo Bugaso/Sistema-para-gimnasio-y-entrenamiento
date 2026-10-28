@@ -12,8 +12,12 @@
         <a class="logo" href="#inicio" aria-label="Atlas Gym, ir al inicio"><span class="logo-mark" aria-hidden="true">A</span>Atlas Gym</a>
         <button class="menu-toggle" type="button" aria-label="Abrir menú" aria-expanded="false"><span></span></button>
         <div class="nav-links">
-          <a href="#servicios">Servicios</a><a href="#membresias">Membresías</a><a href="#entrenadores">Entrenadores</a>
-          <a class="nav-cta" href="/registro" data-auth-link>Registro / Sesión</a>
+          <a href="/admin/index.html" id="navAdminLink" class="nav-admin-btn" hidden>Administración</a>
+          <a href="/recepcionista/index-recepcionista.html" id="navRecepcionLink" class="nav-admin-btn" hidden>Recepción</a>
+          <a href="#servicios">Servicios</a>
+          <a href="#membresias">Membresías</a>
+          <a href="#entrenadores">Entrenadores</a>
+          <a class="nav-cta" href="#registro" data-auth-link>Registro / Sesión</a>
         </div>
       </nav>
     </header>
@@ -26,7 +30,7 @@
             <h1>Construye <span>tu fuerza</span></h1>
             <div class="hero-copy-row">
               <p class="hero-copy">Entrenamiento de fuerza e hipertrofia con metodología, equipo profesional y una comunidad que te impulsa.</p>
-              <a class="button" href="/registro">Empieza hoy <span class="button-arrow" aria-hidden="true">→</span></a>
+              <a class="button" href="#registro">Empieza hoy <span class="button-arrow" aria-hidden="true">→</span></a>
             </div>
           </div>
           <div class="hero-stats" aria-label="Datos de Atlas Gym">
@@ -141,6 +145,6 @@
       </div>
     </footer>
 
-    <script type="module" src="/src/main.js"></script>
+    <script type="module" src="./src/javascript/main.js"></script>
   </body>
 </html>

@@ -1,5 +1,5 @@
-import "./index.css"
-import { register, saveToken } from "./api.js"
+import "./css/index/index.css"
+import { register, saveToken } from "./javascript/api.js"
 
 const password = document.querySelector("#password")
 const passwordToggle = document.querySelector("[data-password-toggle]")

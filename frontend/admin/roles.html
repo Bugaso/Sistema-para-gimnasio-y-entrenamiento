@@ -1,0 +1,125 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Gestión de Roles — Atlas Gym" />
+    <title>Gestión de Roles — Atlas Gym</title>
+    <link rel="stylesheet" href="../src/css/admin/admin.css" />
+    <link rel="stylesheet" href="../src/css/index/index.css" />
+</head>
+<body class="admin-page">
+
+<div class="admin-shell" data-admin-shell>
+    <!-- CONTENEDOR DE BARRA LATERAL (Inyectado por layout-admin.js) -->
+    <aside data-layout-sidebar></aside>
+
+    <!-- ÁREA DE TRABAJO -->
+    <div class="admin-workspace">
+        <!-- CONTENEDOR DE HEADER (Inyectado por layout-admin.js) -->
+        <header data-layout-topbar></header>
+
+        <div class="admin-content">
+
+            <!-- ENCABEZADO -->
+            <div class="admin-heading admin-heading-compact">
+                <div>
+                    <p class="eyebrow">Control de Acceso</p>
+                    <h1>Roles</h1>
+                    <p>Administra los permisos y categorías de usuarios del gimnasio.</p>
+                </div>
+                <a class="admin-primary-action" href="./index.html">
+                    ← Volver al panel
+                </a>
+            </div>
+
+            <!-- FORMULARIO ALTA / EDICIÓN -->
+            <div class="admin-panel" style="margin-bottom: 40px;">
+                <div class="admin-panel-heading">
+                    <div>
+                        <span id="form-kicker">Nuevo Rol</span>
+                        <h2 id="form-title">Crear Categoria de Rol</h2>
+                    </div>
+                </div>
+
+                <form id="formRol" style="padding: 24px;">
+                    <input type="hidden" id="rolId" name="id" />
+
+                    <div class="admin-form-grid">
+                        <label class="admin-field">
+                            <span>Nombre del Rol / Categoría</span>
+                            <input type="text" id="nomCatUs" name="nomCatUs" placeholder="Ej. Coach, Recepcionista, Admin" required />
+                        </label>
+                        <!--
+                        <label class="admin-field">
+                            <span>Tipo / Nivel de Permiso</span>
+                            <input type="text" id="tipoPermiso" name="tipoPermiso" placeholder="Ej. 1, 2, PERMISO_TOTAL" />
+                        </label>
+                        -->
+                    </div>
+
+                    <p class="admin-form-status" id="formStatus" role="status"></p>
+
+                    <div class="admin-dialog-actions" style="margin-top: 10px; padding-top: 16px;">
+                        <button type="button" id="btnCancelar" class="hidden" onclick="window.resetearFormulario()" style="display:none;">Cancelar edición</button>
+                        <button class="admin-primary-action" type="submit" id="btnGuardar">Guardar Rol</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TABLA DE ROLES -->
+            <div class="admin-panel">
+                <div class="admin-panel-heading">
+                    <div>
+                        <span>Configuración del Sistema</span>
+                        <h2>Roles Registrados</h2>
+                    </div>
+                </div>
+
+                <div class="admin-toolbar">
+                    <label class="admin-search">
+                        <span aria-hidden="true">⌕</span>
+                        <input type="search" id="inputBuscar" placeholder="Buscar rol por nombre..." />
+                    </label>
+                    <span id="cantResultados">0 registros</span>
+                </div>
+
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Nombre Rol</th>
+                            <th>Estado</th>
+                            <th style="text-align: right;">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaRoles">
+                        <!-- Filas insertadas dinámicamente -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<!-- MODAL ELIMINAR -->
+<dialog class="admin-dialog admin-confirm-dialog" id="confirmDialog">
+    <form method="dialog">
+        <span class="admin-warning" aria-hidden="true">!</span>
+        <h2>Confirmar eliminación</h2>
+        <p>¿Estás seguro de eliminar este rol? Se desvinculará de los usuarios asociados en la base de datos.</p>
+        <div class="admin-dialog-actions">
+            <button type="button" id="btnCancelarModal">Cancelar</button>
+            <button class="admin-danger-action" type="button" id="btnConfirmarEliminar">Eliminar</button>
+        </div>
+    </form>
+</dialog>
+
+<div class="admin-toast" id="toast" hidden></div>
+
+<script type="module" src="../src/javascript/admin/roles.js"></script>
+</body>
+</html>

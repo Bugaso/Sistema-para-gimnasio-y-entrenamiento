@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Panel de administración de Atlas Gym." />
+    <title>Administración — Atlas Gym</title>
+
+    <!-- Estilos -->
+    <link rel="stylesheet" href="../src/css/admin/admin.css" />
+    <link rel="stylesheet" href="../src/css/index/index.css" />
+</head>
+<body class="admin-page">
+
+<!-- PANTALLA DE CARGA Y VALIDACIÓN DE ACCESO -->
+<main class="admin-access" data-access-message>
+    <a class="logo" href="/" aria-label="Atlas Gym, volver al inicio">
+        <span class="logo-mark" aria-hidden="true">A</span>Atlas Gym
+    </a>
+    <div class="admin-access-card">
+        <p class="eyebrow">Acceso restringido</p>
+        <h1>Panel de administración</h1>
+        <p data-access-copy>Validando tus permisos de acceso…</p>
+        <a class="button" href="/inicio-sesion.html" data-access-action hidden>
+            Iniciar sesión <span class="button-arrow" aria-hidden="true">→</span>
+        </a>
+    </div>
+</main>
+
+<!-- LAYOUT PRINCIPAL (Oculto hasta que se valide el token en admin.js) -->
+<div class="admin-shell" data-admin-shell hidden>
+    <!-- BARRA LATERAL DINÁMICA -->
+    <aside data-layout-sidebar></aside>
+
+    <div class="admin-workspace">
+        <!-- HEADER DINÁMICO -->
+        <header data-layout-topbar></header>
+
+        <div class="admin-content">
+            <section class="admin-view" data-view="overview">
+                <div class="admin-heading">
+                    <div>
+                        <p class="eyebrow">Panel de control</p>
+                        <h1>Equipo Atlas</h1>
+                        <p>Gestiona permisos, roles y el personal que mantiene el gimnasio en movimiento.</p>
+                    </div>
+                    <!-- BOTÓN QUE DIRIGE A PERSONAL -->
+                    <a href="admin/personal.html" class="admin-primary-action">
+                        Añadir personal <span aria-hidden="true">+</span>
+                    </a>
+                </div>
+
+                <!-- MÉTRICAS PRINCIPALES -->
+                <div class="admin-metrics">
+                    <article>
+                        <span>Personal activo</span>
+                        <strong data-active-count>—</strong>
+                        <small>Entrenadores y recepción</small>
+                    </article>
+                    <article>
+                        <span>Roles configurados</span>
+                        <strong data-role-count>—</strong>
+                        <small>Perfiles de acceso</small>
+                    </article>
+                    <article>
+                        <span>Entrenadores</span>
+                        <strong data-trainer-count>—</strong>
+                        <small>Equipo de sala</small>
+                    </article>
+                    <article class="metric-accent">
+                        <span>Estado del sistema</span>
+                        <strong>Activo</strong>
+                        <small>Datos sincronizados</small>
+                    </article>
+                </div>
+
+                <!-- CUADRÍCULA DEL DASHBOARD -->
+                <div class="admin-overview-grid">
+                    <section class="admin-panel">
+                        <div class="admin-panel-heading">
+                            <div>
+                                <span>Actividad</span>
+                                <h2>Personal reciente</h2>
+                            </div>
+                            <a href="./personal.html" style="color: var(--lime); font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Ver todo</a>
+                        </div>
+                        <div class="recent-personnel" data-recent-personnel>
+                            <p style="padding: 16px; color: var(--muted); font-size: 0.875rem;">Cargando datos recientes...</p>
+                        </div>
+                    </section>
+
+                    <section class="admin-panel admin-role-summary">
+                        <div class="admin-panel-heading">
+                            <div>
+                                <span>Distribución</span>
+                                <h2>Equipo por rol</h2>
+                            </div>
+                        </div>
+                        <div data-role-summary>
+                            <p style="padding: 16px; color: var(--muted); font-size: 0.875rem;">Cargando distribución...</p>
+                        </div>
+                    </section>
+                </div>
+            </section>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="../src/javascript/admin/admin.js"></script>
+</body>
+</html>

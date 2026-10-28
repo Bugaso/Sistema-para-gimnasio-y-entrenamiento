@@ -1,5 +1,6 @@
 package com.gym.atlas.Security;
 
+import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -49,8 +50,20 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         // 3. Extraer el token (ignorando los primeros 7 caracteres de "Bearer ")
         jwt = authHeader.substring(7);
 
-        // 4. Extraer el nombre de usuario (o email) desde el token
-        username = jwtService.extractUsername(jwt);
+        try {
+            // 4. Extraer el nombre de usuario (o email) desde el token
+            username = jwtService.extractUsername(jwt);
+        } catch (ExpiredJwtException e) {
+            // Si el token expiró, devolvemos un 401 explícito y detenemos la cadena de filtros
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            response.setContentType("application/json");
+            response.getWriter().write("{\"error\": \"Token expirado\"}");
+            return;
+        } catch (Exception e) {
+            // Para cualquier otro error de manipulación del token
+            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+            return;
+        }
 
         // 5. Si hay usuario en el token y aún no hay una autenticación activa en el contexto
         if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {

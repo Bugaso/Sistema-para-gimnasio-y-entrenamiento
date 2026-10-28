@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Historial Médico — Atlas Gym" />
+    <title>Historial Médico — Recepción</title>
+    <!-- Reutilizamos los estilos del admin -->
+    <link rel="stylesheet" href="../src/css/admin/admin.css" />
+    <link rel="stylesheet" href="../src/css/index/index.css" />
+</head>
+<body class="admin-page">
+
+<div class="admin-shell" data-admin-shell>
+    <aside data-layout-sidebar></aside>
+    <div class="admin-workspace">
+        <header data-layout-topbar></header>
+
+        <div class="admin-content">
+            <div class="admin-heading admin-heading-compact">
+                <div>
+                    <p class="eyebrow">Gestión de Clientes</p>
+                    <h1>Historial Médico</h1>
+                    <p>Administra los expedientes físicos y condiciones médicas de los clientes.</p>
+                </div>
+                <a class="admin-primary-action" href="/">← Volver al inicio</a>
+            </div>
+
+            <!-- FORMULARIO -->
+            <div class="admin-panel" style="margin-bottom: 40px;">
+                <div class="admin-panel-heading">
+                    <div>
+                        <span id="form-kicker">Nuevo Expediente</span>
+                        <h2 id="form-title">Registrar Historial</h2>
+                    </div>
+                </div>
+
+                <form id="formHistorial" style="padding: 24px;">
+                    <input type="hidden" id="idHMedico" name="id" />
+
+                    <div class="admin-form-grid">
+                        <label class="admin-field admin-field-wide">
+                            <span>Cliente</span>
+                            <select id="idUsuario" name="idUsuario" required>
+                                <option value="">Seleccione un cliente...</option>
+                            </select>
+                        </label>
+
+                        <label class="admin-field">
+                            <span>Altura (Metros)</span>
+                            <input type="number" step="0.01" min="0" id="alturaHReg" placeholder="Ej. 1.75" required />
+                        </label>
+
+                        <label class="admin-field">
+                            <span>Peso (Kg)</span>
+                            <input type="number" step="0.1" min="0" id="pesoHReg" placeholder="Ej. 75.5" required />
+                        </label>
+
+                        <label class="admin-field admin-field-wide">
+                            <span>Condición Médica</span>
+                            <input type="text" id="condMed" placeholder="Ej. Asma, Lesión en rodilla, Ninguna" required />
+                        </label>
+
+                        <label class="admin-field admin-field-wide">
+                            <span>Descripción Detallada</span>
+                            <textarea id="descHMed" rows="3" placeholder="Detalles adicionales o recomendaciones médicas..."></textarea>
+                        </label>
+                    </div>
+
+                    <p class="admin-form-status" id="formStatus" role="status"></p>
+
+                    <div class="admin-dialog-actions" style="margin-top: 10px; padding-top: 16px;">
+                        <button type="button" id="btnCancelar" class="hidden" onclick="window.resetearFormulario()" style="display:none;">Cancelar edición</button>
+                        <button class="admin-primary-action" type="submit" id="btnGuardar">Guardar Expediente</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- TABLA -->
+            <div class="admin-panel">
+                <div class="admin-panel-heading">
+                    <div>
+                        <span>Listado</span>
+                        <h2>Expedientes Registrados</h2>
+                    </div>
+                </div>
+
+                <div class="admin-toolbar">
+                    <label class="admin-search">
+                        <span aria-hidden="true">⌕</span>
+                        <input type="search" id="inputBuscar" placeholder="Buscar por DNI o Nombre..." />
+                    </label>
+                    <span id="cantResultados">0 registros</span>
+                </div>
+
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                        <tr>
+                            <th>Nº Exp.</th>
+                            <th>Cliente</th>
+                            <th>Físico (Alt/Peso)</th>
+                            <th>Condición</th>
+                            <th>Registro</th>
+                            <th style="text-align: right;">Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaHistoriales">
+                        <!-- Dinámico -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<dialog class="admin-dialog admin-confirm-dialog" id="confirmDialog">
+    <form method="dialog">
+        <span class="admin-warning" aria-hidden="true">!</span>
+        <h2>Confirmar eliminación</h2>
+        <p>¿Estás seguro de eliminar este expediente médico?</p>
+        <div class="admin-dialog-actions">
+            <button type="button" id="btnCancelarModal">Cancelar</button>
+            <button class="admin-danger-action" type="button" id="btnConfirmarEliminar">Eliminar</button>
+        </div>
+    </form>
+</dialog>
+<div class="admin-toast" id="toast" hidden></div>
+
+<script type="module" src="../src/javascript/recepcionista/historial-medico.js"></script>
+</body>
+</html>
