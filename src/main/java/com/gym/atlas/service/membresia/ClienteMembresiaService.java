@@ -48,9 +48,10 @@ public class ClienteMembresiaService {
         ClienteMembresia clienteMembresia = new ClienteMembresia();
         clienteMembresia.setUsuario(usuario);
         clienteMembresia.setMembresia(membresia);
-        clienteMembresia.setFechaPago(LocalDateTime.now());
+        clienteMembresia.setFechaPago(request.fechaPago());
+        clienteMembresia.setCostoTotal(request.costoTotal());
+        clienteMembresia.setTipoPago(request.tipoPago());
 
-        Long cantCuotas = request.duracionMembresia();
 
 
         //clienteMembresia.setFechaVenc(LocalDate.from(LocalDateTime.now().plusDays(membresia.getDuracionMembresia()*cantCuotas)));

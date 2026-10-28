@@ -38,7 +38,7 @@ const verificarAccesoAdmin = async () => {
 
         // Redirigimos automáticamente después de 2.5 segundos
         setTimeout(() => {
-            window.location.href = "/inicio-sesion.html";
+            window.location.href = "/login";
         }, 2500);
     }
 };

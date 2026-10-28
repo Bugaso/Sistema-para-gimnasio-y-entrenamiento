@@ -16,6 +16,12 @@ export function renderRecepcionLayout(activeNav) {
                     <a class="admin-nav-link ${activeNav === 'historial_medico' ? 'is-active' : ''}" href="/recepcionista/historial-medico.html">
                         <span aria-hidden="true">01</span>Historial Médico
                     </a>
+                    <a class="admin-nav-link ${activeNav === 'registrar_pago' ? 'is-active' : ''}" href="/recepcionista/registrar-pago.html">
+                        <span aria-hidden="true">02</span>Registrar pago
+                    </a>
+                    <a class="admin-nav-link ${activeNav === 'historial_pagos' ? 'is-active' : ''}" href="/recepcionista/historial_pago.html">
+                        <span aria-hidden="true">03</span>Historial de pagos
+                    </a>
                 </nav>
 
                 <div class="admin-sidebar-footer">
@@ -46,7 +52,7 @@ export function renderRecepcionLayout(activeNav) {
 
     document.getElementById('btnLogout')?.addEventListener('click', () => {
         clearToken();
-        window.location.href = '/inicio-sesion.html';
+        window.location.href = '/login';
     });
 
     document.getElementById('btnToggleMenu')?.addEventListener('click', () => {

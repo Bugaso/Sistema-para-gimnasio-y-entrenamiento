@@ -26,7 +26,9 @@ export default defineConfig({
         comprobantes: path.resolve(__dirname, 'admin/comprobantes.html'),
         membresias: path.resolve(__dirname, 'admin/membresias.html'),
         recepcionistaIndex: path.resolve(__dirname, 'recepcionista/index-recepcionista.html'),
-        historialMedico: path.resolve(__dirname, 'recepcionista/historial-medico.html')
+        historialMedico: path.resolve(__dirname, 'recepcionista/historial-medico.html'),
+        registroPago: path.resolve(__dirname, 'recepcionista/registrar-pago.html'),
+        historialPago: path.resolve(__dirname, 'recepcionista/historial-pagos.html')
       },
     },
   },
