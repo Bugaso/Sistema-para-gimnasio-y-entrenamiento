@@ -6,9 +6,11 @@ import java.util.Date;
 public record RegistrarClienteMembresiaRequest(
         Long idClienteMembresia,
         Long idUsuario,
-        Long idMembresia,
+        Long idTipoMembresia,
         int cantCuotas,
         Double costoTotal,
+        Double cantEfect,
         String tipoPago,
+
         LocalDateTime fechaPago
 ) {}

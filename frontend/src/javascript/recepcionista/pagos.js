@@ -32,8 +32,8 @@ const campoCuotas = document.getElementById('campoCuotas');
 
 const fechaPago = document.getElementById('fechaPago');
 const selectTipoPago = document.getElementById('selectTipoPago');
-const campoMontoTransferencia = document.getElementById('campoMontoTransferencia');
-const montoTransferencia = document.getElementById('montoTransferencia');
+const campoMontoEfectivo = document.getElementById('campoMontoEfectivo');
+const montoEfectivo = document.getElementById('montoEfectivo');
 const lblTotal = document.getElementById('lblTotal');
 const btnRegistrarPago = document.getElementById('btnRegistrarPago');
 
@@ -149,8 +149,11 @@ selectTipoMembresia.addEventListener('change', (e) => {
 selectCuotas.addEventListener('change', actualizarTotalesUI);
 
 selectTipoPago.addEventListener('change', (e) => {
-    campoMontoTransferencia.style.display = e.target.value === 'Ambos' ? 'block' : 'none';
-    if(e.target.value !== 'Ambos') montoTransferencia.value = '';
+    campoMontoEfectivo.style.display = e.target.value === 'Ambos' ? 'block' : 'none';
+    if(e.target.value !== 'Ambos') {
+        montoEfectivo.value = "0.0";
+
+    }
 });
 
 function actualizarTotalesUI() {
@@ -170,16 +173,17 @@ document.getElementById('formPago').addEventListener('submit', async (e) => {
 
     const cuotas = campoCuotas.style.display === 'block' ? parseInt(selectCuotas.value) : 1;
     const costoTotal = tipoMembresiaSeleccionado.costoMembresia * cuotas;
-
+    let montoEfect = montoEfectivo && montoEfectivo.value ? parseFloat(montoEfectivo.value) : 0.0;
     // Formatear LocalDateTime: Agrega T00:00:00 si es necesario
     const fecha = fechaPago.value ? `${fechaPago.value}T00:00:00` : new Date().toISOString().split('.')[0];
 
     const payload = {
         idClienteMembresia: null,
         idUsuario: clienteSeleccionado.id,
-        idMembresia: membresiaSeleccionada.idMembresia, // Se usa idMembresia según la clase record solicitada
+        idTipoMembresia: tipoMembresiaSeleccionado.idTipoMem, // Se usa idMembresia según la clase record solicitada
         cantCuotas : selectCuotas.value,
         costoTotal: costoTotal,
+        cantEfect : montoEfect,
         tipoPago: selectTipoPago.value,
         fechaPago: fecha
     };
