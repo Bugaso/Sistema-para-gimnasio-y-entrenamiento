@@ -51,7 +51,7 @@ function aplicarFiltros() {
         const coincideTexto = nom.includes(texto) || dni.includes(texto);
 
         // Asumiendo que el estado se guarda en reg.estado
-        const esInactivo = (reg.estado === 'INACTIVO' || reg.estado === 'BAJA');
+        const esInactivo = (reg.estado === 'VENCIDO');
 
         if (!mostrarInactivos && esInactivo) return false;
 
@@ -95,10 +95,10 @@ function renderizarTabla(lista) {
         if (!esInactivo) {
 
             // El ID principal de este registro (ClienteMembresia)
-            const idRegistro = reg.idClienteMembresia || reg.id;
+            let idRegistro = reg.idCliMem;
             botonHTML = `<button type="button" class="is-danger" onclick="window.abrirModalBaja(${idRegistro})">Dar de Baja</button>`;
         } else {
-            botonHTML = `<span style="color: var(--muted); font-size: 0.8rem;">Baja registrada</span>`;
+            botonHTML = `<span style="color: var(--muted); font-size: 0.8rem;">Vencido</span>`;
         }
 
         tr.innerHTML = `
@@ -139,7 +139,7 @@ async function procesarBaja() {
     try {
         // Petición al backend para hacer el soft delete (baja lógica)
         await apiRequest(`/cliente-membresias/${idBajaSeleccionada}/baja`, {
-            method: 'PUT',
+            method: 'DELETE',
             token: getToken()
         });
 

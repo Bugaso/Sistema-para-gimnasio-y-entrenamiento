@@ -4,6 +4,7 @@ import com.gym.atlas.data.membresia.ClienteMembresia;
 import com.gym.atlas.data.membresia.Membresia;
 import com.gym.atlas.data.membresia.TipoMembresia;
 import com.gym.atlas.data.usuario.Usuario;
+import com.gym.atlas.dto.MessageResponse;
 import com.gym.atlas.dto.membresia.ClienteMembresiaDTO;
 import com.gym.atlas.dto.membresia.RegistrarClienteMembresiaRequest;
 import com.gym.atlas.repository.membresia.ClienteMembresiaRepository;
@@ -88,7 +89,7 @@ public class ClienteMembresiaService {
                             estado =  "ACTIVO";
                         }
                         else {estado = "VENCIDO";}
-                    ClienteMembresiaDTO clienteMembresiaDTO = new ClienteMembresiaDTO(
+                        ClienteMembresiaDTO clienteMembresiaDTO = new ClienteMembresiaDTO(
                             cliMem.getIdCliMem(),
                             cliMem.getUsuario(),
                             cliMem.getIdTipoMembresia().getIdTipoMem(),
@@ -99,7 +100,7 @@ public class ClienteMembresiaService {
                             estado,
                             cliMem.getCantEfect(),
                             cliMem.getCostoTotal()
-                    );
+                        );
                     return clienteMembresiaDTO;
                 }
         ).toList();
@@ -142,5 +143,12 @@ public class ClienteMembresiaService {
         }).toList();
         return cliMemListDTO;
 
+    }
+
+    public MessageResponse borrarPagoCliente(Long idCliMem) {
+        ClienteMembresia clienteMembresia = clienteMembresiaRepository.findById(idCliMem).orElseThrow();
+
+        clienteMembresiaRepository.delete(clienteMembresia);
+        return new MessageResponse("Eliminacion con exito");
     }
 }
