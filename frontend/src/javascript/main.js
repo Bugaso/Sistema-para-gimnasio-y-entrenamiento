@@ -93,3 +93,147 @@ async function verificarAdminNavBar() {
         document.getElementById('navRecepcionLink').hidden = false;
     } catch (error) { /* No es recepcionista */ }
 }
+
+//Membresias dinamicas
+
+// Añade este código a tu archivo main.js
+
+document.addEventListener('DOMContentLoaded', async () => {
+    // ... tu código existente (verificarAdminNavBar, etc.)
+    await cargarMembresiasIndex();
+});
+
+async function cargarMembresiasIndex() {
+    const carrusel = document.getElementById('carruselMembresias');
+    if (!carrusel) return;
+
+    try {
+        // Obtenemos las membresías directamente desde el backend (no requiere token de admin)
+        const membresias = await apiRequest('/membresia/listar');
+        const planesAgrupados = agruparMembresias(membresias);
+
+        renderizarCarruselMembresias(carrusel, planesAgrupados);
+
+    } catch (error) {
+        console.error("Error al cargar las membresías para el index:", error);
+        carrusel.innerHTML = '<p style="color: var(--muted); padding: 20px;">No se pudieron cargar los planes en este momento.</p>';
+    }
+}
+
+function agruparMembresias(membresias) {
+    const pasesDeUnDia = [];
+    const planesMensuales = [];
+    const planesConPlanificacion = [];
+
+    membresias.forEach(membresia => {
+        // Solo procesamos membresías ACTIVAS
+        if (membresia.estado === 'INACTIVO' || !membresia.tipos) return;
+
+        membresia.tipos.forEach(tipo => {
+            const dato = {
+                nombreMembresia: membresia.descripMembresia,
+                ...tipo
+            };
+
+            if (tipo.duracionMembresia === 1) {
+                pasesDeUnDia.push(dato);
+            } else if (tipo.planificacion) {
+                planesConPlanificacion.push(dato);
+            } else {
+                planesMensuales.push(dato);
+            }
+        });
+    });
+
+    return {
+        pasesDeUnDia,
+        planesMensuales: consolidarPlanes(planesMensuales),
+        planesConPlanificacion: consolidarPlanes(planesConPlanificacion)
+    };
+}
+
+// Función para unificar los diferentes precios y días de una misma membresía
+function consolidarPlanes(planesCrudos) {
+    const mapa = new Map();
+
+    planesCrudos.forEach(plan => {
+        if (!mapa.has(plan.nombreMembresia)) {
+            mapa.set(plan.nombreMembresia, {
+                nombre: plan.nombreMembresia,
+                precioDesde: plan.costoMembresia,
+                minDias: plan.diasAsistencia,
+                maxDias: plan.diasAsistencia,
+                esPlanificado: plan.planificacion
+            });
+        } else {
+            const planAgrupado = mapa.get(plan.nombreMembresia);
+            // Actualizamos los rangos de precios y días
+            if (plan.costoMembresia < planAgrupado.precioDesde) planAgrupado.precioDesde = plan.costoMembresia;
+            if (plan.diasAsistencia < planAgrupado.minDias) planAgrupado.minDias = plan.diasAsistencia;
+            if (plan.diasAsistencia > planAgrupado.maxDias) planAgrupado.maxDias = plan.diasAsistencia;
+        }
+    });
+
+    return Array.from(mapa.values());
+}
+
+function renderizarCarruselMembresias(contenedor, grupos) {
+    contenedor.innerHTML = ''; // Limpiamos el track del carrusel
+
+    // 1. Tarjetas de Un Día
+    grupos.pasesDeUnDia.forEach(pase => {
+        contenedor.innerHTML += `
+            <article class="membership-card">
+              <span class="plan-badge">Un día</span>
+              <h3>${pase.nombreMembresia}</h3>
+              <p class="price">$${pase.costoMembresia} <small> / día</small></p>
+              <ul class="plan-list">
+                <li>Acceso por 1 día</li>
+                <li>Membresía base</li>
+              </ul>
+              <a class="plan-link" href="/register">Elegir pase →</a>
+            </article>
+        `;
+    });
+
+    // 2. Tarjetas de Planes Mensuales Regulares
+    grupos.planesMensuales.forEach(plan => {
+        const textoDias = plan.minDias === plan.maxDias
+            ? `${plan.minDias} días por semana`
+            : `Desde ${plan.minDias} hasta ${plan.maxDias} días por semana`;
+
+        contenedor.innerHTML += `
+            <article class="membership-card">
+              <span class="plan-badge">Mensual</span>
+              <h3>${plan.nombre}</h3>
+              <p class="price">Min $${plan.precioDesde} <small> / mes</small></p>
+              <ul class="plan-list">
+                <li>${textoDias}</li>
+                <li>Acceso mensual estándar</li>
+              </ul>
+              <a class="plan-link" href="/register">Elegir plan →</a>
+            </article>
+        `;
+    });
+
+    // 3. Tarjetas de Planes con Planificación
+    grupos.planesConPlanificacion.forEach(plan => {
+        const textoDias = plan.minDias === plan.maxDias
+            ? `${plan.minDias} días por semana`
+            : `De ${plan.minDias} a ${plan.maxDias} días por semana`;
+
+        contenedor.innerHTML += `
+            <article class="membership-card featured">
+              <span class="plan-badge">Planificado</span>
+              <h3>${plan.nombre} PRO</h3>
+              <p class="price">Min $${plan.precioDesde} <small> / mes</small></p>
+              <ul class="plan-list">
+                <li>${textoDias}</li>
+                <li>Seguimiento planificado del rendimiento</li>
+                <li>Rutinas enfocadas en objetivos</li>
+              </ul>
+              <a class="plan-link" href="/register">Elegir plan →</a>
+            </article>
+        `;
+    });
+}
