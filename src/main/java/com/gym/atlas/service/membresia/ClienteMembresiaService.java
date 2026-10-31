@@ -4,6 +4,7 @@ import com.gym.atlas.data.membresia.ClienteMembresia;
 import com.gym.atlas.data.membresia.Membresia;
 import com.gym.atlas.data.membresia.TipoMembresia;
 import com.gym.atlas.data.usuario.Usuario;
+import com.gym.atlas.dto.membresia.ClienteMembresiaDTO;
 import com.gym.atlas.dto.membresia.RegistrarClienteMembresiaRequest;
 import com.gym.atlas.repository.membresia.ClienteMembresiaRepository;
 import com.gym.atlas.repository.membresia.MembresiaRepository;
@@ -71,13 +72,75 @@ public class ClienteMembresiaService {
     }
 
     @Transactional(readOnly = true)
-    public List<ClienteMembresia> obtenerHistorial() {
-        return clienteMembresiaRepository.findAll();
+    public List<ClienteMembresiaDTO> obtenerHistorial() {
+        List<ClienteMembresiaDTO> listaCliMemDTO;
+        List<ClienteMembresia> listaCliMem = clienteMembresiaRepository.findAll();
+        if(listaCliMem.isEmpty()){
+            return null;
+        }
+
+        listaCliMemDTO = listaCliMem.stream().map(cliMem -> {
+                        LocalDateTime vencimiento = cliMem.getFechaPago().plusDays(
+                                cliMem.getIdTipoMembresia().getDuracionMembresia()*cliMem.getCantCuotas());
+
+                        String estado;
+                        if(vencimiento.isAfter(LocalDateTime.now())){
+                            estado =  "ACTIVO";
+                        }
+                        else {estado = "VENCIDO";}
+                    ClienteMembresiaDTO clienteMembresiaDTO = new ClienteMembresiaDTO(
+                            cliMem.getIdCliMem(),
+                            cliMem.getUsuario(),
+                            cliMem.getIdTipoMembresia().getIdTipoMem(),
+                            cliMem.getIdTipoMembresia().getMembresia().getDescripMembresia(),
+                            cliMem.getCantCuotas(),
+                            cliMem.getIdTipoMembresia().getDiasAsistencia(),
+                            cliMem.getFechaPago().toLocalDate().toString(),
+                            estado,
+                            cliMem.getCantEfect(),
+                            cliMem.getCostoTotal()
+                    );
+                    return clienteMembresiaDTO;
+                }
+        ).toList();
+
+        return listaCliMemDTO;
     }
 
-    public List<ClienteMembresia> obtenerHistorialCliente(Long idUsuario) {
+    public List<ClienteMembresiaDTO> obtenerHistorialCliente(Long idUsuario) {
+        List<ClienteMembresia> cliMemList = clienteMembresiaRepository.findAllByUsuario(idUsuario);
+        if(cliMemList.isEmpty()){
+            return null;
+        }
 
-        return clienteMembresiaRepository.findAllByUsuario(idUsuario);
+        List<ClienteMembresiaDTO> cliMemListDTO = cliMemList.stream().map( cliMem ->{
+                LocalDateTime vencimiento = cliMem.getFechaPago().plusDays(
+                        cliMem.getIdTipoMembresia().getDuracionMembresia()*cliMem.getCantCuotas());
+
+                String estado;
+                if(vencimiento.isAfter(LocalDateTime.now())){
+                    estado =  "ACTIVO";
+                }
+                else {estado = "VENCIDO";}
+
+                ClienteMembresiaDTO cliMemDTO = new ClienteMembresiaDTO(
+                        cliMem.getIdCliMem(),
+                        cliMem.getUsuario(),
+                        cliMem.getIdTipoMembresia().getIdTipoMem(),
+                        cliMem.getIdTipoMembresia().getMembresia().getDescripMembresia(),
+                        cliMem.getCantCuotas(),
+                        cliMem.getIdTipoMembresia().getDiasAsistencia(),
+                        cliMem.getFechaPago().toString(),
+                        estado,
+                        cliMem.getCantEfect(),
+                        cliMem.getCostoTotal()
+                );
+
+
+
+                return cliMemDTO;
+        }).toList();
+        return cliMemListDTO;
 
     }
 }

@@ -19,7 +19,7 @@ export function renderRecepcionLayout(activeNav) {
                     <a class="admin-nav-link ${activeNav === 'registrar_pago' ? 'is-active' : ''}" href="/recepcionista/registrar-pago.html">
                         <span aria-hidden="true">02</span>Registrar pago
                     </a>
-                    <a class="admin-nav-link ${activeNav === 'historial_pagos' ? 'is-active' : ''}" href="/recepcionista/historial_pago.html">
+                    <a class="admin-nav-link ${activeNav === 'historial_pago' ? 'is-active' : ''}" href="/recepcionista/historial-pago.html">
                         <span aria-hidden="true">03</span>Historial de pagos
                     </a>
                 </nav>
