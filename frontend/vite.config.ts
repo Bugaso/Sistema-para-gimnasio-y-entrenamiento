@@ -28,7 +28,9 @@ export default defineConfig({
         recepcionistaIndex: path.resolve(__dirname, 'recepcionista/index-recepcionista.html'),
         historialMedico: path.resolve(__dirname, 'recepcionista/historial-medico.html'),
         registroPago: path.resolve(__dirname, 'recepcionista/registrar-pago.html'),
-        historialPago: path.resolve(__dirname, 'recepcionista/historial-pagos.html')
+        historialPago: path.resolve(__dirname, 'recepcionista/historial-pagos.html'),
+        coachIndex: path.resolve(__dirname, 'coach/index-coach.html'),
+        coachRutinas: path.resolve(__dirname, 'coach/rutinas.html'),
       },
     },
   },

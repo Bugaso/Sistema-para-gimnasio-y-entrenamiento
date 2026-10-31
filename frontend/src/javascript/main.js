@@ -92,4 +92,11 @@ async function verificarAdminNavBar() {
         await apiRequest("/api/recepcion/validar", { method: "GET", token });
         document.getElementById('navRecepcionLink').hidden = false;
     } catch (error) { /* No es recepcionista */ }
+
+    // Validar Coach
+    try {
+        // endpoint que responde a coach/validar o en su defecto a /api/coach/...
+        await apiRequest("/api/coach/validar", { method: "GET", token });
+        document.getElementById('navCoachLink').hidden = false;
+    } catch (error) { /* No es coach */ }
 }

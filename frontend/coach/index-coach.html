@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Portal del Entrenador — Atlas Gym" />
+    <title>Inicio — Coach</title>
+    <!-- Rutas relativas para que Vite las resuelva en el bundle -->
+    <link rel="stylesheet" href="../src/css/admin/admin.css" /> "
+    <link rel="stylesheet" href="../src/css/index/index.css" />
+</head>
+<body class="admin-page">
+
+<div class="admin-shell" data-admin-shell>
+    <aside data-layout-sidebar></aside>
+    <div class="admin-workspace">
+        <header data-layout-topbar></header>
+
+        <div class="admin-content">
+            <div class="admin-heading">
+                <div>
+                    <p class="eyebrow">Portal de Coach</p>
+                    <h1>Bienvenido, Entrenador</h1>
+                    <p>Aquí podrás gestionar las rutinas de tus clientes y hacer seguimiento de su progreso.</p>
+                </div>
+            </div>
+
+            <div class="admin-overview-grid">
+                <section class="admin-panel" style="padding: 40px; text-align: center; border-style: dashed; border-color: var(--border);">
+                    <p style="color: var(--muted); font-size: 1.1rem;">
+                        Selecciona <strong>Rutinas y Asignaciones</strong> en el menú lateral para gestionar los entrenamientos.
+                    </p>
+                </section>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script type="module" src="../src/javascript/coach/index-coach.js"></script>
+</body>
+</html>

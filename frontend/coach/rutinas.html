@@ -1,0 +1,131 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Gestión de Rutinas — Coach</title>
+    <link rel="stylesheet" href="../src/css/admin/admin.css" />
+    <link rel="stylesheet" href="../src/css/index/index.css" />
+    <style>
+        .table-input { width: 100%; padding: 4px 8px; border: 1px solid var(--border); border-radius: 4px; }
+        .btn-add { margin-bottom: 16px; display: inline-flex; }
+    </style>
+</head>
+<body class="admin-page">
+
+<div class="admin-shell" data-admin-shell>
+    <aside data-layout-sidebar></aside>
+    <div class="admin-workspace">
+        <header data-layout-topbar></header>
+
+        <div class="admin-content">
+            <div class="admin-heading admin-heading-compact">
+                <div>
+                    <p class="eyebrow">Entrenamiento</p>
+                    <h1>Rutinas y Asignaciones</h1>
+                </div>
+            </div>
+
+            <!-- SECCIÓN 1: CREAR RUTINA -->
+            <div class="admin-panel" style="margin-bottom: 40px;">
+                <div class="admin-panel-heading">
+                    <div>
+                        <span>Constructor</span>
+                        <h2>Crear Nueva Rutina</h2>
+                    </div>
+                </div>
+
+                <form id="formRutina" style="padding: 24px;">
+                    <div class="admin-form-grid">
+                        <label class="admin-field admin-field-wide">
+                            <span>Nombre de la Rutina</span>
+                            <input type="text" id="nombreRutina" placeholder="Ej. Hipertrofia Principiantes" required />
+                        </label>
+
+                        <label class="admin-field admin-field-wide">
+                            <span>Descripción / Notas</span>
+                            <textarea id="descripcionRutina" rows="2" placeholder="Indicaciones generales..."></textarea>
+                        </label>
+
+                        <label class="admin-field" style="flex-direction: row; align-items: center; gap: 10px;">
+                            <input type="checkbox" id="esPlantilla" checked />
+                            <span>Guardar como Plantilla General (Para reutilizar)</span>
+                        </label>
+                    </div>
+
+                    <hr style="margin: 24px 0; border-color: var(--border);" />
+
+                    <h3 style="margin-bottom: 16px;">Ejercicios de la Rutina</h3>
+                    <button type="button" class="admin-primary-action btn-add" id="btnAgregarEjercicio">+ Añadir Ejercicio</button>
+
+                    <div class="admin-table-wrap" style="overflow-x: visible;">
+                        <table class="admin-table">
+                            <thead>
+                            <tr>
+                                <th>Día</th>
+                                <th>Ejercicio</th>
+                                <th>Series</th>
+                                <th>Reps</th>
+                                <th>Peso</th>
+                                <th>Acción</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tablaDetalles">
+                            <!-- Filas dinámicas -->
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <p class="admin-form-status" id="formStatusCreate"></p>
+                    <div class="admin-dialog-actions" style="margin-top: 24px;">
+                        <button class="admin-primary-action" type="submit">Guardar Rutina Completa</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- SECCIÓN 2: ASIGNAR RUTINA -->
+            <div class="admin-panel">
+                <div class="admin-panel-heading">
+                    <div>
+                        <span>Operación</span>
+                        <h2>Asignar Rutina a Cliente</h2>
+                    </div>
+                </div>
+
+                <form id="formAsignacion" style="padding: 24px;">
+                    <div class="admin-form-grid">
+                        <label class="admin-field">
+                            <span>Cliente</span>
+                            <select id="idClienteAsignar" required>
+                                <option value="">Cargando clientes...</option>
+                            </select>
+                        </label>
+
+                        <label class="admin-field">
+                            <span>Rutina (Plantilla Base)</span>
+                            <select id="idRutinaAsignar" required>
+                                <option value="">Cargando rutinas...</option>
+                            </select>
+                        </label>
+
+                        <label class="admin-field">
+                            <span>Duración del Plan</span>
+                            <input type="text" id="duracionPlan" placeholder="Ej. 4 Semanas" required />
+                        </label>
+                    </div>
+
+                    <p class="admin-form-status" id="formStatusAssign"></p>
+                    <div class="admin-dialog-actions" style="margin-top: 16px;">
+                        <button class="admin-primary-action" type="submit">Vincular Cliente</button>
+                    </div>
+                </form>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<div class="admin-toast" id="toast" hidden></div>
+<script type="module" src="../src/javascript/coach/rutinas.js"></script>
+</body>
+</html>
