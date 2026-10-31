@@ -3,15 +3,15 @@ import { renderCoachLayout } from '../layout-coach.js';
 
 // Elementos DOM
 const formRutina = document.getElementById('formRutina');
-const formAsignacion = document.getElementById('formAsignacion');
 const tablaDetalles = document.getElementById('tablaDetalles');
+const tablaListadoRutinas = document.getElementById('tablaListadoRutinas');
 const btnAgregarEjercicio = document.getElementById('btnAgregarEjercicio');
 const toast = document.getElementById('toast');
 
-// Datos cacheados para las filas dinámicas
+// Datos cacheados
 let opcionesEjercicios = '<option value="">Seleccione...</option>';
-// Simulamos el ID del Coach autenticado. En un entorno real, lo decodificas del JWT.
 let idCoachActual = null;
+let rutinaDetalleActual = null; // Para el modal de ver detalle
 
 document.addEventListener('DOMContentLoaded', async () => {
     renderCoachLayout('rutinas');
@@ -24,55 +24,162 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     idCoachActual = decodificarIdCoach(token);
 
-    // Cargar catálogos
     await cargarEjercicios();
-    await cargarClientes();
-    await cargarPlantillas();
+    await cargarTablaRutinas();
 
     btnAgregarEjercicio.addEventListener('click', agregarFilaEjercicio);
-
-    // Agregar una fila vacía por defecto
     agregarFilaEjercicio();
+
+    // --- DELEGACIÓN DE EVENTOS PARA LOS BOTONES DE LA TABLA ---
+    tablaListadoRutinas.addEventListener('click', async (e) => {
+        const btnVer = e.target.closest('.btn-ver');
+        const btnEliminar = e.target.closest('.btn-eliminar');
+
+        if (btnVer) {
+            const id = btnVer.dataset.id;
+            await verDetalleRutina(id);
+        }
+
+        if (btnEliminar) {
+            const id = btnEliminar.dataset.id;
+            await eliminarRutina(id);
+        }
+    });
+
+    // Cerrar modal
+    document.getElementById('CerrarModal').addEventListener('click', () => {
+        document.getElementById('modalDetalle').style.display = 'none';
+    });
+
+    // Cambiar día en el selector del modal
+    document.getElementById('selectDiaFiltro').addEventListener('change', (e) => {
+        renderizarEjerciciosPorDia(e.target.value);
+    });
 });
 
-// --- LÓGICA DE CATÁLOGOS ---
 
-async function cargarEjercicios() {
+// --- CARGAR CATÁLOGOS Y TABLA ---
+
+async function cargarTablaRutinas() {
     try {
-        // Asegúrate de tener este endpoint expuesto en tu backend (puede ser el de admin)
-        const ejercicios = await apiRequest('/api/v1/public/ejercicios', { token: getToken() });
-        ejercicios.forEach(ej => {
-            opcionesEjercicios += `<option value="${ej.idEjercicio}">${ej.nombreEjercicio}</option>`;
+        const rutinas = await apiRequest('/api/coach/rutina/listado', { token: getToken() });
+        tablaListadoRutinas.innerHTML = '';
+
+        if(rutinas.length === 0) {
+            tablaListadoRutinas.innerHTML = '<tr><td colspan="5">No hay rutinas registradas.</td></tr>';
+            return;
+        }
+
+        rutinas.forEach(r => {
+            const tipoRutina = r.esPlantilla ?
+                '<span style="color: #a3e635; font-weight: bold;">Plantilla General</span>' :
+                '<span style="color: #9ca3af;">Personalizada</span>';
+
+            tablaListadoRutinas.innerHTML += `
+                <tr>
+                    <td><strong>${r.nombreRutina}</strong></td>
+                    <td>${r.descripcion || '-'}</td>
+                    <td>${tipoRutina}</td>
+                    <td>${r.fechaCreacion || '-'}</td>
+                    <td>
+                        <button type="button" class="admin-primary-action btn-ver" data-id="${r.idRutina}" style="padding: 4px 8px; font-size: 0.8rem; margin-right: 4px;">Ver</button>
+                        <button type="button" class="is-danger btn-eliminar" data-id="${r.idRutina}" style="padding: 4px 8px; font-size: 0.8rem;">Eliminar</button>
+                    </td>
+                </tr>
+            `;
         });
     } catch (error) {
-        console.warn("No se pudieron cargar los ejercicios. Verifica la URL de la API.");
+        tablaListadoRutinas.innerHTML = '<tr><td colspan="5">Error al cargar las rutinas.</td></tr>';
+        console.error(error);
     }
 }
 
-async function cargarClientes() {
+async function cargarEjercicios() {
     try {
-        const clientes = await apiRequest('/api/usuarios/clientes', { token: getToken() });
-        const select = document.getElementById('idClienteAsignar');
-        select.innerHTML = '<option value="">Seleccione cliente...</option>';
-        clientes.forEach(c => {
-            select.innerHTML += `<option value="${c.idUsuario}">${c.nomApe} (DNI: ${c.dniUs})</option>`;
+        const ejercicios = await apiRequest('/api/admin/ejercicios', { token: getToken() });
+        ejercicios.forEach(ej => {
+            opcionesEjercicios += `<option value="${ej.idEjercicio}">${ej.nomEjercicio || ej.nombre}</option>`;
         });
-    } catch (error) { console.error(error); }
+    } catch (error) {
+        console.warn("No se pudieron cargar los ejercicios.", error);
+    }
 }
 
-async function cargarPlantillas() {
+
+// --- LÓGICA DEL MODAL "VER" ---
+
+async function verDetalleRutina(id) {
     try {
-        // Si no tienes este endpoint aún en el controlador, te recomiendo agregarlo: GET /api/coach/rutinas/plantillas
-        const plantillas = await apiRequest('/api/coach/rutinas/plantillas', { token: getToken() });
-        const select = document.getElementById('idRutinaAsignar');
-        select.innerHTML = '<option value="">Seleccione plantilla...</option>';
-        plantillas.forEach(p => {
-            select.innerHTML += `<option value="${p.idRutina}">${p.nombreRutina}</option>`;
-        });
-    } catch (error) { console.warn("Aún no hay plantillas o falta el endpoint."); }
+        const rutina = await apiRequest(`/api/coach/rutina/${id}`, { token: getToken() });
+        rutinaDetalleActual = rutina;
+
+        document.getElementById('modalTituloRutina').textContent = rutina.nombreRutina;
+        document.getElementById('modalDescRutina').textContent = rutina.descripcion || 'Sin descripción';
+        document.getElementById('modalTipoRutina').innerHTML = rutina.esPlantilla ?
+            'Tipo: <span style="color: #a3e635;">Plantilla General</span>' :
+            'Tipo: <span style="color: #9ca3af;">Personalizada</span>';
+
+        const diasDisponibles = [...new Set(rutina.detalles.map(d => d.diaSemana))];
+        const selectDia = document.getElementById('selectDiaFiltro');
+        selectDia.innerHTML = '';
+
+        if (diasDisponibles.length === 0) {
+            selectDia.innerHTML = '<option value="">Sin días registrados</option>';
+            document.getElementById('tablaModalDetalles').innerHTML = '<tr><td colspan="5">No hay ejercicios asignados.</td></tr>';
+        } else {
+            diasDisponibles.forEach(dia => {
+                selectDia.innerHTML += `<option value="${dia}">${dia}</option>`;
+            });
+            renderizarEjerciciosPorDia(diasDisponibles[0]);
+        }
+
+        document.getElementById('modalDetalle').style.display = 'flex';
+    } catch (error) {
+        alert('Error al cargar el detalle de la rutina.');
+        console.error(error);
+    }
 }
 
-// --- LÓGICA DE TABLA DINÁMICA ---
+function renderizarEjerciciosPorDia(diaSeleccionado) {
+    const tbodyModal = document.getElementById('tablaModalDetalles');
+    tbodyModal.innerHTML = '';
+
+    const ejerciciosFiltrados = rutinaDetalleActual.detalles.filter(d => d.diaSemana === diaSeleccionado);
+
+    if (ejerciciosFiltrados.length === 0) {
+        tbodyModal.innerHTML = `<tr><td colspan="5">No hay ejercicios para el día ${diaSeleccionado}.</td></tr>`;
+        return;
+    }
+
+    ejerciciosFiltrados.forEach(d => {
+        tbodyModal.innerHTML += `
+            <tr>
+                <td><strong>${d.nombreEjercicio}</strong></td>
+                <td>${d.rangoSeries || '-'}</td>
+                <td>${d.rangoRep || '-'}</td>
+                <td>${d.rangoPeso || '-'}</td>
+                <td>${d.nombreMedidaEsfuerzo || '-'}</td>
+            </tr>
+        `;
+    });
+}
+
+
+// --- ELIMINAR RUTINA ---
+
+async function eliminarRutina(id) {
+    if(!confirm('¿Estás seguro de eliminar esta rutina? Se perderán sus configuraciones.')) return;
+    try {
+        await apiRequest(`/api/coach/rutina/${id}`, { method: 'DELETE', token: getToken() });
+        mostrarToast('Rutina eliminada con éxito');
+        await cargarTablaRutinas();
+    } catch (error) {
+        alert('No se pudo eliminar la rutina: ' + error.message);
+    }
+}
+
+
+// --- TABLA DINÁMICA DE CREACIÓN ---
 
 function agregarFilaEjercicio() {
     const tr = document.createElement('tr');
@@ -97,18 +204,16 @@ function agregarFilaEjercicio() {
         <td><input type="text" class="table-input rep-inp" placeholder="Ej: 8-12" required /></td>
         <td><input type="text" class="table-input pes-inp" placeholder="Ej: 20kg" /></td>
         <td>
-            <button type="button" class="is-danger remove-btn">X</button>
+            <button type="button" class="is-danger remove-btn" style="padding: 4px 10px;">X</button>
         </td>
     `;
 
-    tr.querySelector('.remove-btn').addEventListener('click', () => {
-        tr.remove();
-    });
-
+    tr.querySelector('.remove-btn').addEventListener('click', () => tr.remove());
     tablaDetalles.appendChild(tr);
 }
 
-// --- ENVÍO DE FORMULARIOS ---
+
+// --- ENVÍO DE FORMULARIO ---
 
 formRutina.addEventListener('submit', async (e) => {
     e.preventDefault();
@@ -129,8 +234,7 @@ formRutina.addEventListener('submit', async (e) => {
             diaSemana: fila.querySelector('.dia-sel').value,
             rangoSeries: fila.querySelector('.ser-inp').value,
             rangoRep: fila.querySelector('.rep-inp').value,
-            rangoPeso: fila.querySelector('.pes-inp').value,
-            // idMedidaEsfuerzo y tiempoEstimado se pueden agregar luego al HTML si los necesitas
+            rangoPeso: fila.querySelector('.pes-inp').value
         });
     });
 
@@ -143,45 +247,24 @@ formRutina.addEventListener('submit', async (e) => {
     };
 
     try {
-        await apiRequest('/api/coach/rutinas/crear', {
+        await apiRequest('/api/coach/rutina/crear', {
             method: 'POST',
             body: JSON.stringify(payload),
             token: getToken()
         });
+
         mostrarToast('Rutina guardada con éxito');
         formRutina.reset();
         tablaDetalles.innerHTML = '';
         agregarFilaEjercicio();
-        await cargarPlantillas(); // Refrescar la lista de plantillas abajo
+        await cargarTablaRutinas();
     } catch (error) {
         status.textContent = error.message;
     }
 });
 
-formAsignacion.addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const status = document.getElementById('formStatusAssign');
-    status.textContent = '';
 
-    const payload = {
-        idUsuario: parseInt(document.getElementById('idClienteAsignar').value),
-        idUsCoach: idCoachActual,
-        idRutina: parseInt(document.getElementById('idRutinaAsignar').value),
-        duracionPlan: document.getElementById('duracionPlan').value.trim()
-    };
-
-    try {
-        await apiRequest('/api/coach/rutinas/asignar', {
-            method: 'POST',
-            body: JSON.stringify(payload),
-            token: getToken()
-        });
-        mostrarToast('Rutina asignada exitosamente');
-        formAsignacion.reset();
-    } catch (error) {
-        status.textContent = error.message;
-    }
-});
+// --- UTILIDADES ---
 
 function mostrarToast(mensaje) {
     toast.textContent = mensaje;
@@ -189,15 +272,13 @@ function mostrarToast(mensaje) {
     setTimeout(() => { toast.hidden = true; }, 3500);
 }
 
-// Utilidad simple para extraer el ID del Token JWT (Depende de cómo armaste tu payload en Spring Boot)
 function decodificarIdCoach(token) {
     try {
         const base64Url = token.split('.')[1];
         const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
         const payload = JSON.parse(window.atob(base64));
-        // Ajusta 'idUsuario' por la clave real que uses en tu JWT (ej: 'id', 'sub', 'userId')
         return payload.idUsuario || 1;
     } catch (e) {
-        return 1; // Fallback temporal
+        return 1;
     }
 }

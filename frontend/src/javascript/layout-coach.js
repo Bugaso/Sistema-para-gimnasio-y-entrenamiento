@@ -17,7 +17,10 @@ export function renderCoachLayout(activeNav) {
                         <span aria-hidden="true">⌂</span> Inicio
                     </a>
                     <a class="admin-nav-link ${activeNav === 'rutinas' ? 'is-active' : ''}" href="/coach/rutinas.html">
-                        <span aria-hidden="true">01</span> Rutinas y Asignaciones
+                        <span aria-hidden="true">01</span> Rutinas
+                    </a>
+                    <a class="admin-nav-link ${activeNav === 'asignaciones' ? 'is-active' : ''}" href="/coach/asignaciones.html">
+                        <span aria-hidden="true">02</span> Asignaciones a Clientes
                     </a>
                 </nav>
 

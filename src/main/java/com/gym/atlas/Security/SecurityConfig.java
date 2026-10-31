@@ -85,6 +85,9 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(AUTH_ENDPOINTS).anonymous()
 
+                        // NUEVA REGLA: Permite que tanto Admin como Coach obtengan la lista
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/admin/ejercicios").hasAnyRole("ADMIN", "COACH")
+
                         // 1. ¡CAMBIO CLAVE! Ponemos PRIMERO las rutas restringidas por Rol.
                         // Al estar arriba, Spring verificará el rol ANTES de ver si es una ruta pública.
                         .requestMatchers(ADMIN_ENDPOINTS).hasRole("ADMIN")

@@ -119,4 +119,76 @@ public class RutinaService {
 
         return new MessageResponse("Rutina asignada exitosamente al cliente " + cliente.getNomApe());
     }
+
+    // 1. Listar todas las rutinas creadas
+    public List<RutinaResponse> listarRutinas() {
+        return rutinaRepository.findAll().stream()
+                .map(r -> new RutinaResponse(
+                        r.getIdRutina(),
+                        r.getNombreRutina(),
+                        r.getDescripcion(),
+                        r.getEsPlantilla(),
+                        r.getFechaCreacion()
+                )).toList();
+    }
+
+    // 2. Listar todas las asignaciones
+    public List<AsignacionResponse> listarAsignaciones() {
+        return asignacionRepository.findAll().stream()
+                .map(a -> new AsignacionResponse(
+                        a.getIdCliCou(),
+                        a.getCliente().getNomApe(),
+                        a.getCliente().getDniUs(),
+                        a.getRutina().getNombreRutina(),
+                        a.getFechaPlan(),
+                        a.getDuracionPlan()
+                )).toList();
+    }
+
+    // 3. Eliminar una asignación
+    @Transactional
+    public MessageResponse eliminarAsignacion(Integer id) {
+        if (!asignacionRepository.existsById(id)) {
+            throw new RuntimeException("La asignación no existe.");
+        }
+        asignacionRepository.deleteById(id);
+        return new MessageResponse("Asignación eliminada correctamente.");
+    }
+
+    // Obtener rutina completa con sus detalles para el modal "Ver"
+    public RutinaConDetallesResponse obtenerRutinaPorId(Integer id) {
+        Rutina r = rutinaRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Rutina no encontrada."));
+
+        List<DetalleRutinaResponse> detalles = detalleRepository.findByRutinaIdRutina(id).stream()
+                .map(d -> new DetalleRutinaResponse(
+                        d.getIdDetalle(),
+                        d.getDiaSemana(),
+                        d.getEjercicio().getNomEjercicio(), // Ajusta si tu campo de nombre es distinto
+                        d.getRangoSeries(),
+                        d.getRangoRep(),
+                        d.getRangoPeso(),
+                        d.getTiempoEstimado(),
+                        d.getMedidaEsfuerzo() != null ? d.getMedidaEsfuerzo().getNombreMedida() : "Sin medida"
+                )).toList();
+
+        return new RutinaConDetallesResponse(
+                r.getIdRutina(),
+                r.getNombreRutina(),
+                r.getDescripcion(),
+                r.getEsPlantilla(),
+                r.getFechaCreacion(),
+                detalles
+        );
+    }
+
+    // Eliminar rutina (borrará en cascada los detalles gracias a la BD o JPA)
+    @Transactional
+    public MessageResponse eliminarRutina(Integer id) {
+        if (!rutinaRepository.existsById(id)) {
+            throw new RuntimeException("La rutina no existe.");
+        }
+        rutinaRepository.deleteById(id);
+        return new MessageResponse("Rutina eliminada correctamente.");
+    }
 }

@@ -3,6 +3,7 @@ package com.gym.atlas.repository.membresia;
 import com.gym.atlas.data.membresia.ClienteMembresia;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 
@@ -15,5 +16,5 @@ public interface ClienteMembresiaRepository extends JpaRepository<ClienteMembres
     @Query("SELECT CASE WHEN COUNT(cm) > 0 THEN true ELSE false END FROM ClienteMembresia cm " +
             "JOIN cm.idTipoMembresia tm " +
             "WHERE cm.usuario.idUsuario = :idCliente AND tm.planificacion = true")
-    boolean tieneMembresiaConPlanificacion(Long ididCliente);
+    boolean tieneMembresiaConPlanificacion(@Param("idCliente") Long idCliente);
 }

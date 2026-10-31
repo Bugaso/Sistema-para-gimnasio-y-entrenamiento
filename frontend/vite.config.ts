@@ -31,6 +31,7 @@ export default defineConfig({
         historialPago: path.resolve(__dirname, 'recepcionista/historial-pagos.html'),
         coachIndex: path.resolve(__dirname, 'coach/index-coach.html'),
         coachRutinas: path.resolve(__dirname, 'coach/rutinas.html'),
+        coachAsignaciones: path.resolve(__dirname, 'coach/asignaciones.html')
       },
     },
   },
