@@ -1,12 +1,15 @@
 package com.gym.atlas.controller.membresias;
 
 import com.gym.atlas.data.membresia.ClienteMembresia;
+import com.gym.atlas.dto.MessageResponse;
 import com.gym.atlas.dto.membresia.ClienteMemHistorialRequest;
+import com.gym.atlas.dto.membresia.ClienteMembresiaDTO;
 import com.gym.atlas.dto.membresia.RegistrarClienteMembresiaRequest;
 import com.gym.atlas.service.membresia.ClienteMembresiaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.lang.classfile.Attributes;
 import java.util.List;
 
 @RestController
@@ -27,12 +30,18 @@ public class ClienteMembresiaController {
     }
 
     @GetMapping("historial")
-    public ResponseEntity<List<ClienteMembresia>> obtenerHistorial() {
+    public ResponseEntity<List<ClienteMembresiaDTO>> obtenerHistorial() {
         return ResponseEntity.ok(clienteMembresiaService.obtenerHistorial());
     }
 
     @GetMapping("historial/{id}")
-    public ResponseEntity<List<ClienteMembresia>> obtenerHistorialCliente(ClienteMemHistorialRequest request ){
+    public ResponseEntity<List<ClienteMembresiaDTO>> obtenerHistorialCliente(ClienteMemHistorialRequest request ){
         return ResponseEntity.ok(clienteMembresiaService.obtenerHistorialCliente(request.idUsuario()));
+    }
+
+    @DeleteMapping("{id}/baja")
+    public MessageResponse borrarPagoCliente(@PathVariable Long id){
+        System.out.println("ID DE LA CLIENTE MEMBRESIA: "+id);
+        return (clienteMembresiaService.borrarPagoCliente(id));
     }
 }

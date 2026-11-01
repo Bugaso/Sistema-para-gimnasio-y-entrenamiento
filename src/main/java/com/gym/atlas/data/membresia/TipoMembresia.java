@@ -7,7 +7,7 @@ public class TipoMembresia {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "idTipoMem")
-    private Long id;
+    private Long idTipoMem;
 
     @ManyToOne
     @JoinColumn(name = "idMembresia")
@@ -30,12 +30,12 @@ public class TipoMembresia {
         this.membresia = membresia;
     }
 
-    public void setId(Long id) {
-        this.id = id;
+    public Long getIdTipoMem() {
+        return idTipoMem;
     }
 
-    public Long getId() {
-        return id;
+    public void setIdTipoMem(Long idTipoMem) {
+        this.idTipoMem = idTipoMem;
     }
 
     public int getDuracionMembresia() {

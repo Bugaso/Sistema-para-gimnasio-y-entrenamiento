@@ -19,8 +19,10 @@ public class ClienteMembresia {
     private Usuario usuario;
 
     @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "idMembresia", nullable = false)
-    private Membresia membresia;
+    @JoinColumn(name = "idTipoMembresia", nullable = false)
+    private TipoMembresia idTipoMembresia;
+
+
 
     @Column(name="cantCuotas")
     private int cantCuotas;
@@ -30,6 +32,10 @@ public class ClienteMembresia {
 
     @Column(name = "tipoPago")
     private String tipoPago;
+
+    @Column(name = "cantEfect")
+    private Double cantEfect;
+
     @Column(name = "costoTotal")
     private Double costoTotal;
 
@@ -51,12 +57,12 @@ public class ClienteMembresia {
         this.usuario = usuario;
     }
 
-    public Membresia getMembresia() {
-        return membresia;
+    public TipoMembresia getIdTipoMembresia() {
+        return idTipoMembresia;
     }
 
-    public void setMembresia(Membresia membresia) {
-        this.membresia = membresia;
+    public void setIdTipoMembresia(TipoMembresia idTipoMembresia) {
+        this.idTipoMembresia = idTipoMembresia;
     }
 
     public LocalDateTime getFechaPago() {
@@ -89,5 +95,13 @@ public class ClienteMembresia {
 
     public void setCantCuotas(int cantCuotas) {
         this.cantCuotas = cantCuotas;
+    }
+
+    public Double getCantEfect() {
+        return cantEfect;
+    }
+
+    public void setCantEfect(Double cantEfect) {
+        this.cantEfect = cantEfect;
     }
 }

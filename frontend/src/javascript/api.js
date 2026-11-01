@@ -52,7 +52,7 @@ export const apiRequest = async (path, { token, ...options } = {}) => {
     // NUEVO CÓDIGO: Si el servidor responde 401 (Token expirado o inválido)
     if (response.status === 401) {
       clearToken(); // Borramos el token vencido del navegador
-      window.location.href = "/inicio-sesion.html"; // Redirigimos al login
+      window.location.href = "/login"; // Redirigimos al login
     }
     throw new ApiError(
         getErrorMessage(data, "El servidor no pudo completar la solicitud."),
