@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Historial de Pagos — Atlas Gym</title>
+    <link rel="stylesheet" href="../src/css/admin/admin.css" />
+    <link rel="stylesheet" href="../src/css/index/index.css" />
+
+</head>
+<body class="admin-page">
+
+<div class="admin-shell" data-admin-shell>
+    <aside data-layout-sidebar></aside>
+    <div class="admin-workspace">
+        <header data-layout-topbar></header>
+        <div class="admin-content">
+
+            <admin-layout active="historial">
+                <div class="admin-heading admin-heading-compact">
+                    <div>
+                        <p class="eyebrow">Seguimiento de Clientes</p>
+                        <h1>Historial de Membresías</h1>
+                        <p>Consulta las membresías pagadas por los clientes y gestiona sus bajas.</p>
+                    </div>
+                </div>
+
+                <div class="admin-panel">
+                    <div class="admin-panel-heading">
+                        <div>
+                            <span>Registros del Sistema</span>
+                            <h2>Membresías Adquiridas</h2>
+                        </div>
+                    </div>
+
+                    <div class="admin-toolbar" style="padding: 16px 24px; border-bottom: 1px solid var(--border);">
+                        <label class="admin-search" style="width: 100%; max-width: 400px;">
+                            <span aria-hidden="true">⌕</span>
+                            <input type="search" id="inputBuscar" placeholder="Buscar por cliente o DNI..." />
+                        </label>
+
+                        <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-left: 20px;">
+                            <input type="checkbox" id="chkInactivos" style="width: auto;" />
+                            <span style="font-size: 0.875rem; color: var(--muted);">Mostrar bajas/vencidas</span>
+                        </label>
+
+                        <span id="cantResultados" style="margin-left: auto; color: var(--muted); font-size: 0.875rem;">0 registros</span>
+                    </div>
+
+                    <div class="admin-table-wrap">
+                        <table class="admin-table">
+                            <thead>
+                            <tr>
+                                <th>Cliente</th>
+                                <th>Plan Adquirido</th>
+                                <th>Dias Asistencia</th>
+                                <th>Fecha de Pago</th>
+                                <th>Estado</th>
+                                <th style="text-align: right;">Acciones</th>
+                            </tr>
+                            </thead>
+                            <tbody id="tablaHistorial">
+                            <!-- Se llena con JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </admin-layout>
+
+        </div>
+
+        <!-- MODAL: CONFIRMACIÓN DE BAJA -->
+        <dialog class="admin-dialog admin-confirm-dialog" id="modalConfirmarBaja">
+            <form method="dialog">
+                <span class="admin-warning" aria-hidden="true">!</span>
+                <h2>Confirmar Baja</h2>
+                <p>¿Estás seguro de dar de baja esta membresía para el cliente? Pasará a estado INACTIVO.</p>
+                <div class="admin-dialog-actions">
+                    <button type="button" id="btnCancelarBaja">Cancelar</button>
+                    <button class="admin-danger-action" type="button" id="btnProcesarBaja">Dar de Baja</button>
+                </div>
+            </form>
+        </dialog>
+    </div>
+</div>
+<div class="admin-toast" id="toast" hidden></div>
+
+<script type="module" src="../src/javascript/recepcionista/historial-pagos.js"></script>
+</body>
+</html>

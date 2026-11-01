@@ -64,6 +64,7 @@ public class MembresiaService {
             List<TipoMembresiaResponse> tiposDto = m.getTipos() != null ?
                     m.getTipos().stream().map(t -> new TipoMembresiaResponse(
                             t.getIdTipoMem(),
+                            t.getMembresia().getDescripMembresia(),
                             t.getDuracionMembresia(),
                             t.getDiasAsistencia(),
                             t.isPlanificacion(),
@@ -146,6 +147,7 @@ public class MembresiaService {
         return tipoMemList.stream().map(
                 tipoMembresia -> new TipoMembresiaResponse(
                             tipoMembresia.getIdTipoMem(),
+                            tipoMembresia.getMembresia().getDescripMembresia(),
                             tipoMembresia.getDuracionMembresia(),
                             tipoMembresia.getDiasAsistencia(),
                             tipoMembresia.isPlanificacion(),
