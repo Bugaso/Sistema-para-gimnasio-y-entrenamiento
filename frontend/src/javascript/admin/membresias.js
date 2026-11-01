@@ -18,28 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 });
 
-// Reemplaza el evento 'click' de btnProcesarBajaTipo con este:
-document.getElementById('btnProcesarBajaTipo').addEventListener('click', async () => {
-    if (!idBajaTipoSeleccionado) return;
 
-    try {
-        const respuesta = await apiRequest(`/membresia/baja/${idBajaTipoSeleccionado}`, {
-            method: 'DELETE',
-            token: getToken()
-        });
-
-        // 1. Cerramos los modales
-        document.getElementById('modalConfirmarBajaTipo').close();
-        document.getElementById('modalDetalles').close();
-
-        // 2. Notificamos éxito y recargamos
-        alert(respuesta.message || "Tipo de membresía eliminado correctamente.");
-        await cargarMembresias();
-
-    } catch (error) {
-        alert("Error al eliminar el tipo de membresía: " + error.message);
-    }
-});
 
 // --- LÓGICA DE INTERFAZ REACTIVA ---
 const selectDuracion = document.getElementById('duracion');
@@ -345,7 +324,8 @@ window.verDetalles = async (id) => {
             // Renderizado condicional de los botones
             let botonesAccion = '';
             if (esInactivo) {
-                botonesAccion = `<button type="button" class="admin-primary-action" onclick="window.altaTipo(${tipo.idTipoMem})" style="padding: 4px 12px;">Dar de Alta</button>`;
+                // Le quitamos la clase y el style extra para que herede el diseño por defecto de las acciones
+                botonesAccion = `<button type="button" onclick="window.altaTipo(${tipo.idTipoMem})">Dar de Alta</button>`;
             } else {
                 botonesAccion = `
                     <button type="button" onclick="prepararModificacionTipo('${descMembresiaBase}', ${tipo.idTipoMem}, ${tipo.diasAsistencia}, ${tipo.duracionMembresia}, ${tipo.costoMembresia}, ${tipo.planificacion})">Modificar</button>
@@ -395,41 +375,6 @@ window.altaTipo = (idTipo) => {
     document.getElementById('modalConfirmarEstadoMembresia').showModal();
 };
 
-// Reemplazo del evento genérico para que soporte tanto Membresías Base como Tipos de Membresía
-document.getElementById('btnProcesarEstadoMembresia').addEventListener('click', async () => {
-    if (!idEstadoMembresiaSeleccionada) return;
-
-    try {
-        let endpointUrl = '';
-        let httpMethod = 'PUT';
-
-        // Redirigimos la URL dependiendo de si es la base o el tipo
-        if (accionEstadoMembresia === 'alta' || accionEstadoMembresia === 'baja') {
-            endpointUrl = `/membresia/${idEstadoMembresiaSeleccionada}/${accionEstadoMembresia}`;
-        } else if (accionEstadoMembresia === 'altaTipo') {
-            endpointUrl = `/membresia/tipo-membresia/alta/${idEstadoMembresiaSeleccionada}`;
-            httpMethod = 'PATCH'; // Usamos PATCH según tu controlador
-        }
-
-        const respuesta = await apiRequest(endpointUrl, {
-            method: httpMethod,
-            token: getToken()
-        });
-
-        document.getElementById('modalConfirmarEstadoMembresia').close();
-
-        // Si fue una reactivación de un Tipo, cerramos la tabla de detalles para ver el refresco general
-        if (accionEstadoMembresia === 'altaTipo') {
-            document.getElementById('modalDetalles').close();
-            alert(respuesta.message || "Tipo de membresía reactivado con éxito.");
-        }
-
-        await cargarMembresias();
-    } catch (error) {
-        alert("Error al procesar: " + error.message);
-    }
-});
-
 // Función base (opcional) por si agregas el endpoint para borrar un tipo específico
 window.confirmarEliminarTipo = (nombreMem, idTipo, duracion, dias, planificacion, costo) => {
     idBajaTipoSeleccionado = idTipo;
@@ -478,20 +423,6 @@ window.prepararModificacionTipo = (descMembresia, idTipoMem, diasAsistencia, dur
     window.scrollTo({ top: 0, behavior: 'smooth' });
 };
 
-document.getElementById('btnProcesarEstadoMembresia').addEventListener('click', async () => {
-    if (!idEstadoMembresiaSeleccionada) return;
-    try {
-        await apiRequest(`/membresia/${idEstadoMembresiaSeleccionada}/${accionEstadoMembresia}`, {
-            method: 'PUT',
-            token: getToken()
-        });
-        document.getElementById('modalConfirmarEstadoMembresia').close();
-        await cargarMembresias();
-    } catch (error) {
-        alert("Error al procesar: " + error.message);
-    }
-});
-
 
 window.altaTipo = (idTipo) => {
     idEstadoMembresiaSeleccionada = idTipo;
@@ -511,36 +442,67 @@ window.altaTipo = (idTipo) => {
 };
 
 // Reemplazo del evento genérico para que soporte tanto Membresías Base como Tipos de Membresía
+// --- EVENTO: ALTA Y BAJA (MEMBRESÍA BASE Y TIPO) ---
 document.getElementById('btnProcesarEstadoMembresia').addEventListener('click', async () => {
     if (!idEstadoMembresiaSeleccionada) return;
 
     try {
         let endpointUrl = '';
-        let httpMethod = 'PUT';
 
-        // Redirigimos la URL dependiendo de si es la base o el tipo
+        // Estructura estricta para direccionar a los endpoints correctos
         if (accionEstadoMembresia === 'alta' || accionEstadoMembresia === 'baja') {
             endpointUrl = `/membresia/${idEstadoMembresiaSeleccionada}/${accionEstadoMembresia}`;
         } else if (accionEstadoMembresia === 'altaTipo') {
             endpointUrl = `/membresia/tipo-membresia/alta/${idEstadoMembresiaSeleccionada}`;
-            httpMethod = 'PATCH'; // Usamos PATCH según tu controlador
         }
 
         const respuesta = await apiRequest(endpointUrl, {
-            method: httpMethod,
+            method: 'PUT', // Usamos PUT de manera global y consistente
             token: getToken()
         });
 
         document.getElementById('modalConfirmarEstadoMembresia').close();
 
-        // Si fue una reactivación de un Tipo, cerramos la tabla de detalles para ver el refresco general
         if (accionEstadoMembresia === 'altaTipo') {
             document.getElementById('modalDetalles').close();
-            alert(respuesta.message || "Tipo de membresía reactivado con éxito.");
+            mostrarToast(respuesta.message || "Plan reactivado con éxito.");
+        } else {
+            mostrarToast(respuesta.message || "Estado de la membresía actualizado.");
         }
 
         await cargarMembresias();
     } catch (error) {
-        alert("Error al procesar: " + error.message);
+        mostrarToast("Error al procesar: " + error.message);
     }
 });
+
+
+document.getElementById('btnProcesarBajaTipo').addEventListener('click', async () => {
+    if (!idBajaTipoSeleccionado) return;
+
+    try {
+        const respuesta = await apiRequest(`/membresia/baja/${idBajaTipoSeleccionado}`, {
+            method: 'DELETE',
+            token: getToken()
+        });
+
+        // Cerramos los modales
+        document.getElementById('modalConfirmarBajaTipo').close();
+        document.getElementById('modalDetalles').close();
+
+        // Notificamos éxito con el toast y recargamos
+        mostrarToast(respuesta.message || "Tipo de membresía eliminado correctamente.");
+        await cargarMembresias();
+
+    } catch (error) {
+        mostrarToast("Error al eliminar el plan: " + error.message);
+    }
+});
+
+const toast = document.getElementById('toast');
+function mostrarToast(mensaje) {
+    if (!toast) return;
+    toast.textContent = mensaje;
+    toast.hidden = false;
+    setTimeout(() => { toast.hidden = true; }, 3500);
+}

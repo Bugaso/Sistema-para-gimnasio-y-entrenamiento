@@ -75,7 +75,7 @@ public class MembresiaController {
         return ResponseEntity.ok(memServ.obtenerTipoMembresia(id));
     }
 
-    @PatchMapping("/tipo-membresia/alta/{id}")
+    @PutMapping("/tipo-membresia/alta/{id}")
     public ResponseEntity<MessageResponse> altaTipoMembresia(@PathVariable Long id) {
         return ResponseEntity.ok(memServ.altaTipoMembresia(id));
     }
