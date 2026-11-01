@@ -130,6 +130,9 @@ function agruparMembresias(membresias) {
         if (membresia.estado === 'INACTIVO' || !membresia.tipos) return;
 
         membresia.tipos.forEach(tipo => {
+            if(!tipo.estado){
+                return;
+            }
             const dato = {
                 nombreMembresia: membresia.descripMembresia,
                 ...tipo
