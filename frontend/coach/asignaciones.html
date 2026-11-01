@@ -1,0 +1,80 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Asignaciones — Coach</title>
+    <link rel="stylesheet" href="../src/css/admin/admin.css" />
+    <link rel="stylesheet" href="../src/css/index/index.css" />
+</head>
+<body class="admin-page">
+<div class="admin-shell" data-admin-shell>
+    <aside data-layout-sidebar></aside>
+    <div class="admin-workspace">
+        <header data-layout-topbar></header>
+        <div class="admin-content">
+            <div class="admin-heading">
+                <div>
+                    <p class="eyebrow">Operación</p>
+                    <h1>Asignaciones de Clientes</h1>
+                </div>
+            </div>
+
+            <!-- Formulario de Nueva Asignación -->
+            <div class="admin-panel">
+                <div class="admin-panel-heading">
+                    <h2>Vincular Nueva Rutina</h2>
+                </div>
+                <form id="formAsignacion" style="padding: 24px;">
+                    <input type="hidden" id="idAsignacion" />
+                    <div class="admin-form-grid">
+                        <label class="admin-field">
+                            <span>Cliente</span>
+                            <select id="idClienteAsignar" required><option value="">Cargando clientes...</option></select>
+                        </label>
+                        <label class="admin-field">
+                            <span>Rutina (Plantilla Base)</span>
+                            <select id="idRutinaAsignar" required><option value="">Cargando rutinas...</option></select>
+                        </label>
+                        <label class="admin-field">
+                            <span>Duración del Plan</span>
+                            <input type="text" id="duracionPlan" placeholder="Ej. 4 Semanas" required />
+                        </label>
+                    </div>
+                    <p class="admin-form-status" id="formStatusAssign"></p>
+                    <div class="admin-dialog-actions" style="margin-top: 16px;">
+                        <button class="admin-primary-action" type="submit" id="btnGuardarAsignacion">Asignar Cliente</button>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Tabla de Asignaciones Existentes -->
+            <div class="admin-panel" style="margin-bottom: 40px;">
+                <div class="admin-panel-heading">
+                    <h2>Listado de Asignaciones</h2>
+                </div>
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>DNI</th>
+                            <th>Rutina / Plan</th>
+                            <th>Fecha Inicio</th>
+                            <th>Duración</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaAsignaciones">
+                        <tr><td colspan="6">Cargando asignaciones...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="admin-toast" id="toast" hidden></div>
+<script type="module" src="../src/javascript/coach/asignaciones.js"></script>
+</body>
+</html>

@@ -53,7 +53,9 @@ public class SecurityConfig {
 
             //HTMLs de Recepción (Públicos)
             "/recepcionista",
-            "/recepcionista/**"
+            "/recepcionista/**",
+            "/coach",
+            "/coach/**"
     };
 
     private static final String[] AUTH_ENDPOINTS = {
@@ -71,6 +73,9 @@ public class SecurityConfig {
     private static final String[] RECEPCION_ENDPOINTS = {
                     "/api/recepcion/**"
             };
+    private static final String[] COACH_ENDPOINTS = {
+            "/api/coach/**"
+    };
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
@@ -80,10 +85,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers(AUTH_ENDPOINTS).anonymous()
 
+                        // NUEVA REGLA: Permite que tanto Admin como Coach obtengan la lista
+                        .requestMatchers(org.springframework.http.HttpMethod.GET, "/api/admin/ejercicios").hasAnyRole("ADMIN", "COACH")
+
                         // 1. ¡CAMBIO CLAVE! Ponemos PRIMERO las rutas restringidas por Rol.
                         // Al estar arriba, Spring verificará el rol ANTES de ver si es una ruta pública.
                         .requestMatchers(ADMIN_ENDPOINTS).hasRole("ADMIN")
                         .requestMatchers(RECEPCION_ENDPOINTS).hasAnyRole("RECEPCIONISTA", "ADMIN")
+                        .requestMatchers(COACH_ENDPOINTS).hasAnyRole("COACH", "ADMIN")
 
                         // 2. DESPUÉS ponemos las rutas públicas.
                         // Así, los HTML estáticos de /admin/** siguen siendo accesibles,

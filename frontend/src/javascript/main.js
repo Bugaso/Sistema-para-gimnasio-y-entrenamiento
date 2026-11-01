@@ -92,6 +92,24 @@ async function verificarAdminNavBar() {
         await apiRequest("/api/recepcion/validar", { method: "GET", token });
         document.getElementById('navRecepcionLink').hidden = false;
     } catch (error) { /* No es recepcionista */ }
+
+
+    /*COACH*/
+    const navCoachLink = document.getElementById("navCoachLink");
+
+    if (token && navCoachLink) {
+        try {
+            await apiRequest("/api/coach/validar", { method: "GET", token });
+            navCoachLink.hidden = false;
+        } catch (error) {
+            navCoachLink.hidden = true;
+
+            if (error.status !== 403) {
+                console.error("No se pudo validar el acceso de coach", error);
+            }
+        }
+    }
+
 }
 
 //Membresias dinamicas
