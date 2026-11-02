@@ -29,11 +29,37 @@ async function cargarClientes() {
 
 async function cargarPlantillas() {
     try {
-        const plantillas = await apiRequest('/api/coach/rutina/plantillas', { token: getToken() });
+        // Reutilizamos el endpoint de listado general de rutinas
+        const rutinas = await apiRequest('/api/coach/rutina/listado', { token: getToken() });
         const select = document.getElementById('idRutinaAsignar');
-        select.innerHTML = '<option value="">Seleccione plantilla...</option>';
-        plantillas.forEach(p => select.innerHTML += `<option value="${p.idRutina}">${p.nombreRutina}</option>`);
-    } catch (error) { console.warn(error); }
+
+        select.innerHTML = '<option value="">Seleccione rutina...</option>';
+
+        // Filtramos y agrupamos
+        const plantillasGenerales = rutinas.filter(r => r.esPlantilla === true);
+        const rutinasPersonalizadas = rutinas.filter(r => r.esPlantilla === false);
+
+        if (plantillasGenerales.length > 0) {
+            let grupoPlantillas = '<optgroup label="Plantillas Generales">';
+            plantillasGenerales.forEach(p => {
+                grupoPlantillas += `<option value="${p.idRutina}">${p.nombreRutina}</option>`;
+            });
+            grupoPlantillas += '</optgroup>';
+            select.innerHTML += grupoPlantillas;
+        }
+
+        if (rutinasPersonalizadas.length > 0) {
+            let grupoPersonalizadas = '<optgroup label="Rutinas Personalizadas">';
+            rutinasPersonalizadas.forEach(p => {
+                grupoPersonalizadas += `<option value="${p.idRutina}">${p.nombreRutina}</option>`;
+            });
+            grupoPersonalizadas += '</optgroup>';
+            select.innerHTML += grupoPersonalizadas;
+        }
+
+    } catch (error) {
+        console.warn("Error al cargar las rutinas para asignar.", error);
+    }
 }
 
 async function cargarTablaAsignaciones() {

@@ -10,7 +10,7 @@ const toast = document.getElementById('toast');
 
 // Datos cacheados
 let opcionesEjercicios = '<option value="">Seleccione...</option>';
-let idCoachActual = null;
+//let idCoachActual = null;
 let rutinaDetalleActual = null; // Para el modal de ver detalle
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    idCoachActual = decodificarIdCoach(token);
+    // idCoachActual = decodificarIdCoach(token);
 
     await cargarEjercicios();
     await cargarTablaRutinas();
@@ -204,6 +204,14 @@ function agregarFilaEjercicio() {
         <td><input type="text" class="table-input rep-inp" placeholder="Ej: 8-12" required /></td>
         <td><input type="text" class="table-input pes-inp" placeholder="Ej: 20kg" /></td>
         <td>
+            <!-- SELECT DE ESFUERZO -->
+            <select class="table-input esf-sel">
+                <option value="">N/A</option>
+                <option value="1">RIR</option>
+                <option value="2">RPE</option>
+            </select>
+        </td>
+        <td>
             <button type="button" class="is-danger remove-btn" style="padding: 4px 10px;">X</button>
         </td>
     `;
@@ -229,12 +237,15 @@ formRutina.addEventListener('submit', async (e) => {
     }
 
     filas.forEach(fila => {
+        const valorEsfuerzo = fila.querySelector('.esf-sel').value;
+
         detalles.push({
             idEjercicio: parseInt(fila.querySelector('.ej-sel').value),
             diaSemana: fila.querySelector('.dia-sel').value,
             rangoSeries: fila.querySelector('.ser-inp').value,
             rangoRep: fila.querySelector('.rep-inp').value,
-            rangoPeso: fila.querySelector('.pes-inp').value
+            rangoPeso: fila.querySelector('.pes-inp').value,
+            idMedidaEsfuerzo: valorEsfuerzo ? parseInt(valorEsfuerzo) : null
         });
     });
 
@@ -242,7 +253,7 @@ formRutina.addEventListener('submit', async (e) => {
         nombreRutina: document.getElementById('nombreRutina').value.trim(),
         descripcion: document.getElementById('descripcionRutina').value.trim(),
         esPlantilla: document.getElementById('esPlantilla').checked,
-        idUsCoach: idCoachActual,
+        //idUsCoach: idCoachActual,
         detalles: detalles
     };
 
