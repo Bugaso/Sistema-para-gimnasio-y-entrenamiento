@@ -1,5 +1,7 @@
 package com.gym.atlas.service.rutina;
 
+import com.gym.atlas.repository.rutina.DetalleRutinaRepository;
+
 import com.gym.atlas.data.ejercicio.Ejercicio;
 import com.gym.atlas.data.rutina.*;
 import com.gym.atlas.data.usuario.Usuario;
@@ -155,6 +157,7 @@ public class RutinaService {
                         a.getIdCliCou(),
                         a.getCliente().getNomApe(),
                         a.getCliente().getDniUs(),
+                        a.getRutina().getIdRutina(),
                         a.getRutina().getNombreRutina(),
                         a.getFechaPlan(),
                         a.getDuracionPlan()
@@ -207,4 +210,43 @@ public class RutinaService {
         rutinaRepository.deleteById(id);
         return new MessageResponse("Rutina eliminada correctamente.");
     }
+
+    @Transactional
+    public MessageResponse actualizarRutinaCompleta(Integer idRutina, RutinaCompletaRequest request) {
+        Rutina rutina = rutinaRepository.findById(idRutina)
+                .orElseThrow(() -> new RuntimeException("Rutina no encontrada."));
+
+        // 1. Actualizar cabecera
+        rutina.setNombreRutina(request.nombreRutina());
+        rutina.setDescripcion(request.descripcion());
+        rutina.setEsPlantilla(request.esPlantilla());
+        rutinaRepository.save(rutina);
+
+        // 2. Eliminar detalles anteriores
+        detalleRepository.deleteAll(detalleRepository.findByRutinaIdRutina(idRutina));
+
+        // 3. Insertar nuevos detalles
+        if(request.detalles() != null && !request.detalles().isEmpty()) {
+            for (DetalleRutinaRequest detReq : request.detalles()) {
+                DetalleRutina detalle = new DetalleRutina();
+                detalle.setRutina(rutina);
+                detalle.setDiaSemana(detReq.diaSemana());
+                detalle.setRangoSeries(detReq.rangoSeries());
+                detalle.setRangoRep(detReq.rangoRep());
+                detalle.setRangoPeso(detReq.rangoPeso());
+
+                Ejercicio ej = ejercicioRepository.findById(detReq.idEjercicio())
+                        .orElseThrow(() -> new RuntimeException("Ejercicio no encontrado."));
+                detalle.setEjercicio(ej);
+
+                if (detReq.idMedidaEsfuerzo() != null) {
+                    MedidaEsfuerzo me = medidaEsfuerzoRepository.findById(detReq.idMedidaEsfuerzo()).orElse(null);
+                    detalle.setMedidaEsfuerzo(me);
+                }
+                detalleRepository.save(detalle);
+            }
+        }
+        return new MessageResponse("Rutina actualizada exitosamente.");
+    }
+
 }

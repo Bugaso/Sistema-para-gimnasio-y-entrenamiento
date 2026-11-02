@@ -58,4 +58,9 @@ public class RutinaController {
     public ResponseEntity<MessageResponse> eliminarRutina(@PathVariable Integer id) {
         return ResponseEntity.ok(rutinaService.eliminarRutina(id));
     }
+
+    @PutMapping("/actualizar/{id}")
+    public ResponseEntity<MessageResponse> actualizarRutina(@PathVariable Integer id, @RequestBody RutinaCompletaRequest request) {
+        return ResponseEntity.ok(rutinaService.actualizarRutinaCompleta(id, request));
+    }
 }
