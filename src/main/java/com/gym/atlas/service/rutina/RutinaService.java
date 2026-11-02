@@ -10,6 +10,7 @@ import com.gym.atlas.repository.ejercicio.EjercicioRepository;
 import com.gym.atlas.repository.membresia.ClienteMembresiaRepository;
 import com.gym.atlas.repository.rutina.*;
 import com.gym.atlas.repository.usuario.UsuarioRepository;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -46,15 +47,18 @@ public class RutinaService {
 
     @Transactional
     public MessageResponse crearRutinaCompleta(RutinaCompletaRequest request) {
-        Usuario coach = usuarioRepository.findById(Long.valueOf(request.idUsCoach()))
-                .orElseThrow(() -> new RuntimeException("Coach no encontrado."));
+        String emailCoach = SecurityContextHolder.getContext().getAuthentication().getName();
+
+
+        Usuario coach = usuarioRepository.findByMailUs(emailCoach)
+                .orElseThrow(() -> new RuntimeException("Coach no encontrado o token inválido."));
 
         // 1. Guardar la Cabecera de la Rutina
         Rutina rutina = new Rutina();
         rutina.setNombreRutina(request.nombreRutina());
         rutina.setDescripcion(request.descripcion());
         rutina.setEsPlantilla(request.esPlantilla());
-        rutina.setCoach(coach);
+        rutina.setIdUsCoach(coach);
         rutina.setFechaCreacion(LocalDate.now());
 
         Rutina rutinaGuardada = rutinaRepository.save(rutina);
@@ -122,14 +126,21 @@ public class RutinaService {
 
     // 1. Listar todas las rutinas creadas
     public List<RutinaResponse> listarRutinas() {
-        return rutinaRepository.findAll().stream()
-                .map(r -> new RutinaResponse(
-                        r.getIdRutina(),
-                        r.getNombreRutina(),
-                        r.getDescripcion(),
-                        r.getEsPlantilla(),
-                        r.getFechaCreacion()
-                )).toList();
+        List<Rutina> lista = rutinaRepository.findAll();
+        if (lista.isEmpty()){
+            List<RutinaResponse> listaVacia = List.of(
+            );
+            return listaVacia;
+        }
+        return lista.stream().map(rutina -> {
+            return new RutinaResponse(
+                    rutina.getIdRutina(),
+                    rutina.getNombreRutina(),
+                    rutina.getDescripcion(),
+                    rutina.getEsPlantilla(),
+                    rutina.getFechaCreacion()
+            );
+        }).toList();
     }
 
     // 2. Listar todas las asignaciones

@@ -7,6 +7,6 @@ public record RutinaCompletaRequest(
         String nombreRutina,
         String descripcion,
         Boolean esPlantilla, // Si el coach la guarda como plantilla o para un cliente
-        Integer idUsCoach,
+        //Long idUsCoach,
         List<DetalleRutinaRequest> detalles
 ) {}

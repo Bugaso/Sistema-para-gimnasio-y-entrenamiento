@@ -271,7 +271,7 @@ function mostrarToast(mensaje) {
     toast.hidden = false;
     setTimeout(() => { toast.hidden = true; }, 3500);
 }
-
+/*
 function decodificarIdCoach(token) {
     try {
         const base64Url = token.split('.')[1];
@@ -281,4 +281,4 @@ function decodificarIdCoach(token) {
     } catch (e) {
         return 1;
     }
-}
+}*/

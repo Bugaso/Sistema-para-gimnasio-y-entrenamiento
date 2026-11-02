@@ -23,7 +23,7 @@ public class Rutina {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "idUsCoach", nullable = false)
-    private Usuario coach;
+    private Usuario idUsCoach;
 
     private LocalDate fechaCreacion;
 
@@ -38,8 +38,11 @@ public class Rutina {
     public void setDescripcion(String descripcion) { this.descripcion = descripcion; }
     public Boolean getEsPlantilla() { return esPlantilla; }
     public void setEsPlantilla(Boolean esPlantilla) { this.esPlantilla = esPlantilla; }
-    public Usuario getCoach() { return coach; }
-    public void setCoach(Usuario coach) { this.coach = coach; }
+
+    public Usuario getIdUsCoach() {return idUsCoach;}
+
+    public void setIdUsCoach(Usuario idUsCoach) {this.idUsCoach = idUsCoach;}
+
     public LocalDate getFechaCreacion() { return fechaCreacion; }
     public void setFechaCreacion(LocalDate fechaCreacion) { this.fechaCreacion = fechaCreacion; }
 }
