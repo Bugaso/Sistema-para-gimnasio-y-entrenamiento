@@ -92,10 +92,15 @@ public class RutinaService {
 
     @Transactional
     public MessageResponse asignarRutinaACliente(AsignacionRutinaRequest request) {
+
+
+        String emailCoach = SecurityContextHolder.getContext().getAuthentication().getName();
+        Usuario coach = usuarioRepository.findByMailUs(emailCoach)
+                .orElseThrow(() -> new RuntimeException("Coach no encontrado o token inválido."));
+
         Usuario cliente = usuarioRepository.findById(Long.valueOf(request.idUsuario()))
                 .orElseThrow(() -> new RuntimeException("Cliente no encontrado."));
-        Usuario coach = usuarioRepository.findById(Long.valueOf(request.idUsCoach()))
-                .orElseThrow(() -> new RuntimeException("Coach no encontrado."));
+
         Rutina rutina = rutinaRepository.findById(request.idRutina())
                 .orElseThrow(() -> new RuntimeException("Rutina base no encontrada."));
 
