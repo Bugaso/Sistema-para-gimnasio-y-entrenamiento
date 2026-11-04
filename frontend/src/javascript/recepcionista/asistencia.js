@@ -70,13 +70,13 @@ function renderizarSelect(lista) {
     selectCliente.innerHTML = '';
 
     if (lista.length === 0) {
-        selectCliente.innerHTML = '<option value="" disabled>No se encontraron clientes...</option>';
+        selectCliente.innerHTML = '<option value="" disabled style="padding: 12px 16px; color: var(--muted);">No se encontraron clientes...</option>';
         return;
     }
 
     lista.forEach(c => {
         selectCliente.innerHTML += `
-            <option value="${c.idUsuario}" data-nombre="${c.nomApe}" data-dni="${c.dniUs}" style="padding: 8px; border-bottom: 1px solid #333;">
+            <option value="${c.idUsuario}" data-nombre="${c.nomApe}" data-dni="${c.dniUs}">
                 DNI: ${c.dniUs} — ${c.nomApe}
             </option>
         `;
@@ -90,15 +90,17 @@ async function revisarEstado(idUsuario) {
         clienteAdentro = estado.adentro;
 
         if (clienteAdentro) {
-            estadoActualTxt.textContent = "🟢 Adentro del gimnasio";
-            estadoActualTxt.style.color = "#a3e635";
+            estadoActualTxt.textContent = "Adentro del gimnasio";
+            estadoActualTxt.style.color = "var(--lime)";
             btnAccionToggle.textContent = "REGISTRAR SALIDA";
-            btnAccionToggle.className = "btn-toggle btn-salida";
+            // Usamos la clase nativa roja del sistema
+            btnAccionToggle.className = "admin-danger-action";
         } else {
-            estadoActualTxt.textContent = "🔴 Fuera del gimnasio";
-            estadoActualTxt.style.color = "#9ca3af";
+            estadoActualTxt.textContent = "Fuera del gimnasio";
+            estadoActualTxt.style.color = "var(--muted)";
             btnAccionToggle.textContent = "AUTORIZAR INGRESO";
-            btnAccionToggle.className = "btn-toggle btn-entrada";
+            // Usamos la clase nativa principal (verde) del sistema
+            btnAccionToggle.className = "admin-primary-action";
         }
     } catch (error) {
         console.error(error);

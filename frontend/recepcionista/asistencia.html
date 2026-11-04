@@ -7,14 +7,10 @@
     <link rel="stylesheet" href="../src/css/admin/admin.css" />
     <link rel="stylesheet" href="../src/css/index/index.css" />
     <style>
-        .select-cliente { width: 100%; padding: 12px; border: 1px solid #333; border-radius: 4px; background-color: #1a1a1a; color: white; font-size: 1.1rem; }
-        .asistencia-box { text-align: center; padding: 40px 20px; background: #121212; border: 1px solid #333; border-radius: 8px; margin-top: 20px; display: none; }
-        .foto-cliente { width: 120px; height: 120px; border-radius: 50%; background: #333; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 3rem; color: #666; }
-        .btn-toggle { width: 100%; max-width: 400px; padding: 16px; font-size: 1.2rem; font-weight: bold; border: none; border-radius: 8px; cursor: pointer; transition: 0.3s; margin-top: 20px; }
-        .btn-entrada { background-color: #a3e635; color: #000; }
-        .btn-entrada:hover { background-color: #8cc629; }
-        .btn-salida { background-color: #ef4444; color: #fff; }
-        .btn-salida:hover { background-color: #dc2626; }
+        .select-cliente { width: 100%; border: none; background: transparent; color: white; outline: none; }
+        .select-cliente option { padding: 12px 16px; border-bottom: 1px solid var(--border); cursor: pointer; }
+        .asistencia-box { text-align: center; padding: 40px 20px; margin-top: 20px; display: none; }
+        .foto-cliente { width: 90px; height: 90px; border-radius: 50%; background: #27272a; margin: 0 auto 20px; display: flex; align-items: center; justify-content: center; font-size: 2.5rem; color: #52525b; border: 1px solid var(--border); }
     </style>
 </head>
 <body class="admin-page">
@@ -34,30 +30,37 @@
 
             <!-- BÚSQUEDA INCREMENTAL DE CLIENTE -->
             <div class="admin-panel">
-                <label style="display: block; font-weight: bold; margin-bottom: 10px;">Buscar y Seleccionar Cliente</label>
+                <div class="admin-panel-heading">
+                    <div>
+                        <span>Identificación</span>
+                        <h2>Selección de Cliente</h2>
+                    </div>
+                </div>
 
-                <!-- Buscador de texto -->
-                <input type="text" id="buscadorCliente" class="table-input" placeholder="🔎 Ingrese el DNI o el Nombre del cliente..." style="width: 100%; padding: 14px; font-size: 1.1rem; margin-bottom: 10px; border-radius: 4px; border: 1px solid #333; background: #1a1a1a; color: white;" autocomplete="off" />
+                <div class="admin-toolbar" style="padding: 16px 24px; border-bottom: 1px solid var(--border);">
+                    <label class="admin-search" style="width: 100%;">
+                        <span aria-hidden="true">⌕</span>
+                        <input type="text" id="buscadorCliente" placeholder="Ingrese el DNI o el Nombre del cliente..." autocomplete="off" />
+                    </label>
+                </div>
 
-                <!-- Lista de resultados (size="6" la mantiene abierta) -->
-                <select id="selectCliente" class="select-cliente" size="6" style="padding: 5px; cursor: pointer; overflow-y: auto;">
-                    <option value="">Cargando clientes...</option>
-                </select>
+                <div class="admin-table-wrap">
+                    <select id="selectCliente" class="select-cliente" size="6">
+                        <option value="">Cargando clientes...</option>
+                    </select>
+                </div>
             </div>
 
             <!-- Panel de Acción (Se muestra al elegir cliente) -->
-            <div id="panelAsistencia" class="asistencia-box">
+            <div id="panelAsistencia" class="admin-panel asistencia-box">
                 <div class="foto-cliente">👤</div>
+                <h2 id="nombreClienteDisplay" style="margin-bottom: 5px;">-</h2>
+                <p id="dniClienteDisplay" style="color: var(--muted); margin-bottom: 20px;">-</p>
 
-                <!-- MOSTRANDO EL NOMBRE Y DNI EN LA INFO -->
-                <h2 id="nombreClienteDisplay" style="margin-bottom: 5px; color: white;">-</h2>
-                <p id="dniClienteDisplay" style="color: #9ca3af; margin-bottom: 20px; font-size: 1.1rem;">-</p>
+                <p id="estadoActualTxt" style="font-weight: bold; margin-bottom: 24px;"></p>
 
-                <p id="estadoActualTxt" style="font-weight: bold; margin-bottom: 20px; font-size: 1.2rem;"></p>
-
-                <!-- El Botón Único -->
-                <button type="button" id="btnAccionToggle" class="btn-toggle"></button>
-            </div>
+                <!-- El Botón Único hereda las clases del sistema -->
+                <button type="button" id="btnAccionToggle" style="width: 100%; max-width: 300px; justify-content: center; padding: 12px; font-size: 1rem;"></button>
             </div>
 
         </div>
@@ -65,7 +68,6 @@
 </div>
 
 <div class="admin-toast" id="toast" hidden></div>
-<!-- Ajusta la ruta de tu layout si es distinta -->
 <script type="module" src="../src/javascript/recepcionista/asistencia.js"></script>
 </body>
 </html>
