@@ -22,6 +22,9 @@ export function renderRecepcionLayout(activeNav) {
                     <a class="admin-nav-link ${activeNav === 'historial_pago' ? 'is-active' : ''}" href="/recepcionista/historial-pago.html">
                         <span aria-hidden="true">03</span>Historial de pagos
                     </a>
+                    <a class="admin-nav-link ${activeNav === 'asistencia' ? 'is-active' : ''}" href="/recepcionista/asistencia.html">
+                        <span aria-hidden="true">04</span>Asistencia
+                    </a>
                 </nav>
 
                 <div class="admin-sidebar-footer">

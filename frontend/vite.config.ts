@@ -33,8 +33,8 @@ export default defineConfig({
         coachRutinas: path.resolve(__dirname, 'coach/rutinas.html'),
         coachAsignaciones: path.resolve(__dirname, 'coach/asignaciones.html'),
         coachRegistrarSesion: path.resolve(__dirname, 'coach/registrar-sesion.html'),
-        coachHistorialCliente: path.resolve(__dirname, 'coach/historial-cliente.html')
-
+        coachHistorialCliente: path.resolve(__dirname, 'coach/historial-cliente.html'),
+        recepcionistaAsistencia: path.resolve(__dirname, 'recepcionista/asistencia.html')
       },
     },
   },
