@@ -108,8 +108,13 @@ async function revisarEstado(idUsuario) {
     }
 }
 
+// Variable global para almacenar el ID del cliente al que se le va a conceder acceso excepcional
+let idUsuarioExcepcion = null;
 
-// Disparar Entrada/Salida
+// Variable global para almacenar el ID de ClienteMembresia seleccionado
+let idClienteMembresiaSeleccionado = null;
+
+// Reemplazar la función registrarAsistencia
 async function registrarAsistencia() {
     const idUsuario = selectCliente.value;
     if (!idUsuario) return;
@@ -117,7 +122,46 @@ async function registrarAsistencia() {
     btnAccionToggle.disabled = true;
 
     try {
-        const payload = { idUsuario: parseInt(idUsuario) };
+        // 1. Si está adentro, simplemente lo sacamos (enviamos idClienteMembresia como null o no lo enviamos)
+        if (clienteAdentro) {
+            await ejecutarLlamadaAsistencia(idUsuario, null);
+            return;
+        }
+
+        // 2. Si está afuera (quiere ENTRAR), verificamos su membresía
+        const historial = await apiRequest(`/cliente-membresias/historial/${idUsuario}`, { token: getToken() });
+
+        const historialArray = Array.isArray(historial) ? historial : [];
+
+        // Filtramos solo las membresías activas
+        const membresiasActivas = historialArray.filter(mem => mem.estado === 'ACTIVO');
+
+        if (membresiasActivas.length === 0) {
+            // NO TIENE MEMBRESÍA ACTIVA: Mostrar Modal de Excepción
+            mostrarModalExcepcion(idUsuario, historialArray);
+        } else if (membresiasActivas.length === 1) {
+            // TIENE EXACTAMENTE UNA: Entra sin problemas, mandando ese ID
+            await ejecutarLlamadaAsistencia(idUsuario, membresiasActivas[0].idCliMem);
+        } else {
+            // TIENE MÁS DE UNA: Mostrar Modal para elegir
+            idUsuarioExcepcion = idUsuario; // Reutilizamos esta variable para guardar el ID del usuario actual
+            mostrarModalMultiplesMembresias(membresiasActivas);
+        }
+    } catch (error) {
+        alert("Error al verificar acceso: " + error.message);
+        btnAccionToggle.disabled = false;
+    }
+}
+
+// Actualizada para aceptar idClienteMembresia
+async function ejecutarLlamadaAsistencia(idUsuario, idCliMem = null) {
+    try {
+        // Armamos el payload añadiendo el idClienteMembresia si existe
+        const payload = {
+            idUsuario: parseInt(idUsuario),
+            idClienteMembresia: idCliMem
+        };
+
         const response = await apiRequest('/api/recepcion/asistencia/registrar', {
             method: 'POST',
             body: JSON.stringify(payload),
@@ -125,19 +169,127 @@ async function registrarAsistencia() {
         });
 
         mostrarToast(response.message || "Operación exitosa");
-
-        // Actualizar visualmente al instante (cambia el botón a rojo o verde)
         await revisarEstado(idUsuario);
-
-        // El foco vuelve al buscador automáticamente por si quiere buscar a otro rápido,
-        // pero SIN borrar al cliente actual de la lista.
         buscadorCliente.focus();
-
     } catch (error) {
         alert("Acceso Denegado: " + error.message);
     } finally {
         btnAccionToggle.disabled = false;
     }
 }
+
+// Nueva función para manejar el Modal de Múltiples Membresías
+function mostrarModalMultiplesMembresias(membresiasActivas) {
+    const modal = document.getElementById('modalMultiplesMembresias');
+    const select = document.getElementById('selectMembresiaActiva');
+
+    select.innerHTML = '';
+
+    membresiasActivas.forEach(mem => {
+        select.innerHTML += `<option value="${mem.idCliMem}">${mem.nombreMembresia} | ${mem.diasAsistencia} dias/sem | (Pagado: ${mem.fechaPago})</option>`;
+    });
+
+    modal.showModal();
+    btnAccionToggle.disabled = false;
+}
+
+// Evento para el botón de confirmar en el modal de múltiples membresías
+document.getElementById('btnConfirmarMembresiaMultiple').addEventListener('click', async () => {
+    const modal = document.getElementById('modalMultiplesMembresias');
+    const select = document.getElementById('selectMembresiaActiva');
+    const idCliMemSeleccionado = select.value;
+
+    if (!idCliMemSeleccionado) return;
+
+    const btn = document.getElementById('btnConfirmarMembresiaMultiple');
+    const textoOriginal = btn.textContent;
+    btn.textContent = "Procesando...";
+    btn.disabled = true;
+
+    try {
+        await ejecutarLlamadaAsistencia(idUsuarioExcepcion, parseInt(idCliMemSeleccionado));
+        modal.close();
+    } catch (error) {
+        // El error ya se maneja
+    } finally {
+        btn.textContent = textoOriginal;
+        btn.disabled = false;
+        idUsuarioExcepcion = null;
+    }
+});
+
+// En el evento 'btnAutorizarExcepcion' (modal membresia vencida), actualizamos la llamada:
+document.getElementById('btnAutorizarExcepcion').addEventListener('click', async () => {
+    const modal = document.getElementById('modalMembresiaVencida');
+    const btn = document.getElementById('btnAutorizarExcepcion');
+    const textoOriginal = btn.textContent;
+    btn.textContent = "Autorizando...";
+    btn.disabled = true;
+
+    try {
+        // Si es excepción (vencida), enviamos null como idClienteMembresia
+        await ejecutarLlamadaAsistencia(idUsuarioExcepcion, null);
+        modal.close();
+    } catch (error) {
+    } finally {
+        btn.textContent = textoOriginal;
+        btn.disabled = false;
+        idUsuarioExcepcion = null;
+    }
+});
+
+// Nueva función para manejar el Modal
+function mostrarModalExcepcion(idUsuario, historial) {
+    idUsuarioExcepcion = idUsuario;
+    const modal = document.getElementById('modalMembresiaVencida');
+    const spanNombre = document.getElementById('vencidaNombre');
+    const spanFecha = document.getElementById('vencidaFecha');
+
+    if (historial.length === 0) {
+        spanNombre.textContent = "Sin registros previos";
+        spanFecha.textContent = "Nunca";
+    } else {
+        // Obtener la última membresía (asumiendo que están ordenadas o tomando la primera de la lista inactiva)
+        // Opcional: ordenar el historial por ID descendente para asegurar que es la última
+        const ultima = historial.sort((a, b) => b.idCliMem - a.idCliMem)[0];
+
+        spanNombre.textContent = ultima.nombreMembresia;
+
+        // Calcular fecha de vencimiento: FechaPago + (dias * cantCuotas)
+        // Nota: Asumiendo que diasAsistencia o un campo similar dicta la duración base.
+        // Si el DTO no tiene un campo 'duracionDias' específico, aproximaremos a 30 días por cuota.
+        const fechaPago = new Date(ultima.fechaPago);
+        const diasBase = 30; // Aproximación si no hay campo de duración explícito en el DTO
+        const cuotas = ultima.cantCuotas || 1;
+        fechaPago.setDate(fechaPago.getDate() + (diasBase * cuotas));
+
+        spanFecha.textContent = fechaPago.toLocaleDateString('es-AR');
+    }
+
+    modal.showModal();
+    btnAccionToggle.disabled = false; // Rehabilitar el botón principal por si cancela
+}
+
+// Evento para el botón de autorizar dentro del modal
+document.getElementById('btnAutorizarExcepcion').addEventListener('click', async () => {
+    const modal = document.getElementById('modalMembresiaVencida');
+
+    // Cambiamos el texto para mostrar que está cargando
+    const btn = document.getElementById('btnAutorizarExcepcion');
+    const textoOriginal = btn.textContent;
+    btn.textContent = "Autorizando...";
+    btn.disabled = true;
+
+    try {
+        await ejecutarLlamadaAsistencia(idUsuarioExcepcion);
+        modal.close();
+    } catch (error) {
+        // El error ya se maneja en ejecutarLlamadaAsistencia
+    } finally {
+        btn.textContent = textoOriginal;
+        btn.disabled = false;
+        idUsuarioExcepcion = null;
+    }
+});
 
 function mostrarToast(m) { toast.textContent = m; toast.hidden = false; setTimeout(() => toast.hidden = true, 4000); }

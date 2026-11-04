@@ -1,5 +1,6 @@
 package com.gym.atlas.service.usuario;
 
+import com.gym.atlas.data.membresia.ClienteMembresia;
 import com.gym.atlas.data.usuario.AsistenciaCliente;
 import com.gym.atlas.data.usuario.Usuario;
 import com.gym.atlas.dto.MessageResponse;
@@ -52,21 +53,27 @@ public class AsistenciaService {
         //     throw new RuntimeException("Acceso Denegado: El cliente no posee una membresía activa.");
         // }
 
+
         // 3. Buscar si tiene una entrada sin salida
         Optional<AsistenciaCliente> registroAbierto = asistenciaRepo.findFirstByClienteIdUsuarioAndFechaHorarioSalidaIsNullOrderByFechaHorarioEntradaDesc(Math.toIntExact(cliente.getIdUsuario()));
+
+
 
         if (registroAbierto.isPresent()) {
             // REGISTRAR SALIDA
             AsistenciaCliente asistencia = registroAbierto.get();
             asistencia.setFechaHorarioSalida(LocalDateTime.now());
+
             asistenciaRepo.save(asistencia);
             return new MessageResponse("Salida registrada con éxito a las " + asistencia.getFechaHorarioSalida().toLocalTime());
         } else {
+            ClienteMembresia cliMem = membresiaRepository.findById(request.idClienteMembresia()).orElseThrow();
             // REGISTRAR ENTRADA
             AsistenciaCliente nuevaAsistencia = new AsistenciaCliente();
             nuevaAsistencia.setCliente(cliente);
             nuevaAsistencia.setRecepcionista(recepcionista);
             nuevaAsistencia.setFechaHorarioEntrada(LocalDateTime.now());
+            nuevaAsistencia.setIdCliMem(cliMem);
             asistenciaRepo.save(nuevaAsistencia);
             return new MessageResponse("Acceso Permitido. Entrada registrada a las " + nuevaAsistencia.getFechaHorarioEntrada().toLocalTime());
         }

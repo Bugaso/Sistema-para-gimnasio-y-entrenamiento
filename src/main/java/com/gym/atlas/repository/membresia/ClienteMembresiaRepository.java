@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface ClienteMembresiaRepository extends JpaRepository<ClienteMembresia, Long> {
 
-    List<ClienteMembresia> findAllByUsuario(Long idUsuario);
+    List<ClienteMembresia> findAllByUsuarioIdUsuario(Long idUsuario);
 
     // Retorna true si el cliente tiene una membresía activa donde el TipoMembresia tiene planificacion = true (1)
     // Retorna true si el cliente tiene una membresía asignada cuyo tipo incluye planificación
@@ -17,4 +17,5 @@ public interface ClienteMembresiaRepository extends JpaRepository<ClienteMembres
             "JOIN cm.idTipoMembresia tm " +
             "WHERE cm.usuario.idUsuario = :idCliente AND tm.planificacion = true")
     boolean tieneMembresiaConPlanificacion(@Param("idCliente") Long idCliente);
+
 }

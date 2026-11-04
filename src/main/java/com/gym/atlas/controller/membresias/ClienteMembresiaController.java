@@ -35,8 +35,8 @@ public class ClienteMembresiaController {
     }
 
     @GetMapping("historial/{id}")
-    public ResponseEntity<List<ClienteMembresiaDTO>> obtenerHistorialCliente(ClienteMemHistorialRequest request ){
-        return ResponseEntity.ok(clienteMembresiaService.obtenerHistorialCliente(request.idUsuario()));
+    public ResponseEntity<List<ClienteMembresiaDTO>> obtenerHistorialCliente(@PathVariable Long id ){
+        return ResponseEntity.ok(clienteMembresiaService.obtenerHistorialCliente(id));
     }
 
     @DeleteMapping("{id}/baja")

@@ -1,5 +1,6 @@
 package com.gym.atlas.data.usuario;
 
+import com.gym.atlas.data.membresia.ClienteMembresia;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 
@@ -26,6 +27,10 @@ public class AsistenciaCliente {
     @Column(name = "FechaHorarioSalida")
     private LocalDateTime fechaHorarioSalida;
 
+    @ManyToOne
+    @JoinColumn(name = "idCliMem")
+    private ClienteMembresia idCliMem;
+
     public AsistenciaCliente() {}
 
     // Getters y Setters
@@ -39,4 +44,12 @@ public class AsistenciaCliente {
     public void setFechaHorarioEntrada(LocalDateTime fechaHorarioEntrada) { this.fechaHorarioEntrada = fechaHorarioEntrada; }
     public LocalDateTime getFechaHorarioSalida() { return fechaHorarioSalida; }
     public void setFechaHorarioSalida(LocalDateTime fechaHorarioSalida) { this.fechaHorarioSalida = fechaHorarioSalida; }
+
+    public ClienteMembresia getIdCliMem() {
+        return idCliMem;
+    }
+
+    public void setIdCliMem(ClienteMembresia idCliMem) {
+        this.idCliMem = idCliMem;
+    }
 }

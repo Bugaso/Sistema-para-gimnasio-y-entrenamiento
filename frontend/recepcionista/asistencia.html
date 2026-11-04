@@ -67,6 +67,48 @@
     </div>
 </div>
 
+<!-- MODAL: ADVERTENCIA DE MEMBRESÍA VENCIDA -->
+<dialog class="admin-dialog admin-confirm-dialog" id="modalMembresiaVencida">
+    <div style="padding: 24px; text-align: center;">
+        <span class="admin-warning" aria-hidden="true" style="color: #ef9d89;">!</span>
+        <h2 style="margin-top: 15px;">Membresía Vencida o Inactiva</h2>
+        <p style="color: var(--muted); margin-top: 10px;">Este cliente no posee una membresía activa en este momento. ¿Deseas concederle el acceso de todos modos?</p>
+
+        <div style="text-align: left; background: #1a1a1a; padding: 16px; border-radius: 8px; margin: 20px 0; border: 1px solid var(--border);">
+            <p style="margin-bottom: 8px;"><strong style="color: var(--muted);">Último Plan:</strong> <span id="vencidaNombre" style="float: right; color: #fff;"></span></p>
+            <p style="margin-bottom: 0;"><strong style="color: var(--muted);">Fecha Vencimiento:</strong> <span id="vencidaFecha" style="float: right; color: #ef9d89; font-weight: bold;"></span></p>
+        </div>
+
+        <div class="admin-dialog-actions" style="margin-top: 24px; justify-content: center;">
+            <button type="button" onclick="document.getElementById('modalMembresiaVencida').close()">Denegar Acceso</button>
+            <button class="admin-primary-action" type="button" id="btnAutorizarExcepcion">Autorizar Ingreso</button>
+        </div>
+    </div>
+</dialog>
+
+
+<!-- MODAL: SELECCIÓN DE MEMBRESÍA ACTIVA (MULTIPLE) -->
+<dialog class="admin-dialog admin-confirm-dialog" id="modalMultiplesMembresias">
+    <div style="padding: 24px; text-align: center;">
+        <h2 style="margin-top: 15px;">Múltiples Planes Activos</h2>
+        <p style="color: var(--muted); margin-top: 10px;">El cliente posee más de una membresía activa. Seleccione cuál utilizará para este ingreso:</p>
+
+        <div style="text-align: left; margin: 20px 0;">
+            <label class="admin-field" style="width: 100%;">
+                <select id="selectMembresiaActiva" class="table-input" style="width: 100%; padding: 12px; background: #1a1a1a; color: white; border: 1px solid #333; border-radius: 4px;">
+                    <!-- Se llena con JS -->
+                </select>
+            </label>
+        </div>
+
+        <div class="admin-dialog-actions" style="margin-top: 24px; justify-content: center;">
+            <button type="button" onclick="document.getElementById('modalMultiplesMembresias').close()">Cancelar</button>
+            <button class="admin-primary-action" type="button" id="btnConfirmarMembresiaMultiple">Confirmar Ingreso</button>
+        </div>
+    </div>
+</dialog>
+
+
 <div class="admin-toast" id="toast" hidden></div>
 <script type="module" src="../src/javascript/recepcionista/asistencia.js"></script>
 </body>

@@ -109,7 +109,7 @@ public class ClienteMembresiaService {
     }
 
     public List<ClienteMembresiaDTO> obtenerHistorialCliente(Long idUsuario) {
-        List<ClienteMembresia> cliMemList = clienteMembresiaRepository.findAllByUsuario(idUsuario);
+        List<ClienteMembresia> cliMemList = clienteMembresiaRepository.findAllByUsuarioIdUsuario(idUsuario);
         if(cliMemList.isEmpty()){
             return null;
         }
