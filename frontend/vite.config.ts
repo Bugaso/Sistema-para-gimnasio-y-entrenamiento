@@ -32,7 +32,9 @@ export default defineConfig({
         coachIndex: path.resolve(__dirname, 'coach/index-coach.html'),
         coachRutinas: path.resolve(__dirname, 'coach/rutinas.html'),
         coachAsignaciones: path.resolve(__dirname, 'coach/asignaciones.html'),
-        coachRegistrarSesion: path.resolve(__dirname, 'coach/registrar-sesion.html')
+        coachRegistrarSesion: path.resolve(__dirname, 'coach/registrar-sesion.html'),
+        coachHistorialCliente: path.resolve(__dirname, 'coach/historial-cliente.html')
+
       },
     },
   },

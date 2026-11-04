@@ -6,8 +6,7 @@ import com.gym.atlas.data.rutina.HistorialRutina;
 import com.gym.atlas.data.rutina.HistorialSerie;
 import com.gym.atlas.data.rutina.Rutina;
 import com.gym.atlas.dto.MessageResponse;
-import com.gym.atlas.dto.historial.RegistroSesionRequest;
-import com.gym.atlas.dto.historial.SerieRealizadaRequest;
+import com.gym.atlas.dto.historial.*;
 import com.gym.atlas.repository.ejercicio.EjercicioRepository;
 import com.gym.atlas.repository.rutina.ClienteCoachRepository;
 import com.gym.atlas.repository.rutina.HistorialRutinaRepository;
@@ -17,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
+import java.util.List;
 
 @Service
 public class HistorialService {
@@ -74,5 +74,81 @@ public class HistorialService {
         }
 
         return new MessageResponse("Sesión de entrenamiento registrada con éxito.");
+    }
+
+    // Obtener lista de fechas en las que el cliente entrenó
+    public List<HistorialResumenResponse> obtenerResumenPorAsignacion(Integer idCliCou) {
+        return historialRutinaRepo.findByAsignacionIdCliCouOrderByFechaRegistroDesc(idCliCou).stream()
+                .map(h -> new HistorialResumenResponse(
+                        h.getIdHistRut(),
+                        h.getFechaRegistro(),
+                        h.getRutina().getNombreRutina()
+                )).toList();
+    }
+
+    // Obtener el detalle exacto de una sesión para rellenar el formulario de edición
+    public HistorialDetalleResponse obtenerDetalleSesion(Integer idHistRut) {
+        HistorialRutina cabecera = historialRutinaRepo.findById(idHistRut)
+                .orElseThrow(() -> new RuntimeException("Sesión no encontrada."));
+
+        List<SerieRealizadaResponse> series = historialSerieRepo.findByHistorialRutinaIdHistRut(idHistRut).stream()
+                .map(s -> new SerieRealizadaResponse(
+                        s.getIdSerie(),
+                        s.getEjercicio().getIdEjercicio(),
+                        s.getEjercicio().getNomEjercicio(),
+                        s.getNroSerie(),
+                        s.getNroRepeticiones(),
+                        s.getNroPeso(),
+                        s.getMedidaEsfuerzo(),
+                        s.getCantMedida(),
+                        s.getTiempoSegundos()
+                )).toList();
+
+        return new HistorialDetalleResponse(
+                cabecera.getIdHistRut(),
+                cabecera.getFechaRegistro(),
+                cabecera.getRutina().getIdRutina(),
+                cabecera.getRutina().getNombreRutina(),
+                series
+        );
+    }
+
+    // Actualizar una sesión (Borra las series viejas y guarda las nuevas)
+    @Transactional
+    public MessageResponse actualizarSesion(Integer idHistRut, RegistroSesionRequest request) {
+        HistorialRutina cabecera = historialRutinaRepo.findById(idHistRut)
+                .orElseThrow(() -> new RuntimeException("Sesión no encontrada."));
+
+        // Actualizamos la fecha si es que la cambiaron
+        if (request.fechaRegistro() != null) {
+            cabecera.setFechaRegistro(request.fechaRegistro());
+            historialRutinaRepo.save(cabecera);
+        }
+
+        // Borramos las series anteriores
+        historialSerieRepo.deleteByHistorialRutinaIdHistRut(idHistRut);
+
+        // Insertamos las nuevas series modificadas
+        if (request.series() != null && !request.series().isEmpty()) {
+            for (SerieRealizadaRequest serieReq : request.series()) {
+                HistorialSerie serie = new HistorialSerie();
+                serie.setHistorialRutina(cabecera);
+
+                Ejercicio ej = ejercicioRepo.findById(serieReq.idEjercicio())
+                        .orElseThrow(() -> new RuntimeException("Ejercicio no encontrado."));
+                serie.setEjercicio(ej);
+
+                serie.setNroSerie(serieReq.nroSerie());
+                serie.setNroRepeticiones(serieReq.nroRepeticiones());
+                serie.setNroPeso(serieReq.nroPeso());
+                serie.setMedidaEsfuerzo(serieReq.medidaEsfuerzo());
+                serie.setCantMedida(serieReq.cantMedida());
+                serie.setTiempoSegundos(serieReq.tiempoSegundos());
+
+                historialSerieRepo.save(serie);
+            }
+        }
+
+        return new MessageResponse("Sesión actualizada correctamente.");
     }
 }

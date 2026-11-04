@@ -1,0 +1,90 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Historial de Clientes — Coach</title>
+    <link rel="stylesheet" href="../src/css/admin/admin.css" />
+    <link rel="stylesheet" href="../src/css/index/index.css" />
+    <style>
+        .table-input { width: 100%; padding: 4px 8px; border: 1px solid #333; border-radius: 4px; background-color: #1a1a1a; color: white; }
+        .ejercicio-card { background: #121212; border: 1px solid #333; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+        .ejercicio-titulo { color: #a3e635; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
+    </style>
+</head>
+<body class="admin-page">
+
+<div class="admin-shell" data-admin-shell>
+    <aside data-layout-sidebar></aside>
+    <div class="admin-workspace">
+        <header data-layout-topbar></header>
+
+        <div class="admin-content">
+            <div class="admin-heading admin-heading-compact">
+                <div>
+                    <p class="eyebrow">Seguimiento</p>
+                    <h1>Historial de Ejecución</h1>
+                </div>
+            </div>
+
+            <!-- SELECCIÓN DE CLIENTE -->
+            <div class="admin-panel" style="margin-bottom: 30px;">
+                <div class="admin-form-grid" style="padding: 24px;">
+                    <label class="admin-field" style="grid-column: span 2;">
+                        <span>Cliente (Asignación Activa)</span>
+                        <select id="selectAsignacionHistorial" required></select>
+                    </label>
+                </div>
+            </div>
+
+            <!-- TABLA DE SESIONES REGISTRADAS -->
+            <div class="admin-panel" style="margin-bottom: 40px;">
+                <div class="admin-panel-heading">
+                    <div>
+                        <h2>Sesiones Realizadas</h2>
+                    </div>
+                </div>
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                        <tr>
+                            <th>Fecha de Entrenamiento</th>
+                            <th>Rutina / Plan</th>
+                            <th>Acciones</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaSesiones">
+                        <tr><td colspan="3">Seleccione un cliente para ver su historial.</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- ZONA DE EDICIÓN (Oculta por defecto) -->
+            <form id="formEditarSesion" style="display: none;">
+                <div class="admin-panel" style="margin-bottom: 40px; background: transparent; border: none; padding: 0;">
+                    <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+                        <h2>Editando Sesión del: <span id="fechaEdicionDisplay" style="color: #a3e635;"></span></h2>
+                        <button type="button" id="btnCancelarEdicion" class="admin-secondary-action">Cancelar Edición</button>
+                    </div>
+
+                    <input type="hidden" id="idHistRutEditar" />
+                    <input type="hidden" id="fechaSesionOculta" />
+
+                    <div id="contenedorEjerciciosHistorial"></div>
+
+                    <p class="admin-form-status" id="formStatusHistorial"></p>
+                    <div class="admin-dialog-actions" style="margin-top: 24px;">
+                        <button class="admin-primary-action" type="submit" style="width: 100%; padding: 12px; font-size: 1.1rem;">Actualizar Sesión</button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<div class="admin-toast" id="toast" hidden></div>
+<script type="module" src="../src/javascript/coach/historial-cliente.js"></script>
+</body>
+</html>

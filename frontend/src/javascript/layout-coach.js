@@ -25,6 +25,9 @@ export function renderCoachLayout(activeNav) {
                     <a class="admin-nav-link ${activeNav === 'registrar-sesion' ? 'is-active' : ''}" href="/coach/registrar-sesion.html">
                         <span aria-hidden="true">03</span> Registrar Sesion
                     </a>
+                    <a class="admin-nav-link ${activeNav === 'historial-cliente' ? 'is-active' : ''}" href="/coach/historial-cliente.html">
+                        <span aria-hidden="true">04</span> Historial del cliente
+                    </a>
                 </nav>
 
                 <div class="admin-sidebar-footer">
