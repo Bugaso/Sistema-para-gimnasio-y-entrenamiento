@@ -20,11 +20,6 @@ public class DetalleRutina {
     @JoinColumn(name = "idEjercicio", nullable = false)
     private Ejercicio ejercicio;
 
-    // Si aún no creaste la entidad MedidaEsfuerzo, créala de forma simple (idMedidaEsfuerzo, nombreMedida)
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "idMedidaEsfuerzo")
-    private MedidaEsfuerzo medidaEsfuerzo;
-
     @Column(length = 20, nullable = false)
     private String diaSemana;
 
@@ -39,6 +34,12 @@ public class DetalleRutina {
 
     private LocalTime tiempoEstimado;
 
+    @Column(name = "medidaEsfuerzo", nullable = false)
+    private String medidaEsfuerzo;
+
+    @Column(name = "cantMedida")
+    private int cantMedida;
+
     public DetalleRutina() {}
 
     // Getters y Setters
@@ -48,8 +49,6 @@ public class DetalleRutina {
     public void setRutina(Rutina rutina) { this.rutina = rutina; }
     public Ejercicio getEjercicio() { return ejercicio; }
     public void setEjercicio(Ejercicio ejercicio) { this.ejercicio = ejercicio; }
-    public MedidaEsfuerzo getMedidaEsfuerzo() { return medidaEsfuerzo; }
-    public void setMedidaEsfuerzo(MedidaEsfuerzo medidaEsfuerzo) { this.medidaEsfuerzo = medidaEsfuerzo; }
     public String getDiaSemana() { return diaSemana; }
     public void setDiaSemana(String diaSemana) { this.diaSemana = diaSemana; }
     public String getRangoSeries() { return rangoSeries; }
@@ -60,4 +59,21 @@ public class DetalleRutina {
     public void setRangoPeso(String rangoPeso) { this.rangoPeso = rangoPeso; }
     public LocalTime getTiempoEstimado() { return tiempoEstimado; }
     public void setTiempoEstimado(LocalTime tiempoEstimado) { this.tiempoEstimado = tiempoEstimado; }
+
+
+    public String getMedidaEsfuerzo() {
+        return medidaEsfuerzo;
+    }
+
+    public void setMedidaEsfuerzo(String medidaEsfuerzo) {
+        this.medidaEsfuerzo = medidaEsfuerzo;
+    }
+
+    public int getCantMedida() {
+        return cantMedida;
+    }
+
+    public void setCantMedida(int cantMedida) {
+        this.cantMedida = cantMedida;
+    }
 }

@@ -75,15 +75,12 @@ public class RutinaService {
                 detalle.setRangoRep(detReq.rangoRep());
                 detalle.setRangoPeso(detReq.rangoPeso());
                 detalle.setTiempoEstimado(detReq.tiempoEstimado());
-
+                detalle.setMedidaEsfuerzo(detReq.medidaEsfuerzo());
+                detalle.setCantMedida(detReq.cantMedida());
                 Ejercicio ej = ejercicioRepository.findById(detReq.idEjercicio())
                         .orElseThrow(() -> new RuntimeException("Ejercicio no encontrado."));
                 detalle.setEjercicio(ej);
 
-                if (detReq.idMedidaEsfuerzo() != null) {
-                    MedidaEsfuerzo me = medidaEsfuerzoRepository.findById(detReq.idMedidaEsfuerzo()).orElse(null);
-                    detalle.setMedidaEsfuerzo(me);
-                }
 
                 detalleRepository.save(detalle);
             }
@@ -188,7 +185,8 @@ public class RutinaService {
                         d.getRangoRep(),
                         d.getRangoPeso(),
                         d.getTiempoEstimado(),
-                        d.getMedidaEsfuerzo() != null ? d.getMedidaEsfuerzo().getNombreMedida() : "Sin medida"
+                        d.getMedidaEsfuerzo(),
+                        d.getCantMedida()
                 )).toList();
 
         return new RutinaConDetallesResponse(
@@ -226,27 +224,32 @@ public class RutinaService {
         detalleRepository.deleteAll(detalleRepository.findByRutinaIdRutina(idRutina));
 
         // 3. Insertar nuevos detalles
-        if(request.detalles() != null && !request.detalles().isEmpty()) {
-            for (DetalleRutinaRequest detReq : request.detalles()) {
-                DetalleRutina detalle = new DetalleRutina();
-                detalle.setRutina(rutina);
-                detalle.setDiaSemana(detReq.diaSemana());
-                detalle.setRangoSeries(detReq.rangoSeries());
-                detalle.setRangoRep(detReq.rangoRep());
-                detalle.setRangoPeso(detReq.rangoPeso());
-
-                Ejercicio ej = ejercicioRepository.findById(detReq.idEjercicio())
-                        .orElseThrow(() -> new RuntimeException("Ejercicio no encontrado."));
-                detalle.setEjercicio(ej);
-
-                if (detReq.idMedidaEsfuerzo() != null) {
-                    MedidaEsfuerzo me = medidaEsfuerzoRepository.findById(detReq.idMedidaEsfuerzo()).orElse(null);
-                    detalle.setMedidaEsfuerzo(me);
-                }
-                detalleRepository.save(detalle);
-            }
+        if(request.detalles().isEmpty() || request.detalles() == null) {
+            return new MessageResponse("Detalle de rutina vacio");
         }
+
+        List<DetalleRutinaRequest> listaDetalles = request.detalles();
+
+        listaDetalles.stream().forEach(detRutDTO ->{
+            System.out.println("ID DE MEDIDA DE ESFUERZO: "+detRutDTO.medidaEsfuerzo());
+            Ejercicio eje = ejercicioRepository.findById(detRutDTO.idEjercicio()).orElseThrow();
+
+
+            DetalleRutina detRut =new DetalleRutina();
+            detRut.setRutina(rutina);
+            detRut.setEjercicio(eje);
+            detRut.setMedidaEsfuerzo(detRutDTO.medidaEsfuerzo());
+            detRut.setCantMedida(detRutDTO.cantMedida());
+            detRut.setDiaSemana(detRutDTO.diaSemana());
+            detRut.setRangoSeries(detRutDTO.rangoSeries());
+            detRut.setRangoRep(detRutDTO.rangoRep());
+            detRut.setRangoPeso(detRutDTO.rangoPeso());
+            detRut.setTiempoEstimado(detRutDTO.tiempoEstimado());
+            detalleRepository.save(detRut);
+
+        });
         return new MessageResponse("Rutina actualizada exitosamente.");
     }
 
 }
+

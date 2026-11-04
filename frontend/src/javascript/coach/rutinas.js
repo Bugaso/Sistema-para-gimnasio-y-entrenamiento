@@ -157,17 +157,26 @@ function renderizarEjerciciosPorDia(diaSeleccionado) {
     }
 
     ejerciciosFiltrados.forEach(d => {
+        let minutosTexto = '-';
+        if (d.tiempoEstimado) {
+            const partes = d.tiempoEstimado.split(':');
+            minutosTexto = ((parseInt(partes[0]) * 60) + parseInt(partes[1])) + ' min';
+        }
+
         tbodyModal.innerHTML += `
             <tr>
                 <td><strong>${d.nombreEjercicio}</strong></td>
                 <td>${d.rangoSeries || '-'}</td>
                 <td>${d.rangoRep || '-'}</td>
                 <td>${d.rangoPeso || '-'}</td>
-                <td>${d.nombreMedidaEsfuerzo || '-'}</td>
+                <td>${d.medidaEsfuerzo || '-'}</td>
+                <td>${d.cantMedida || '-'}</td>
+                <td>${minutosTexto}</td>
             </tr>
         `;
     });
 }
+
 
 
 // --- LÓGICA PARA MODIFICAR RUTINA ---
@@ -185,9 +194,15 @@ async function cargarParaModificar(id) {
             rutina.detalles.forEach(d => {
                 const tr = document.createElement('tr');
 
-                let idEsfuerzo = "";
-                if (d.nombreMedidaEsfuerzo === "RIR") idEsfuerzo = "1";
-                if (d.nombreMedidaEsfuerzo === "RPE") idEsfuerzo = "2";
+                // 1. Ya no mapeamos a IDs (1 o 2). Usamos directamente el string del backend.
+                const esfuerzo = d.medidaEsfuerzo || "";
+
+                // 2. Procesamos el tiempo para mostrarlo en minutos en el input
+                let minutosTotales = '';
+                if (d.tiempoEstimado) {
+                    const partes = d.tiempoEstimado.split(':');
+                    minutosTotales = (parseInt(partes[0]) * 60) + parseInt(partes[1]);
+                }
 
                 tr.innerHTML = `
                     <td>
@@ -210,12 +225,15 @@ async function cargarParaModificar(id) {
                     <td><input type="text" class="table-input rep-inp" value="${d.rangoRep || ''}" required /></td>
                     <td><input type="text" class="table-input pes-inp" value="${d.rangoPeso || ''}" /></td>
                     <td>
+                        <!-- Usamos directamente el string para marcar 'selected' -->
                         <select class="table-input esf-sel">
                             <option value="">N/A</option>
-                            <option value="1" ${idEsfuerzo === '1' ? 'selected' : ''}>RIR</option>
-                            <option value="2" ${idEsfuerzo === '2' ? 'selected' : ''}>RPE</option>
+                            <option value="RIR" ${esfuerzo === 'RIR' ? 'selected' : ''}>RIR</option>
+                            <option value="RPE" ${esfuerzo === 'RPE' ? 'selected' : ''}>RPE</option>
                         </select>
                     </td>
+                    <td><input type="number" class="table-input cant-esf-inp" value="${d.cantMedida || ''}" min="0" /></td>
+                    <td><input type="number" class="table-input tiempo-inp" value="${minutosTotales}" min="1" /></td>
                     <td>
                         <button type="button" class="is-danger remove-btn" style="padding: 4px 10px;">X</button>
                     </td>
@@ -293,10 +311,14 @@ function agregarFilaEjercicio() {
         <td>
             <select class="table-input esf-sel">
                 <option value="">N/A</option>
-                <option value="1">RIR</option>
-                <option value="2">RPE</option>
+                <option value="RIR">RIR</option>
+                <option value="RPE">RPE</option>
             </select>
         </td>
+        <!-- NUEVO: Cantidad de Esfuerzo -->
+        <td><input type="number" class="table-input cant-esf-inp" placeholder="Ej: 2" min="0" /></td>
+        <!-- NUEVO: Tiempo en minutos -->
+        <td><input type="number" class="table-input tiempo-inp" placeholder="Ej: 15" min="1" /></td>
         <td>
             <button type="button" class="is-danger remove-btn" style="padding: 4px 10px;">X</button>
         </td>
@@ -305,7 +327,6 @@ function agregarFilaEjercicio() {
     tr.querySelector('.remove-btn').addEventListener('click', () => tr.remove());
     tablaDetalles.appendChild(tr);
 }
-
 
 // --- ENVÍO DE FORMULARIO (Crear o Actualizar) ---
 formRutina.addEventListener('submit', async (e) => {
@@ -323,6 +344,16 @@ formRutina.addEventListener('submit', async (e) => {
 
     filas.forEach(fila => {
         const valorEsfuerzo = fila.querySelector('.esf-sel').value;
+        const cantEsfuerzo = fila.querySelector('.cant-esf-inp').value;
+        const tiempoMinutos = fila.querySelector('.tiempo-inp').value;
+
+        // Formatear minutos a LocalTime (HH:mm:ss) para Spring Boot
+        let tiempoEstimadoFormat = null;
+        if (tiempoMinutos && !isNaN(tiempoMinutos)) {
+            const horas = Math.floor(tiempoMinutos / 60).toString().padStart(2, '0');
+            const minutos = (tiempoMinutos % 60).toString().padStart(2, '0');
+            tiempoEstimadoFormat = `${horas}:${minutos}:00`;
+        }
 
         detalles.push({
             idEjercicio: parseInt(fila.querySelector('.ej-sel').value),
@@ -330,7 +361,10 @@ formRutina.addEventListener('submit', async (e) => {
             rangoSeries: fila.querySelector('.ser-inp').value,
             rangoRep: fila.querySelector('.rep-inp').value,
             rangoPeso: fila.querySelector('.pes-inp').value,
-            idMedidaEsfuerzo: valorEsfuerzo ? parseInt(valorEsfuerzo) : null
+            // Mandar null en lugar de cadena vacía si no hay esfuerzo seleccionado
+            medidaEsfuerzo: valorEsfuerzo ? valorEsfuerzo : null,
+            cantMedida: cantEsfuerzo ? parseInt(cantEsfuerzo) : null,
+            tiempoEstimado: tiempoEstimadoFormat
         });
     });
 

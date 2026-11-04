@@ -9,7 +9,7 @@ let rutinaDetalleActual = null; // Guardamos el detalle actual para el modal
 document.addEventListener('DOMContentLoaded', async () => {
     renderCoachLayout('asignaciones');
     const token = getToken();
-    if (!token) { window.location.href = '/inicio-sesion.html'; return; }
+    if (!token) { window.location.href = '/login'; return; }
 
     await cargarClientes();
     await cargarPlantillas();
@@ -163,7 +163,7 @@ function renderizarEjerciciosPorDia(diaSeleccionado) {
                 <td>${d.rangoSeries || '-'}</td>
                 <td>${d.rangoRep || '-'}</td>
                 <td>${d.rangoPeso || '-'}</td>
-                <td>${d.nombreMedidaEsfuerzo || '-'}</td>
+                <td>${d.medidaEsfuerzo || '-'} - ${d.cantMedida}</td>
             </tr>
         `;
     });
