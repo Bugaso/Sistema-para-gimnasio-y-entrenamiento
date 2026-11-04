@@ -10,7 +10,6 @@ const toast = document.getElementById('toast');
 
 // Datos cacheados
 let opcionesEjercicios = '<option value="">Seleccione...</option>';
-let idCoachActual = null;
 let rutinaDetalleActual = null; // Para el modal de ver detalle
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -22,8 +21,6 @@ document.addEventListener('DOMContentLoaded', async () => {
         return;
     }
 
-    idCoachActual = decodificarIdCoach(token);
-
     await cargarEjercicios();
     await cargarTablaRutinas();
 
@@ -33,16 +30,19 @@ document.addEventListener('DOMContentLoaded', async () => {
     // --- DELEGACIÓN DE EVENTOS PARA LOS BOTONES DE LA TABLA ---
     tablaListadoRutinas.addEventListener('click', async (e) => {
         const btnVer = e.target.closest('.btn-ver');
+        const btnModificar = e.target.closest('.btn-modificar');
         const btnEliminar = e.target.closest('.btn-eliminar');
 
         if (btnVer) {
-            const id = btnVer.dataset.id;
-            await verDetalleRutina(id);
+            await verDetalleRutina(btnVer.dataset.id);
+        }
+
+        if (btnModificar) {
+            await cargarParaModificar(btnModificar.dataset.id);
         }
 
         if (btnEliminar) {
-            const id = btnEliminar.dataset.id;
-            await eliminarRutina(id);
+            await eliminarRutina(btnEliminar.dataset.id);
         }
     });
 
@@ -59,7 +59,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 
 // --- CARGAR CATÁLOGOS Y TABLA ---
-
 async function cargarTablaRutinas() {
     try {
         const rutinas = await apiRequest('/api/coach/rutina/listado', { token: getToken() });
@@ -75,15 +74,22 @@ async function cargarTablaRutinas() {
                 '<span style="color: #a3e635; font-weight: bold;">Plantilla General</span>' :
                 '<span style="color: #9ca3af;">Personalizada</span>';
 
+            // ESTILOS DE BOTONES ADAPTADOS AL DISEÑO
+            const estiloBotonBase = "background: transparent; border: 1px solid #333; color: #a1a1aa; padding: 6px 12px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px; cursor: pointer; border-radius: 4px; transition: all 0.2s;";
+            const estiloVer = estiloBotonBase + " margin-right: 8px;";
+            const estiloModificar = estiloBotonBase + " margin-right: 8px; border-color: #a3e635; color: #a3e635;";
+            const estiloEliminarHover = "onmouseover=\"this.style.borderColor='#ef4444'; this.style.color='#ef4444'\" onmouseout=\"this.style.borderColor='#333'; this.style.color='#a1a1aa'\"";
+
             tablaListadoRutinas.innerHTML += `
                 <tr>
                     <td><strong>${r.nombreRutina}</strong></td>
                     <td>${r.descripcion || '-'}</td>
                     <td>${tipoRutina}</td>
                     <td>${r.fechaCreacion || '-'}</td>
-                    <td>
-                        <button type="button" class="admin-primary-action btn-ver" data-id="${r.idRutina}" style="padding: 4px 8px; font-size: 0.8rem; margin-right: 4px;">Ver</button>
-                        <button type="button" class="is-danger btn-eliminar" data-id="${r.idRutina}" style="padding: 4px 8px; font-size: 0.8rem;">Eliminar</button>
+                    <td style="display: flex; gap: 8px;">
+                        <button type="button" class="btn-ver" data-id="${r.idRutina}" style="${estiloVer}" onmouseover="this.style.background='#27272a'" onmouseout="this.style.background='transparent'">VER</button>
+                        <button type="button" class="btn-modificar" data-id="${r.idRutina}" style="${estiloModificar}" onmouseover="this.style.background='#1a2e05'" onmouseout="this.style.background='transparent'">MODIFICAR</button>
+                        <button type="button" class="btn-eliminar" data-id="${r.idRutina}" style="${estiloBotonBase}" ${estiloEliminarHover}>ELIMINAR</button>
                     </td>
                 </tr>
             `;
@@ -107,7 +113,6 @@ async function cargarEjercicios() {
 
 
 // --- LÓGICA DEL MODAL "VER" ---
-
 async function verDetalleRutina(id) {
     try {
         const rutina = await apiRequest(`/api/coach/rutina/${id}`, { token: getToken() });
@@ -152,21 +157,122 @@ function renderizarEjerciciosPorDia(diaSeleccionado) {
     }
 
     ejerciciosFiltrados.forEach(d => {
+        let minutosTexto = '-';
+        if (d.tiempoEstimado) {
+            const partes = d.tiempoEstimado.split(':');
+            minutosTexto = ((parseInt(partes[0]) * 60) + parseInt(partes[1])) + ' min';
+        }
+
         tbodyModal.innerHTML += `
             <tr>
                 <td><strong>${d.nombreEjercicio}</strong></td>
                 <td>${d.rangoSeries || '-'}</td>
                 <td>${d.rangoRep || '-'}</td>
                 <td>${d.rangoPeso || '-'}</td>
-                <td>${d.nombreMedidaEsfuerzo || '-'}</td>
+                <td>${d.medidaEsfuerzo || '-'}</td>
+                <td>${d.cantMedida || '-'}</td>
+                <td>${minutosTexto}</td>
             </tr>
         `;
     });
 }
 
 
-// --- ELIMINAR RUTINA ---
 
+// --- LÓGICA PARA MODIFICAR RUTINA ---
+async function cargarParaModificar(id) {
+    try {
+        const rutina = await apiRequest(`/api/coach/rutina/${id}`, { token: getToken() });
+
+        document.getElementById('rutinaIdEdit').value = rutina.idRutina;
+        document.getElementById('nombreRutina').value = rutina.nombreRutina;
+        document.getElementById('descripcionRutina').value = rutina.descripcion || '';
+        document.getElementById('esPlantilla').checked = rutina.esPlantilla;
+
+        tablaDetalles.innerHTML = '';
+        if (rutina.detalles && rutina.detalles.length > 0) {
+            rutina.detalles.forEach(d => {
+                const tr = document.createElement('tr');
+
+                // 1. Ya no mapeamos a IDs (1 o 2). Usamos directamente el string del backend.
+                const esfuerzo = d.medidaEsfuerzo || "";
+
+                // 2. Procesamos el tiempo para mostrarlo en minutos en el input
+                let minutosTotales = '';
+                if (d.tiempoEstimado) {
+                    const partes = d.tiempoEstimado.split(':');
+                    minutosTotales = (parseInt(partes[0]) * 60) + parseInt(partes[1]);
+                }
+
+                tr.innerHTML = `
+                    <td>
+                        <select class="table-input dia-sel" required>
+                            <option value="Lunes" ${d.diaSemana === 'Lunes' ? 'selected' : ''}>Lunes</option>
+                            <option value="Martes" ${d.diaSemana === 'Martes' ? 'selected' : ''}>Martes</option>
+                            <option value="Miércoles" ${d.diaSemana === 'Miércoles' ? 'selected' : ''}>Miércoles</option>
+                            <option value="Jueves" ${d.diaSemana === 'Jueves' ? 'selected' : ''}>Jueves</option>
+                            <option value="Viernes" ${d.diaSemana === 'Viernes' ? 'selected' : ''}>Viernes</option>
+                            <option value="Sábado" ${d.diaSemana === 'Sábado' ? 'selected' : ''}>Sábado</option>
+                            <option value="Domingo" ${d.diaSemana === 'Domingo' ? 'selected' : ''}>Domingo</option>
+                        </select>
+                    </td>
+                    <td>
+                        <select class="table-input ej-sel" required>
+                            ${opcionesEjercicios}
+                        </select>
+                    </td>
+                    <td><input type="text" class="table-input ser-inp" value="${d.rangoSeries || ''}" required /></td>
+                    <td><input type="text" class="table-input rep-inp" value="${d.rangoRep || ''}" required /></td>
+                    <td><input type="text" class="table-input pes-inp" value="${d.rangoPeso || ''}" /></td>
+                    <td>
+                        <!-- Usamos directamente el string para marcar 'selected' -->
+                        <select class="table-input esf-sel">
+                            <option value="">N/A</option>
+                            <option value="RIR" ${esfuerzo === 'RIR' ? 'selected' : ''}>RIR</option>
+                            <option value="RPE" ${esfuerzo === 'RPE' ? 'selected' : ''}>RPE</option>
+                        </select>
+                    </td>
+                    <td><input type="number" class="table-input cant-esf-inp" value="${d.cantMedida || ''}" min="0" /></td>
+                    <td><input type="number" class="table-input tiempo-inp" value="${minutosTotales}" min="1" /></td>
+                    <td>
+                        <button type="button" class="is-danger remove-btn" style="padding: 4px 10px;">X</button>
+                    </td>
+                `;
+
+                const selectEj = tr.querySelector('.ej-sel');
+                Array.from(selectEj.options).forEach(opt => {
+                    if (opt.text === d.nombreEjercicio) opt.selected = true;
+                });
+
+                tr.querySelector('.remove-btn').addEventListener('click', () => tr.remove());
+                tablaDetalles.appendChild(tr);
+            });
+        } else {
+            agregarFilaEjercicio();
+        }
+
+        document.getElementById('btnGuardarRutina').textContent = 'Actualizar Rutina';
+        document.getElementById('btnCancelarEdicion').style.display = 'inline-block';
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+
+    } catch (error) {
+        alert('Error al cargar la rutina para modificar.');
+        console.error(error);
+    }
+}
+
+// Evento para cancelar edición
+document.getElementById('btnCancelarEdicion')?.addEventListener('click', () => {
+    formRutina.reset();
+    document.getElementById('rutinaIdEdit').value = '';
+    tablaDetalles.innerHTML = '';
+    agregarFilaEjercicio();
+    document.getElementById('btnGuardarRutina').textContent = 'Guardar Rutina Completa';
+    document.getElementById('btnCancelarEdicion').style.display = 'none';
+});
+
+
+// --- ELIMINAR RUTINA ---
 async function eliminarRutina(id) {
     if(!confirm('¿Estás seguro de eliminar esta rutina? Se perderán sus configuraciones.')) return;
     try {
@@ -180,7 +286,6 @@ async function eliminarRutina(id) {
 
 
 // --- TABLA DINÁMICA DE CREACIÓN ---
-
 function agregarFilaEjercicio() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -204,6 +309,17 @@ function agregarFilaEjercicio() {
         <td><input type="text" class="table-input rep-inp" placeholder="Ej: 8-12" required /></td>
         <td><input type="text" class="table-input pes-inp" placeholder="Ej: 20kg" /></td>
         <td>
+            <select class="table-input esf-sel">
+                <option value="">N/A</option>
+                <option value="RIR">RIR</option>
+                <option value="RPE">RPE</option>
+            </select>
+        </td>
+        <!-- NUEVO: Cantidad de Esfuerzo -->
+        <td><input type="number" class="table-input cant-esf-inp" placeholder="Ej: 2" min="0" /></td>
+        <!-- NUEVO: Tiempo en minutos -->
+        <td><input type="number" class="table-input tiempo-inp" placeholder="Ej: 15" min="1" /></td>
+        <td>
             <button type="button" class="is-danger remove-btn" style="padding: 4px 10px;">X</button>
         </td>
     `;
@@ -212,9 +328,7 @@ function agregarFilaEjercicio() {
     tablaDetalles.appendChild(tr);
 }
 
-
-// --- ENVÍO DE FORMULARIO ---
-
+// --- ENVÍO DE FORMULARIO (Crear o Actualizar) ---
 formRutina.addEventListener('submit', async (e) => {
     e.preventDefault();
     const status = document.getElementById('formStatusCreate');
@@ -229,12 +343,28 @@ formRutina.addEventListener('submit', async (e) => {
     }
 
     filas.forEach(fila => {
+        const valorEsfuerzo = fila.querySelector('.esf-sel').value;
+        const cantEsfuerzo = fila.querySelector('.cant-esf-inp').value;
+        const tiempoMinutos = fila.querySelector('.tiempo-inp').value;
+
+        // Formatear minutos a LocalTime (HH:mm:ss) para Spring Boot
+        let tiempoEstimadoFormat = null;
+        if (tiempoMinutos && !isNaN(tiempoMinutos)) {
+            const horas = Math.floor(tiempoMinutos / 60).toString().padStart(2, '0');
+            const minutos = (tiempoMinutos % 60).toString().padStart(2, '0');
+            tiempoEstimadoFormat = `${horas}:${minutos}:00`;
+        }
+
         detalles.push({
             idEjercicio: parseInt(fila.querySelector('.ej-sel').value),
             diaSemana: fila.querySelector('.dia-sel').value,
             rangoSeries: fila.querySelector('.ser-inp').value,
             rangoRep: fila.querySelector('.rep-inp').value,
-            rangoPeso: fila.querySelector('.pes-inp').value
+            rangoPeso: fila.querySelector('.pes-inp').value,
+            // Mandar null en lugar de cadena vacía si no hay esfuerzo seleccionado
+            medidaEsfuerzo: valorEsfuerzo ? valorEsfuerzo : null,
+            cantMedida: cantEsfuerzo ? parseInt(cantEsfuerzo) : null,
+            tiempoEstimado: tiempoEstimadoFormat
         });
     });
 
@@ -242,21 +372,31 @@ formRutina.addEventListener('submit', async (e) => {
         nombreRutina: document.getElementById('nombreRutina').value.trim(),
         descripcion: document.getElementById('descripcionRutina').value.trim(),
         esPlantilla: document.getElementById('esPlantilla').checked,
-        idUsCoach: idCoachActual,
         detalles: detalles
     };
 
+    const idEdit = document.getElementById('rutinaIdEdit').value;
+    const isUpdate = idEdit !== '';
+    const url = isUpdate ? `/api/coach/rutina/actualizar/${idEdit}` : '/api/coach/rutina/crear';
+    const method = isUpdate ? 'PUT' : 'POST';
+
     try {
-        await apiRequest('/api/coach/rutina/crear', {
-            method: 'POST',
+        await apiRequest(url, {
+            method: method,
             body: JSON.stringify(payload),
             token: getToken()
         });
 
-        mostrarToast('Rutina guardada con éxito');
-        formRutina.reset();
-        tablaDetalles.innerHTML = '';
-        agregarFilaEjercicio();
+        mostrarToast(isUpdate ? 'Rutina actualizada con éxito' : 'Rutina guardada con éxito');
+
+        if (isUpdate) {
+            document.getElementById('btnCancelarEdicion').click();
+        } else {
+            formRutina.reset();
+            tablaDetalles.innerHTML = '';
+            agregarFilaEjercicio();
+        }
+
         await cargarTablaRutinas();
     } catch (error) {
         status.textContent = error.message;
@@ -265,20 +405,8 @@ formRutina.addEventListener('submit', async (e) => {
 
 
 // --- UTILIDADES ---
-
 function mostrarToast(mensaje) {
     toast.textContent = mensaje;
     toast.hidden = false;
     setTimeout(() => { toast.hidden = true; }, 3500);
 }
-/*
-function decodificarIdCoach(token) {
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const payload = JSON.parse(window.atob(base64));
-        return payload.idUsuario || 1;
-    } catch (e) {
-        return 1;
-    }
-}*/

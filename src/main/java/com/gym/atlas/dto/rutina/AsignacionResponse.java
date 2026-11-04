@@ -6,6 +6,7 @@ public record AsignacionResponse(
         Integer idCliCou,
         String clienteNombre,
         Long clienteDni,
+        Integer idRutina,
         String rutinaNombre,
         LocalDate fechaPlan,
         String duracionPlan

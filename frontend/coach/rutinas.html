@@ -36,6 +36,7 @@
                 </div>
 
                 <form id="formRutina" style="padding: 24px;">
+                    <input type="hidden" id="rutinaIdEdit" value="">
                     <div class="admin-form-grid">
                         <label class="admin-field admin-field-wide">
                             <span>Nombre de la Rutina</span>
@@ -68,6 +69,9 @@
                                 <th>Series</th>
                                 <th>Reps</th>
                                 <th>Peso</th>
+                                <th>Esfuerzo</th>
+                                <th>Cant.</th> <!-- NUEVA COLUMNA -->
+                                <th>Tiempo (min)</th> <!-- NUEVA COLUMNA -->
                                 <th>Acción</th>
                             </tr>
                             </thead>
@@ -76,8 +80,10 @@
                     </div>
 
                     <p class="admin-form-status" id="formStatusCreate"></p>
+
                     <div class="admin-dialog-actions" style="margin-top: 24px;">
-                        <button class="admin-primary-action" type="submit">Guardar Rutina Completa</button>
+                        <button class="admin-primary-action" type="submit" id="btnGuardarRutina">Guardar Rutina Completa</button>
+                        <button type="button" class="admin-secondary-action" id="btnCancelarEdicion" style="display: none; margin-left: 10px;">Cancelar Edición</button>
                     </div>
                 </form>
             </div>
@@ -137,6 +143,9 @@
                     <th>Reps</th>
                     <th>Peso</th>
                     <th>Esfuerzo</th>
+                    <th>Cant.</th> <!-- NUEVA COLUMNA -->
+                    <th>Tiempo (min)</th> <!-- NUEVA COLUMNA -->
+
                 </tr>
                 </thead>
                 <tbody id="tablaModalDetalles"></tbody>
