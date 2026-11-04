@@ -14,18 +14,40 @@ let rutinaPlanificadaActual = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     renderCoachLayout('registrar-sesion');
-    if (!getToken()) { window.location.href = '/inicio-sesion.html'; return; }
+    if (!getToken()) { window.location.href = '/login'; return; }
 
     // Setear fecha actual por defecto
     document.getElementById('fechaSesion').value = new Date().toISOString().split('T')[0];
 
     await cargarAsignaciones();
-
+    autoseleccionarDiaActual();
     selectAsignacion.addEventListener('change', generarVistaEjercicios);
     selectDia.addEventListener('change', generarVistaEjercicios);
 
     /*btnCargarRutina.addEventListener('click', generarVistaEjercicios);*/
 });
+
+function autoseleccionarDiaActual() {
+    if (!selectDia) return;
+
+    // Mapeo de los días según Date().getDay() que va de 0 (Domingo) a 6 (Sábado)
+    // NOTA: Los nombres deben coincidir EXACTAMENTE con los 'value' de tu HTML
+    const diasSemana = [
+        "Domingo",   // 0
+        "Lunes",     // 1
+        "Martes",    // 2
+        "Miércoles", // 3
+        "Jueves",    // 4
+        "Viernes",   // 5
+        "Sábado"     // 6
+    ];
+
+    const numeroDiaHoy = new Date().getDay();
+    const nombreDiaHoy = diasSemana[numeroDiaHoy];
+
+    // Asigna el valor al select para que cambie visualmente
+    selectDia.value = nombreDiaHoy;
+}
 
 // 1. Obtener los clientes asignados al coach
 async function cargarAsignaciones() {
@@ -49,6 +71,7 @@ async function cargarAsignaciones() {
 // 2. Al dar clic en "Cargar", traemos la rutina y armamos los inputs
 async function generarVistaEjercicios() {
     const idAsignacion = selectAsignacion.value;
+
     const dia = selectDia.value;
 
     if (!idAsignacion || !dia) {

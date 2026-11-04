@@ -6,10 +6,12 @@ const tablaSesiones = document.getElementById('tablaSesiones');
 const formEditarSesion = document.getElementById('formEditarSesion');
 const contenedorEjercicios = document.getElementById('contenedorEjerciciosHistorial');
 const toast = document.getElementById('toast');
+const modalConfirmarEliminar = document.getElementById('modalConfirmarEliminarSesion');
+let idSesionAEliminar = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     renderCoachLayout('historial-cliente');
-    if (!getToken()) { window.location.href = '/inicio-sesion.html'; return; }
+    if (!getToken()) { window.location.href = '/login'; return; }
 
     await cargarAsignaciones();
     selectAsignacion.addEventListener('change', cargarHistorialCliente);
@@ -18,6 +20,13 @@ document.addEventListener('DOMContentLoaded', async () => {
         formEditarSesion.style.display = 'none';
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
+
+    document.getElementById('btnCancelarEliminarSesion').addEventListener('click', () => {
+        modalConfirmarEliminar.close();
+    });
+
+    document.getElementById('btnProcesarEliminarSesion').addEventListener('click', eliminarSesionBackend);
+
 });
 
 async function cargarAsignaciones() {
@@ -53,15 +62,20 @@ async function cargarHistorialCliente() {
             return;
         }
 
-        const estiloBoton = "background: transparent; border: 1px solid #a3e635; color: #a3e635; padding: 6px 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: all 0.2s;";
+        const estiloBotonVer = "background: transparent; border: 1px solid #a3e635; color: #a3e635; padding: 6px 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: all 0.2s;";
+        // NUEVO ESTILO PARA EL BOTON ELIMINAR
+        const estiloBotonEliminar = "background: transparent; border: 1px solid #333; color: #a1a1aa; padding: 6px 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: all 0.2s; margin-left: 8px;";
+        const hoverEliminar = "onmouseover=\"this.style.borderColor='#ef4444'; this.style.color='#ef4444'\" onmouseout=\"this.style.borderColor='#333'; this.style.color='#a1a1aa'\"";
 
         resumen.forEach(r => {
             tablaSesiones.innerHTML += `
                 <tr>
                     <td><strong>${r.fechaRegistro}</strong></td>
                     <td>${r.rutinaNombre}</td>
-                    <td>
-                        <button type="button" class="btn-modificar-sesion" data-id="${r.idHistRut}" style="${estiloBoton}" onmouseover="this.style.background='#1a2e05'" onmouseout="this.style.background='transparent'">VER / EDITAR</button>
+                    <td style="display: flex;">
+                        <button type="button" class="btn-modificar-sesion" data-id="${r.idHistRut}" style="${estiloBotonVer}" onmouseover="this.style.background='#1a2e05'" onmouseout="this.style.background='transparent'">VER / EDITAR</button>
+                        <!-- NUEVO BOTÓN ELIMINAR -->
+                        <button type="button" class="btn-eliminar-sesion" data-id="${r.idHistRut}" data-nombre="${r.rutinaNombre}" data-fecha="${r.fechaRegistro}" style="${estiloBotonEliminar}" ${hoverEliminar}>ELIMINAR</button>
                     </td>
                 </tr>
             `;
@@ -71,6 +85,13 @@ async function cargarHistorialCliente() {
         document.querySelectorAll('.btn-modificar-sesion').forEach(btn => {
             btn.addEventListener('click', async (e) => {
                 await abrirEdicionSesion(e.target.dataset.id);
+            });
+        });
+
+        // Eventos a los botones "ELIMINAR"
+        document.querySelectorAll('.btn-eliminar-sesion').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                abrirModalEliminarSesion(e.target.dataset.id, e.target.dataset.nombre, e.target.dataset.fecha);
             });
         });
 
@@ -229,5 +250,51 @@ formEditarSesion.addEventListener('submit', async (e) => {
         document.getElementById('formStatusHistorial').textContent = error.message;
     }
 });
+
+// --- LÓGICA PARA ELIMINAR SESIÓN ---
+
+// Abrir el modal y cargar los datos visuales
+function abrirModalEliminarSesion(idHistRut, nombreRutina, fechaRegistro) {
+    idSesionAEliminar = idHistRut;
+
+    // Convertir la fecha "yyyy-mm-dd" a un objeto Date (con ajuste de zona horaria)
+    const fechaObj = new Date(fechaRegistro + 'T00:00:00');
+
+    // Obtener el día de la semana en español
+    const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
+    const diaNombre = diasSemana[fechaObj.getDay()];
+
+    document.getElementById('eliminarSesionNombreRutina').textContent = nombreRutina;
+    // Mostrar día + fecha (ej: "Lunes, 2024-03-25")
+    document.getElementById('eliminarSesionFecha').textContent = `${diaNombre}, ${fechaRegistro}`;
+
+    modalConfirmarEliminar.showModal();
+}
+
+// Consumir el endpoint DELETE
+async function eliminarSesionBackend() {
+    if (!idSesionAEliminar) return;
+
+    try {
+        await apiRequest(`/api/coach/historial/eliminar/${idSesionAEliminar}`, {
+            method: 'DELETE',
+            token: getToken()
+        });
+
+        modalConfirmarEliminar.close();
+        mostrarToast('Sesión eliminada correctamente');
+
+        // Si estábamos editando esta misma sesión, cerramos el formulario
+        if (document.getElementById('idHistRutEditar').value === idSesionAEliminar) {
+            formEditarSesion.style.display = 'none';
+        }
+
+        // Recargar la tabla
+        await cargarHistorialCliente();
+
+    } catch (error) {
+        alert("Error al eliminar la sesión: " + error.message);
+    }
+}
 
 function mostrarToast(m) { toast.textContent = m; toast.hidden = false; setTimeout(() => toast.hidden = true, 3500); }

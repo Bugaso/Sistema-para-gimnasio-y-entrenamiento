@@ -151,4 +151,15 @@ public class HistorialService {
 
         return new MessageResponse("Sesión actualizada correctamente.");
     }
+
+    @Transactional
+    public MessageResponse eliminarSesion(Integer idHistRut) {
+        HistorialRutina histRut = historialRutinaRepo.findById(idHistRut).orElseThrow();
+
+        historialSerieRepo.deleteByHistorialRutinaIdHistRut(histRut.getIdHistRut());
+
+        historialRutinaRepo.delete(histRut);
+
+        return new MessageResponse("Eliminacion de la sesion exitosa");
+    }
 }

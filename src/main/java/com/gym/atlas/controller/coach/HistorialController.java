@@ -39,4 +39,9 @@ public class HistorialController {
     public ResponseEntity<MessageResponse> actualizarSesion(@PathVariable Integer idHistRut, @RequestBody RegistroSesionRequest request) {
         return ResponseEntity.ok(historialService.actualizarSesion(idHistRut, request));
     }
+
+    @DeleteMapping("/eliminar/{idHistRut}")
+    public ResponseEntity<MessageResponse> eliminarSesion(@PathVariable Integer idHistRut){
+        return ResponseEntity.ok(historialService.eliminarSesion(idHistRut));
+    }
 }
