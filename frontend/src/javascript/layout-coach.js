@@ -22,6 +22,9 @@ export function renderCoachLayout(activeNav) {
                     <a class="admin-nav-link ${activeNav === 'asignaciones' ? 'is-active' : ''}" href="/coach/asignaciones.html">
                         <span aria-hidden="true">02</span> Asignaciones a Clientes
                     </a>
+                    <a class="admin-nav-link ${activeNav === 'registrar-sesion' ? 'is-active' : ''}" href="/coach/registrar-sesion.html">
+                        <span aria-hidden="true">03</span> Registrar Sesion
+                    </a>
                 </nav>
 
                 <div class="admin-sidebar-footer">

@@ -93,6 +93,7 @@ public class SecurityConfig {
                         .requestMatchers(ADMIN_ENDPOINTS).hasRole("ADMIN")
                         .requestMatchers(RECEPCION_ENDPOINTS).hasAnyRole("RECEPCIONISTA", "ADMIN")
                         .requestMatchers(COACH_ENDPOINTS).hasAnyRole("COACH", "ADMIN")
+                        .requestMatchers("/api/coach/historial/**").hasRole("COACH") // Asegúrate de que esta línea esté presente
 
                         // 2. DESPUÉS ponemos las rutas públicas.
                         // Así, los HTML estáticos de /admin/** siguen siendo accesibles,

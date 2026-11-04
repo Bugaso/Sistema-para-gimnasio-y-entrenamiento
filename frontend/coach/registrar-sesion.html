@@ -1,0 +1,89 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registrar Sesión — Coach</title>
+    <link rel="stylesheet" href="../src/css/admin/admin.css" />
+    <link rel="stylesheet" href="../src/css/index/index.css" />
+    <style>
+        .table-input { width: 100%; padding: 4px 8px; border: 1px solid #333; border-radius: 4px; background-color: #1a1a1a; color: white; }
+        .ejercicio-card { background: #121212; border: 1px solid #333; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
+        .ejercicio-titulo { color: #a3e635; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
+        .info-planificada { font-size: 0.85rem; color: #9ca3af; margin-bottom: 16px; }
+    </style>
+</head>
+<body class="admin-page">
+
+<div class="admin-shell" data-admin-shell>
+    <aside data-layout-sidebar></aside>
+    <div class="admin-workspace">
+        <header data-layout-topbar></header>
+
+        <div class="admin-content">
+            <div class="admin-heading admin-heading-compact">
+                <div>
+                    <p class="eyebrow">Ejecución</p>
+                    <h1>Registrar Sesión de Entrenamiento</h1>
+                </div>
+            </div>
+
+            <!-- PASO 1: SELECCIONAR CLIENTE Y DÍA -->
+            <div class="admin-panel" style="margin-bottom: 30px;">
+                <div class="admin-panel-heading">
+                    <div>
+                        <h2>1. Seleccionar Asignación y Día</h2>
+                    </div>
+                </div>
+                <div class="admin-form-grid" style="padding: 24px;">
+                    <label class="admin-field">
+                        <span>Cliente (Asignación Activa)</span>
+                        <select id="selectAsignacion" required></select>
+                    </label>
+
+                    <label class="admin-field">
+                        <span>Día de la Semana</span>
+                        <select id="selectDia" required>
+                            <option value="">Seleccione...</option>
+                            <option value="Lunes">Lunes</option>
+                            <option value="Martes">Martes</option>
+                            <option value="Miércoles">Miércoles</option>
+                            <option value="Jueves">Jueves</option>
+                            <option value="Viernes">Viernes</option>
+                            <option value="Sábado">Sábado</option>
+                            <option value="Domingo">Domingo</option>
+                        </select>
+                    </label>
+
+                    <label class="admin-field">
+                        <span>Fecha de la Sesión</span>
+                        <input type="date" id="fechaSesion" required />
+                    </label>
+
+<!--                    <div style="display: flex; align-items: flex-end;">-->
+<!--                        <button type="button" id="btnCargarRutina" class="admin-primary-action">Cargar Ejercicios</button>-->
+<!--                    </div>-->
+                </div>
+            </div>
+
+            <!-- PASO 2: LLENAR DATOS REALES (Se genera dinámicamente en JS) -->
+            <form id="formSesion" style="display: none;">
+                <div class="admin-panel" style="margin-bottom: 40px; background: transparent; border: none; padding: 0;">
+                    <h2 style="margin-bottom: 20px;">2. Registro de Series (Ejecución Real)</h2>
+                    <div id="contenedorEjercicios"></div>
+
+                    <p class="admin-form-status" id="formStatus"></p>
+                    <div class="admin-dialog-actions" style="margin-top: 24px;">
+                        <button class="admin-primary-action" type="submit" style="width: 100%; padding: 12px; font-size: 1.1rem;">Guardar Sesión Completa</button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<div class="admin-toast" id="toast" hidden></div>
+<script type="module" src="../src/javascript/coach/registrar-sesion.js"></script>
+</body>
+</html>
