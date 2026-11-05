@@ -51,7 +51,7 @@ function aplicarFiltros() {
         const coincideTexto = nom.includes(texto) || dni.includes(texto);
 
         // Asumiendo que el estado se guarda en reg.estado
-        const esInactivo = (reg.estado === 'VENCIDO');
+        const esInactivo = (reg.estado === 'VENCIDO' || reg.estado === "BAJA");
 
         if (!mostrarInactivos && esInactivo) return false;
 
@@ -84,7 +84,7 @@ function renderizarTabla(lista) {
 
 
 
-        const esInactivo = estado === "VENCIDO";
+        const esInactivo = estado === "VENCIDO" || estado ==="BAJA";
 
         // Estilos visuales para inactivos
         const estiloTexto = esInactivo ? 'color: var(--muted); text-decoration: line-through;' : '';
@@ -97,9 +97,12 @@ function renderizarTabla(lista) {
             // El ID principal de este registro (ClienteMembresia)
             let idRegistro = reg.idCliMem;
             botonHTML = `<button type="button" class="is-danger" onclick="window.abrirModalBaja(${idRegistro})">Dar de Baja</button>`;
-        } else {
-            botonHTML = `<span style="color: var(--muted); font-size: 0.8rem;">Vencido</span>`;
         }
+        /*
+        else {
+            botonHTML = `<span style="color: var(--muted); font-size: 0.8rem;">${estado}</span>`;
+        }
+        */
 
         tr.innerHTML = `
             <td>

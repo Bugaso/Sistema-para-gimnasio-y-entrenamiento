@@ -39,6 +39,9 @@ public class ClienteMembresia {
     @Column(name = "costoTotal")
     private Double costoTotal;
 
+    @Column(name ="estado")
+    private String estado;
+
     public ClienteMembresia() {}
 
     public Long getIdCliMem() {
@@ -103,5 +106,13 @@ public class ClienteMembresia {
 
     public void setCantEfect(Double cantEfect) {
         this.cantEfect = cantEfect;
+    }
+
+    public String getEstado() {
+        return estado;
+    }
+
+    public void setEstado(String estado) {
+        this.estado = estado;
     }
 }

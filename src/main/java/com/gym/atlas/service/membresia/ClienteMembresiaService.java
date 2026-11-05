@@ -58,7 +58,7 @@ public class ClienteMembresiaService {
         clienteMembresia.setFechaPago(request.fechaPago());
         clienteMembresia.setCostoTotal(request.costoTotal());
         clienteMembresia.setTipoPago(request.tipoPago());
-
+        clienteMembresia.setEstado("ACTIVO");
         if(request.tipoPago().equalsIgnoreCase("AMBOS")){
             clienteMembresia.setCantEfect(request.cantEfect());
         }else{
@@ -72,7 +72,7 @@ public class ClienteMembresiaService {
         return clienteMembresiaRepository.save(clienteMembresia);
     }
 
-    @Transactional(readOnly = true)
+    @Transactional()
     public List<ClienteMembresiaDTO> obtenerHistorial() {
         List<ClienteMembresiaDTO> listaCliMemDTO;
         List<ClienteMembresia> listaCliMem = clienteMembresiaRepository.findAll();
@@ -84,11 +84,17 @@ public class ClienteMembresiaService {
                         LocalDateTime vencimiento = cliMem.getFechaPago().plusDays(
                                 cliMem.getIdTipoMembresia().getDuracionMembresia()*cliMem.getCantCuotas());
 
-                        String estado;
-                        if(vencimiento.isAfter(LocalDateTime.now())){
-                            estado =  "ACTIVO";
+                        String estado =  cliMem.getEstado();
+                        if(vencimiento.isBefore(LocalDateTime.now())
+                                && estado.equalsIgnoreCase("VENCIDO")
+                                && estado.equalsIgnoreCase("BAJA")){
+
+                            cliMem.setEstado("VENCIDO");
+                            System.out.println("EL ESTADO SE ACTUALIZA A VENCIDO");
+                            clienteMembresiaRepository.save(cliMem);
                         }
-                        else {estado = "VENCIDO";}
+
+
                         ClienteMembresiaDTO clienteMembresiaDTO = new ClienteMembresiaDTO(
                             cliMem.getIdCliMem(),
                             cliMem.getUsuario(),
@@ -147,8 +153,8 @@ public class ClienteMembresiaService {
 
     public MessageResponse borrarPagoCliente(Long idCliMem) {
         ClienteMembresia clienteMembresia = clienteMembresiaRepository.findById(idCliMem).orElseThrow();
-
-        clienteMembresiaRepository.delete(clienteMembresia);
+        clienteMembresia.setEstado("BAJA");
+        clienteMembresiaRepository.save(clienteMembresia);
         return new MessageResponse("Eliminacion con exito");
     }
 }

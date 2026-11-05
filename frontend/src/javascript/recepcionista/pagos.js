@@ -108,11 +108,15 @@ function cargarSelectMembresias() {
 selectMembresia.addEventListener('change', (e) => {
     const id = parseInt(e.target.value);
     membresiaSeleccionada = listadoMembresias.find(m => m.idMembresia === id);
+    //Creo una variable local para almacenar solo los tipos activos
+    let tiposMembresiaActivos = membresiaSeleccionada.tipos.filter(tm => tm.estado)
 
-    if (membresiaSeleccionada && membresiaSeleccionada.tipos) {
+    if (membresiaSeleccionada && tiposMembresiaActivos.length > 0) {
         selectTipoMembresia.disabled = false;
+
+
         selectTipoMembresia.innerHTML = '<option value="">Seleccione un plan...</option>' +
-            membresiaSeleccionada.tipos.map(t =>
+            tiposMembresiaActivos.map(t =>
                 `<option value="${t.idTipoMem}">${t.diasAsistencia} días/sem - ${t.duracionMembresia} días ($${t.costoMembresia})</option>`
             ).join('');
     } else {
