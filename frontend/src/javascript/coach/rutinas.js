@@ -24,7 +24,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await cargarEjercicios();
     await cargarTablaRutinas();
 
-    btnAgregarEjercicio.addEventListener('click', agregarFilaEjercicio);
+    btnAgregarEjercicio.addEventListener('click', () => agregarFilaEjercicio());
     agregarFilaEjercicio();
 
     // --- DELEGACIÓN DE EVENTOS PARA LOS BOTONES DE LA TABLA ---
@@ -71,14 +71,13 @@ async function cargarTablaRutinas() {
 
         rutinas.forEach(r => {
             const tipoRutina = r.esPlantilla ?
-                '<span style="color: #a3e635; font-weight: bold;">Plantilla General</span>' :
-                '<span style="color: #9ca3af;">Personalizada</span>';
+                '<span style="color: var(--lime); font-weight: bold;">Plantilla General</span>' :
+                '<span style="color: #666;">Personalizada</span>';
 
-            // ESTILOS DE BOTONES ADAPTADOS AL DISEÑO
-            const estiloBotonBase = "background: transparent; border: 1px solid #333; color: #a1a1aa; padding: 6px 12px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px; cursor: pointer; border-radius: 4px; transition: all 0.2s;";
+            const estiloBotonBase = "background: transparent; border: 1px solid #d1d5d2; color: #555; padding: 6px 12px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px; cursor: pointer; border-radius: 4px; transition: all 0.2s;";
             const estiloVer = estiloBotonBase + " margin-right: 8px;";
-            const estiloModificar = estiloBotonBase + " margin-right: 8px; border-color: #a3e635; color: #a3e635;";
-            const estiloEliminarHover = "onmouseover=\"this.style.borderColor='#ef4444'; this.style.color='#ef4444'\" onmouseout=\"this.style.borderColor='#333'; this.style.color='#a1a1aa'\"";
+            const estiloModificar = estiloBotonBase + " margin-right: 8px; border-color: var(--lime); color: var(--lime);";
+            const estiloEliminarHover = "onmouseover=\"this.style.borderColor='#ef7e64'; this.style.color='#ef7e64'\" onmouseout=\"this.style.borderColor='#d1d5d2'; this.style.color='#555'\"";
 
             tablaListadoRutinas.innerHTML += `
                 <tr>
@@ -87,8 +86,8 @@ async function cargarTablaRutinas() {
                     <td>${tipoRutina}</td>
                     <td>${r.fechaCreacion || '-'}</td>
                     <td style="display: flex; gap: 8px;">
-                        <button type="button" class="btn-ver" data-id="${r.idRutina}" style="${estiloVer}" onmouseover="this.style.background='#27272a'" onmouseout="this.style.background='transparent'">VER</button>
-                        <button type="button" class="btn-modificar" data-id="${r.idRutina}" style="${estiloModificar}" onmouseover="this.style.background='#1a2e05'" onmouseout="this.style.background='transparent'">MODIFICAR</button>
+                        <button type="button" class="btn-ver" data-id="${r.idRutina}" style="${estiloVer}" onmouseover="this.style.background='#f7f9f9'" onmouseout="this.style.background='transparent'">VER</button>
+                        <button type="button" class="btn-modificar" data-id="${r.idRutina}" style="${estiloModificar}" onmouseover="this.style.background='rgb(217 4 41 / 5%'" onmouseout="this.style.background='transparent'">MODIFICAR</button>
                         <button type="button" class="btn-eliminar" data-id="${r.idRutina}" style="${estiloBotonBase}" ${estiloEliminarHover}>ELIMINAR</button>
                     </td>
                 </tr>
@@ -121,8 +120,8 @@ async function verDetalleRutina(id) {
         document.getElementById('modalTituloRutina').textContent = rutina.nombreRutina;
         document.getElementById('modalDescRutina').textContent = rutina.descripcion || 'Sin descripción';
         document.getElementById('modalTipoRutina').innerHTML = rutina.esPlantilla ?
-            'Tipo: <span style="color: #a3e635;">Plantilla General</span>' :
-            'Tipo: <span style="color: #9ca3af;">Personalizada</span>';
+            'Tipo: <span style="color: var(--lime);">Plantilla General</span>' :
+            'Tipo: <span style="color: #666;">Personalizada</span>';
 
         const diasDisponibles = [...new Set(rutina.detalles.map(d => d.diaSemana))];
         const selectDia = document.getElementById('selectDiaFiltro');
@@ -130,7 +129,7 @@ async function verDetalleRutina(id) {
 
         if (diasDisponibles.length === 0) {
             selectDia.innerHTML = '<option value="">Sin días registrados</option>';
-            document.getElementById('tablaModalDetalles').innerHTML = '<tr><td colspan="5">No hay ejercicios asignados.</td></tr>';
+            document.getElementById('tablaModalDetalles').innerHTML = '<tr><td colspan="7">No hay ejercicios asignados.</td></tr>';
         } else {
             diasDisponibles.forEach(dia => {
                 selectDia.innerHTML += `<option value="${dia}">${dia}</option>`;
@@ -152,7 +151,7 @@ function renderizarEjerciciosPorDia(diaSeleccionado) {
     const ejerciciosFiltrados = rutinaDetalleActual.detalles.filter(d => d.diaSemana === diaSeleccionado);
 
     if (ejerciciosFiltrados.length === 0) {
-        tbodyModal.innerHTML = `<tr><td colspan="5">No hay ejercicios para el día ${diaSeleccionado}.</td></tr>`;
+        tbodyModal.innerHTML = `<tr><td colspan="7">No hay ejercicios para el día ${diaSeleccionado}.</td></tr>`;
         return;
     }
 
@@ -193,11 +192,8 @@ async function cargarParaModificar(id) {
         if (rutina.detalles && rutina.detalles.length > 0) {
             rutina.detalles.forEach(d => {
                 const tr = document.createElement('tr');
-
-                // 1. Ya no mapeamos a IDs (1 o 2). Usamos directamente el string del backend.
                 const esfuerzo = d.medidaEsfuerzo || "";
 
-                // 2. Procesamos el tiempo para mostrarlo en minutos en el input
                 let minutosTotales = '';
                 if (d.tiempoEstimado) {
                     const partes = d.tiempoEstimado.split(':');
@@ -221,19 +217,18 @@ async function cargarParaModificar(id) {
                             ${opcionesEjercicios}
                         </select>
                     </td>
-                    <td><input type="text" class="table-input ser-inp" value="${d.rangoSeries || ''}" required /></td>
-                    <td><input type="text" class="table-input rep-inp" value="${d.rangoRep || ''}" required /></td>
-                    <td><input type="text" class="table-input pes-inp" value="${d.rangoPeso || ''}" /></td>
+                    <td><input type="number" class="table-input ser-inp" value="${d.rangoSeries || ''}" min="1" max="20" placeholder="Ej: 4" required /></td>
+                    <td><input type="text" class="table-input rep-inp" value="${d.rangoRep || ''}" placeholder="Ej: 8-12" required /></td>
+                    <td><input type="number" class="table-input pes-inp" value="${d.rangoPeso || ''}" placeholder="Ej: 20" min="0" step="any" /></td>
                     <td>
-                        <!-- Usamos directamente el string para marcar 'selected' -->
                         <select class="table-input esf-sel">
                             <option value="">N/A</option>
                             <option value="RIR" ${esfuerzo === 'RIR' ? 'selected' : ''}>RIR</option>
                             <option value="RPE" ${esfuerzo === 'RPE' ? 'selected' : ''}>RPE</option>
                         </select>
                     </td>
-                    <td><input type="number" class="table-input cant-esf-inp" value="${d.cantMedida || ''}" min="0" /></td>
-                    <td><input type="number" class="table-input tiempo-inp" value="${minutosTotales}" min="1" /></td>
+                    <td><input type="number" class="table-input cant-esf-inp" value="${d.cantMedida || ''}" min="0" max="10" placeholder="Ej: 2" /></td>
+                    <td><input type="number" class="table-input tiempo-inp" value="${minutosTotales}" min="1" max="180" placeholder="Ej: 15" /></td>
                     <td>
                         <button type="button" class="is-danger remove-btn" style="padding: 4px 10px;">X</button>
                     </td>
@@ -285,7 +280,7 @@ async function eliminarRutina(id) {
 }
 
 
-// --- TABLA DINÁMICA DE CREACIÓN ---
+// --- TABLA DINÁMICA DE CREACIÓN (CON INPUTS RESTRINGIDOS) ---
 function agregarFilaEjercicio() {
     const tr = document.createElement('tr');
     tr.innerHTML = `
@@ -305,9 +300,12 @@ function agregarFilaEjercicio() {
                 ${opcionesEjercicios}
             </select>
         </td>
-        <td><input type="text" class="table-input ser-inp" placeholder="Ej: 4" required /></td>
-        <td><input type="text" class="table-input rep-inp" placeholder="Ej: 8-12" required /></td>
-        <td><input type="text" class="table-input pes-inp" placeholder="Ej: 20kg" /></td>
+        <!-- Series: Solo número entero positivo -->
+        <td><input type="number" class="table-input ser-inp" placeholder="Ej: 8-12" min="1" max="20" required /></td>
+        <!-- Reps: Texto libre controlado pero estructurado (ej: 8-12) -->
+        <td><input type="text" class="table-input rep-inp" placeholder="Ej: 8-12 o 10" required /></td>
+        <!-- Peso -->
+        <td><input type="number" class="table-input pes-inp" placeholder="Ej: 20kg o RIR" /></td>
         <td>
             <select class="table-input esf-sel">
                 <option value="">N/A</option>
@@ -315,10 +313,10 @@ function agregarFilaEjercicio() {
                 <option value="RPE">RPE</option>
             </select>
         </td>
-        <!-- NUEVO: Cantidad de Esfuerzo -->
-        <td><input type="number" class="table-input cant-esf-inp" placeholder="Ej: 2" min="0" /></td>
-        <!-- NUEVO: Tiempo en minutos -->
-        <td><input type="number" class="table-input tiempo-inp" placeholder="Ej: 15" min="1" /></td>
+        <!-- Cantidad de Esfuerzo: Número entero -->
+        <td><input type="number" class="table-input cant-esf-inp" placeholder="Ej: 2" min="0" max="10" /></td>
+        <!-- Tiempo en minutos: Número entero -->
+        <td><input type="number" class="table-input tiempo-inp" placeholder="Ej: 15" min="1" max="180" /></td>
         <td>
             <button type="button" class="is-danger remove-btn" style="padding: 4px 10px;">X</button>
         </td>
@@ -328,7 +326,7 @@ function agregarFilaEjercicio() {
     tablaDetalles.appendChild(tr);
 }
 
-// --- ENVÍO DE FORMULARIO (Crear o Actualizar) ---
+// --- ENVÍO DE FORMULARIO CON VALIDACIONES ESTRICTAS DE REPETICIONES ---
 formRutina.addEventListener('submit', async (e) => {
     e.preventDefault();
     const status = document.getElementById('formStatusCreate');
@@ -342,12 +340,44 @@ formRutina.addEventListener('submit', async (e) => {
         return;
     }
 
+    // Expresión regular para validar el formato exacto: número-número (ej. 8-12, 10-10)
+    const regexReps = /^\d+-\d+$/;
+
+    // Validación rigurosa por fila
+    for (let i = 0; i < filas.length; i++) {
+        const fila = filas[i];
+        const series = fila.querySelector('.ser-inp').value.trim();
+        const reps = fila.querySelector('.rep-inp').value.trim();
+        const ejercicio = fila.querySelector('.ej-sel').value;
+
+        if (!ejercicio) {
+            status.textContent = `Fila ${i + 1}: Debe seleccionar un ejercicio válido.`;
+            return;
+        }
+
+        if (!series || parseInt(series) <= 0) {
+            status.textContent = `Fila ${i + 1}: El número de series debe ser mayor a 0.`;
+            return;
+        }
+
+        if (!reps) {
+            status.textContent = `Fila ${i + 1}: El campo de repeticiones no puede estar vacío.`;
+            return;
+        }
+
+        // Validar el formato estricto xx-xx (solo números y un guion)
+        if (!regexReps.test(reps)) {
+            status.textContent = `Fila ${i + 1}: El formato de repeticiones debe ser estricto "xx-xx" (ej. 8-12 o 10-10).`;
+            fila.querySelector('.rep-inp').focus();
+            return;
+        }
+    }
+
     filas.forEach(fila => {
         const valorEsfuerzo = fila.querySelector('.esf-sel').value;
         const cantEsfuerzo = fila.querySelector('.cant-esf-inp').value;
         const tiempoMinutos = fila.querySelector('.tiempo-inp').value;
 
-        // Formatear minutos a LocalTime (HH:mm:ss) para Spring Boot
         let tiempoEstimadoFormat = null;
         if (tiempoMinutos && !isNaN(tiempoMinutos)) {
             const horas = Math.floor(tiempoMinutos / 60).toString().padStart(2, '0');
@@ -358,10 +388,9 @@ formRutina.addEventListener('submit', async (e) => {
         detalles.push({
             idEjercicio: parseInt(fila.querySelector('.ej-sel').value),
             diaSemana: fila.querySelector('.dia-sel').value,
-            rangoSeries: fila.querySelector('.ser-inp').value,
-            rangoRep: fila.querySelector('.rep-inp').value,
-            rangoPeso: fila.querySelector('.pes-inp').value,
-            // Mandar null en lugar de cadena vacía si no hay esfuerzo seleccionado
+            rangoSeries: fila.querySelector('.ser-inp').value.trim(),
+            rangoRep: fila.querySelector('.rep-inp').value.trim(),
+            rangoPeso: fila.querySelector('.pes-inp').value.trim() ? parseFloat(fila.querySelector('.pes-inp').value.trim()) : null, // Convertimos a número o null
             medidaEsfuerzo: valorEsfuerzo ? valorEsfuerzo : null,
             cantMedida: cantEsfuerzo ? parseInt(cantEsfuerzo) : null,
             tiempoEstimado: tiempoEstimadoFormat
