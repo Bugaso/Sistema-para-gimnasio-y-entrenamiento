@@ -74,22 +74,23 @@
         </div>
     </div>
 
-    <div id="modalDetalle" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
-        <div class="admin-panel" style="width: 750px; max-height: 85vh; overflow-y: auto; background: #121212; padding: 24px; border: 1px solid #333;">
+    <!-- MODAL CLARO -->
+    <div id="modalDetalle" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+        <div class="admin-panel" style="width: 750px; max-height: 85vh; overflow-y: auto; background: #ffffff; padding: 32px; border: 1px solid #d1d5d2; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h2 id="modalTituloRutina">Detalle de Rutina Asignada</h2>
-                <button type="button" id="CerrarModal" class="admin-primary-action" style="padding: 4px 10px;">X</button>
+                <h2 id="modalTituloRutina" style="margin: 0; font-family: 'Oswald', sans-serif; font-size: 2.2rem; text-transform: uppercase;">Detalle de Rutina Asignada</h2>
+                <button type="button" id="CerrarModal" style="background: transparent; border: 1px solid #d1d5d2; padding: 6px 14px; cursor: pointer; color: #555; font-weight: bold; border-radius: 4px;">X</button>
             </div>
             <p id="modalDescRutina" style="color: var(--muted); margin-bottom: 10px;"></p>
-            <p id="modalTipoRutina" style="font-weight: bold; margin-bottom: 20px;"></p>
+            <p id="modalTipoRutina" style="font-weight: bold; margin-bottom: 20px; color: #333;"></p>
 
-            <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-                <label for="selectDiaFiltro" style="font-weight: bold;">Seleccionar Día:</label>
-                <select id="selectDiaFiltro" class="table-input" style="max-width: 250px; padding: 4px 8px; border: 1px solid #333; border-radius: 4px; background-color: #1a1a1a; color: white;"></select>
+            <div class="admin-field" style="max-width: 250px; margin-bottom: 24px;">
+                <span style="display: block; margin-bottom: 8px;">Seleccionar Día:</span>
+                <select id="selectDiaFiltro" style="width: 100%; padding: 10px; border: 1px solid #d1d5d2; border-radius: 4px; background-color: #ffffff; color: #333;"></select>
             </div>
 
-            <h3>Ejercicios del Día</h3>
-            <div class="admin-table-wrap" style="margin-top: 10px;">
+            <h3 style="font-family: 'Oswald', sans-serif; text-transform: uppercase; color: var(--lime); margin-bottom: 15px;">Ejercicios del Día</h3>
+            <div class="admin-table-wrap">
                 <table class="admin-table">
                     <thead>
                     <tr>

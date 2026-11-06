@@ -7,10 +7,19 @@
     <link rel="stylesheet" href="../src/css/admin/admin.css" />
     <link rel="stylesheet" href="../src/css/index/index.css" />
     <style>
-        .table-input { width: 100%; padding: 4px 8px; border: 1px solid #333; border-radius: 4px; background-color: #1a1a1a; color: white; }
-        .ejercicio-card { background: #121212; border: 1px solid #333; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
-        .ejercicio-titulo { color: #a3e635; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
-        .info-planificada { font-size: 0.85rem; color: #9ca3af; margin-bottom: 16px; }
+        /* ESTILOS ADAPTADOS AL TEMA CLARO */
+        .table-input { width: 100%; padding: 8px 12px; border: 1px solid #d1d5d2; border-radius: 4px; background-color: #ffffff; color: #333; }
+        .table-input:focus { border-color: var(--lime); outline: none; box-shadow: 0 0 0 3px rgb(217 4 41 / 10%); }
+
+        .ejercicio-card { background: #ffffff; border: 1px solid #d1d5d2; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .ejercicio-titulo { color: var(--lime); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
+        .ejercicio-titulo h3 { margin: 0; font-family: 'Oswald', sans-serif; font-size: 1.6rem; text-transform: uppercase; color: #333; }
+
+        .info-planificada { font-size: 0.9rem; color: #666; margin-bottom: 20px; background: #f7f9f9; padding: 12px 16px; border-radius: 4px; border: 1px solid #eaeaea; }
+
+        /* Botón de remover serie (X) */
+        button.is-danger.remove-serie { background: transparent; border: 1px solid #d1d5d2; color: #888; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        button.is-danger.remove-serie:hover { border-color: #ef7e64; color: #ef7e64; background: rgb(239 126 100 / 10%); }
     </style>
 </head>
 <body class="admin-page">
@@ -59,17 +68,13 @@
                         <span>Fecha de la Sesión</span>
                         <input type="date" id="fechaSesion" required />
                     </label>
-
-<!--                    <div style="display: flex; align-items: flex-end;">-->
-<!--                        <button type="button" id="btnCargarRutina" class="admin-primary-action">Cargar Ejercicios</button>-->
-<!--                    </div>-->
                 </div>
             </div>
 
             <!-- PASO 2: LLENAR DATOS REALES (Se genera dinámicamente en JS) -->
             <form id="formSesion" style="display: none;">
                 <div class="admin-panel" style="margin-bottom: 40px; background: transparent; border: none; padding: 0;">
-                    <h2 style="margin-bottom: 20px;">2. Registro de Series (Ejecución Real)</h2>
+                    <h2 style="margin-bottom: 20px; font-family: 'Oswald', sans-serif; text-transform: uppercase;">2. Registro de Series (Ejecución Real)</h2>
                     <div id="contenedorEjercicios"></div>
 
                     <p class="admin-form-status" id="formStatus"></p>

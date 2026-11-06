@@ -53,9 +53,15 @@
                             </select>
                         </label>
 
+                        <!-- LISTA DESPLEGABLE DE PRIORIDAD -->
                         <label class="admin-field admin-field-wide">
                             <span>Prioridad / Tipo de estímulo</span>
-                            <input type="text" id="prioridadMusc" name="prioridadMusc" placeholder="Ej. Primario, Secundario, Estabilizador" required />
+                            <select id="prioridadMusc" name="prioridadMusc" required>
+                                <option value="">Seleccione una prioridad...</option>
+                                <option value="Primario">Primario</option>
+                                <option value="Secundario">Secundario</option>
+                                <option value="Estabilizador">Estabilizador</option>
+                            </select>
                         </label>
                     </div>
 
@@ -105,6 +111,7 @@
     </div>
 </div>
 
+<!-- MODAL: CONFIRMAR ELIMINACIÓN -->
 <dialog class="admin-dialog admin-confirm-dialog" id="confirmDialog">
     <form method="dialog">
         <span class="admin-warning" aria-hidden="true">!</span>
@@ -113,6 +120,18 @@
         <div class="admin-dialog-actions">
             <button type="button" id="btnCancelarModal">Cancelar</button>
             <button class="admin-danger-action" type="button" id="btnConfirmarEliminar">Eliminar</button>
+        </div>
+    </form>
+</dialog>
+
+<!-- MODAL: ADVERTENCIA DE DUPLICADO -->
+<dialog class="admin-dialog admin-confirm-dialog" id="errorDuplicadoDialog">
+    <form method="dialog">
+        <span class="admin-warning" aria-hidden="true" style="border-color: #f59e0b; color: #d97706;">!</span>
+        <h2>Asignación Duplicada</h2>
+        <p>Este grupo muscular ya se encuentra asociado a dicho ejercicio.</p>
+        <div class="admin-dialog-actions" style="justify-content: center; margin-top: 28px;">
+            <button class="admin-primary-action" type="button" id="btnCerrarError">Entendido</button>
         </div>
     </form>
 </dialog>
