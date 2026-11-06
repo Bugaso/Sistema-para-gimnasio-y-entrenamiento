@@ -7,7 +7,9 @@
     <link rel="stylesheet" href="../src/css/admin/admin.css" />
     <link rel="stylesheet" href="../src/css/index/index.css" />
     <style>
-        .table-input { width: 100%; padding: 4px 8px; border: 1px solid #333; border-radius: 4px; background-color: #1a1a1a; color: white; }
+        /* ESTILOS ADAPTADOS AL TEMA CLARO */
+        .table-input { width: 100%; padding: 8px 12px; border: 1px solid #d1d5d2; border-radius: 4px; background-color: #ffffff; color: #333; }
+        .table-input:focus { border-color: var(--lime); outline: none; box-shadow: 0 0 0 3px rgb(217 4 41 / 10%); }
         .btn-add { margin-bottom: 16px; display: inline-flex; }
     </style>
 </head>
@@ -49,13 +51,13 @@
                         </label>
 
                         <label class="admin-field" style="flex-direction: row; align-items: center; gap: 10px;">
-                            <input type="checkbox" id="esPlantilla" checked />
-                            <span>Guardar como Plantilla General (Para reutilizar)</span>
+                            <input type="checkbox" id="esPlantilla" checked style="accent-color: var(--lime); width: 18px; height: 18px;" />
+                            <span style="font-weight: bold; color: #333;">Guardar como Plantilla General (Para reutilizar)</span>
                         </label>
                     </div>
 
                     <div style="margin-top: 30px; margin-bottom: 16px;">
-                        <h3>Ejercicios de la Rutina</h3>
+                        <h3 style="font-family: 'Oswald', sans-serif; text-transform: uppercase; color: #333; font-size: 1.4rem;">Ejercicios de la Rutina</h3>
                     </div>
 
                     <button type="button" class="admin-primary-action btn-add" id="btnAgregarEjercicio">+ Añadir Ejercicio</button>
@@ -83,7 +85,7 @@
 
                     <div class="admin-dialog-actions" style="margin-top: 24px;">
                         <button class="admin-primary-action" type="submit" id="btnGuardarRutina">Guardar Rutina Completa</button>
-                        <button type="button" class="admin-secondary-action" id="btnCancelarEdicion" style="display: none; margin-left: 10px;">Cancelar Edición</button>
+                        <button type="button" class="admin-secondary-action" id="btnCancelarEdicion" style="display: none; margin-left: 10px; padding: 8px 16px; border: 1px solid #d1d5d2; background: #ffffff; color: #555; font-weight: bold; border-radius: 4px; cursor: pointer;">Cancelar Edición</button>
                     </div>
                 </form>
             </div>
@@ -118,23 +120,26 @@
     </div>
 </div>
 
-<!-- MODAL DE DETALLE DE RUTINA -->
-<div id="modalDetalle" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 1000; justify-content: center; align-items: center;">
-    <div class="admin-panel" style="width: 750px; max-height: 85vh; overflow-y: auto; background: #121212; padding: 24px; border: 1px solid #333;">
+<!-- MODAL DE DETALLE DE RUTINA (TEMA CLARO) -->
+<div id="modalDetalle" style="display:none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(4px);">
+    <div class="admin-panel" style="width: 850px; max-height: 85vh; overflow-y: auto; background: #ffffff; padding: 32px; border: 1px solid #d1d5d2; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.1);">
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 id="modalTituloRutina">Detalle de Rutina</h2>
-            <button type="button" id="CerrarModal" class="admin-primary-action" style="padding: 4px 10px;">X</button>
-        </div>
-        <p id="modalDescRutina" style="color: var(--muted); margin-bottom: 10px;"></p>
-        <p id="modalTipoRutina" style="font-weight: bold; margin-bottom: 20px;"></p>
-
-        <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
-            <label for="selectDiaFiltro" style="font-weight: bold;">Seleccionar Día:</label>
-            <select id="selectDiaFiltro" class="table-input" style="max-width: 250px;"></select>
+            <h2 id="modalTituloRutina" style="margin: 0; font-family: 'Oswald', sans-serif; font-size: 2.2rem; text-transform: uppercase;">Detalle de Rutina</h2>
+            <button type="button" id="CerrarModal" style="background: transparent; border: 1px solid #d1d5d2; padding: 6px 14px; cursor: pointer; color: #555; font-weight: bold; border-radius: 4px;">X</button>
         </div>
 
-        <h3>Ejercicios del Día</h3>
-        <div class="admin-table-wrap" style="margin-top: 10px;">
+        <div style="background: #f7f9f9; padding: 16px; border-radius: 8px; border: 1px solid #d1d5d2; margin-bottom: 24px;">
+            <p id="modalDescRutina" style="color: #666; margin-bottom: 8px;"></p>
+            <p id="modalTipoRutina" style="font-weight: bold; margin-bottom: 0; color: #333;"></p>
+        </div>
+
+        <div class="admin-field" style="max-width: 250px; margin-bottom: 24px;">
+            <span style="display: block; margin-bottom: 8px;">Seleccionar Día:</span>
+            <select id="selectDiaFiltro" class="table-input"></select>
+        </div>
+
+        <h3 style="font-family: 'Oswald', sans-serif; text-transform: uppercase; color: var(--lime); margin-bottom: 15px;">Ejercicios del Día</h3>
+        <div class="admin-table-wrap">
             <table class="admin-table">
                 <thead>
                 <tr>
@@ -145,7 +150,6 @@
                     <th>Esfuerzo</th>
                     <th>Cant.</th> <!-- NUEVA COLUMNA -->
                     <th>Tiempo (min)</th> <!-- NUEVA COLUMNA -->
-
                 </tr>
                 </thead>
                 <tbody id="tablaModalDetalles"></tbody>

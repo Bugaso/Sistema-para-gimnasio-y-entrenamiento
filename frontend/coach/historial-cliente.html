@@ -7,9 +7,17 @@
     <link rel="stylesheet" href="../src/css/admin/admin.css" />
     <link rel="stylesheet" href="../src/css/index/index.css" />
     <style>
-        .table-input { width: 100%; padding: 4px 8px; border: 1px solid #333; border-radius: 4px; background-color: #1a1a1a; color: white; }
-        .ejercicio-card { background: #121212; border: 1px solid #333; border-radius: 8px; padding: 16px; margin-bottom: 24px; }
-        .ejercicio-titulo { color: #a3e635; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
+        /* ESTILOS ADAPTADOS AL TEMA CLARO */
+        .table-input { width: 100%; padding: 8px 12px; border: 1px solid #d1d5d2; border-radius: 4px; background-color: #ffffff; color: #333; }
+        .table-input:focus { border-color: var(--lime); outline: none; box-shadow: 0 0 0 3px rgb(217 4 41 / 10%); }
+
+        .ejercicio-card { background: #ffffff; border: 1px solid #d1d5d2; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .ejercicio-titulo { color: var(--lime); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
+        .ejercicio-titulo h3 { margin: 0; font-family: 'Oswald', sans-serif; font-size: 1.6rem; text-transform: uppercase; color: #333; }
+
+        /* Botón de remover serie (X) para mantener consistencia */
+        button.is-danger.remove-serie { background: transparent; border: 1px solid #d1d5d2; color: #888; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        button.is-danger.remove-serie:hover { border-color: #ef7e64; color: #ef7e64; background: rgb(239 126 100 / 10%); }
     </style>
 </head>
 <body class="admin-page">
@@ -64,8 +72,8 @@
             <form id="formEditarSesion" style="display: none;">
                 <div class="admin-panel" style="margin-bottom: 40px; background: transparent; border: none; padding: 0;">
                     <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-                        <h2>Editando Sesión del: <span id="fechaEdicionDisplay" style="color: #a3e635;"></span></h2>
-                        <button type="button" id="btnCancelarEdicion" class="admin-secondary-action">Cancelar Edición</button>
+                        <h2 style="font-family: 'Oswald', sans-serif; text-transform: uppercase;">Editando Sesión del: <span id="fechaEdicionDisplay" style="color: var(--lime);"></span></h2>
+                        <button type="button" id="btnCancelarEdicion" class="admin-secondary-action" style="padding: 8px 16px; border: 1px solid #d1d5d2; background: #ffffff; color: #555; font-weight: bold; border-radius: 4px; cursor: pointer;">Cancelar Edición</button>
                     </div>
 
                     <input type="hidden" id="idHistRutEditar" />
@@ -88,13 +96,14 @@
 <dialog class="admin-dialog admin-confirm-dialog" id="modalConfirmarEliminarSesion">
     <form method="dialog">
         <div style="padding: 24px; text-align: center;">
-            <span class="admin-warning" aria-hidden="true" style="color: #ef9d89;">!</span>
+            <span class="admin-warning" aria-hidden="true" style="color: #ef9d89; border-color: #ef7e64;">!</span>
             <h2 style="margin-top: 15px;">Eliminar Sesión</h2>
             <p style="color: var(--muted); margin-top: 10px;">¿Estás seguro de que deseas eliminar este registro de entrenamiento?</p>
 
-            <div style="text-align: left; background: #1a1a1a; padding: 16px; border-radius: 8px; margin: 20px 0; border: 1px solid var(--border);">
-                <p style="margin-bottom: 8px;"><strong style="color: var(--muted);">Rutina:</strong> <span id="eliminarSesionNombreRutina" style="float: right; color: #fff;"></span></p>
-                <p style="margin-bottom: 0;"><strong style="color: var(--muted);">Fecha:</strong> <span id="eliminarSesionFecha" style="float: right; color: #fff;"></span></p>
+            <!-- Bloque de detalles con fondo claro -->
+            <div style="text-align: left; background: #f7f9f9; padding: 16px; border-radius: 8px; margin: 20px 0; border: 1px solid #d1d5d2;">
+                <p style="margin-bottom: 8px;"><strong style="color: #666;">Rutina:</strong> <span id="eliminarSesionNombreRutina" style="float: right; color: #333; font-weight: bold;"></span></p>
+                <p style="margin-bottom: 0;"><strong style="color: #666;">Fecha:</strong> <span id="eliminarSesionFecha" style="float: right; color: #333; font-weight: bold;"></span></p>
             </div>
 
             <div class="admin-dialog-actions" style="margin-top: 24px; justify-content: center;">
