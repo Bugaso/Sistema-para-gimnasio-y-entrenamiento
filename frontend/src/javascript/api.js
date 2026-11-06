@@ -1,7 +1,12 @@
+/*
 const API_URL = (
   import.meta.env.VITE_API_URL || "http://localhost:8080"
 ).replace(/\/$/, "")
+*/
+
 const TOKEN_KEY = "jwt_token"
+
+const API_URL = '';
 
 export class ApiError extends Error {
   constructor(message, status = 0) {
