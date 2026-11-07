@@ -1,4 +1,4 @@
-package com.gym.atlas.dto.usuario;
+package com.gym.atlas.dto.asistencia;
 
 public record AsistenciaRequest(
         Integer idUsuario,

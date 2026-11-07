@@ -49,6 +49,80 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     btnAccionToggle.addEventListener('click', registrarAsistencia);
+
+
+});
+
+
+// Evento para el botón de confirmar en el modal de múltiples membresías
+//el evento del botón Confirma en el modal de múltiples membresías
+document.getElementById('btnConfirmarMembresiaMultiple').addEventListener('click', async () => {
+    const select = document.getElementById('selectMembresiaActiva');
+    const idCliMemSeleccionado = select.value;
+
+    if (!idCliMemSeleccionado) return;
+
+    const btn = document.getElementById('btnConfirmarMembresiaMultiple');
+    const textoOriginal = btn.textContent;
+    btn.textContent = "Procesando...";
+    btn.disabled = true;
+
+    try {
+        // Interceptamos aquí también
+        await procesarIngresoConValidacion(idUsuarioExcepcion, parseInt(idCliMemSeleccionado));
+    } catch (error) {
+        console.error(error);
+    } finally {
+        btn.textContent = textoOriginal;
+        btn.disabled = false;
+        // No limpiamos variables globales aquí porque procesarIngresoConValidacion podría necesitarlas para el siguiente modal
+    }
+});
+
+// En el evento 'btnAutorizarExcepcion' (modal membresia vencida), actualizamos la llamada:
+// Evento para forzar el ingreso a pesar del límite excedido
+document.getElementById('btnAutorizarLimite').addEventListener('click', async () => {
+    const modal = document.getElementById('modalLimiteExcedido');
+    const btn = document.getElementById('btnAutorizarLimite');
+
+    const textoOriginal = btn.textContent;
+    btn.textContent = "Autorizando...";
+    btn.disabled = true;
+
+    try {
+        await ejecutarLlamadaAsistencia(idUsuarioExcepcion, idClienteMembresiaSeleccionado);
+        modal.close();
+    } catch (error) {
+        console.error(error);
+    } finally {
+        btn.textContent = textoOriginal;
+        btn.disabled = false;
+        idUsuarioExcepcion = null;
+        idClienteMembresiaSeleccionado = null;
+    }
+});
+
+
+// Evento para el botón de autorizar dentro del modal
+document.getElementById('btnAutorizarExcepcion').addEventListener('click', async () => {
+    const modal = document.getElementById('modalMembresiaVencida');
+
+    // Cambiamos el texto para mostrar que está cargando
+    const btn = document.getElementById('btnAutorizarExcepcion');
+    const textoOriginal = btn.textContent;
+    btn.textContent = "Autorizando...";
+    btn.disabled = true;
+
+    try {
+        await ejecutarLlamadaAsistencia(idUsuarioExcepcion);
+        modal.close();
+    } catch (error) {
+        // El error ya se maneja en ejecutarLlamadaAsistencia
+    } finally {
+        btn.textContent = textoOriginal;
+        btn.disabled = false;
+        idUsuarioExcepcion = null;
+    }
 });
 
 // Cargar datos una sola vez al inicio
@@ -114,7 +188,7 @@ let idUsuarioExcepcion = null;
 // Variable global para almacenar el ID de ClienteMembresia seleccionado
 let idClienteMembresiaSeleccionado = null;
 
-// Reemplazar la función registrarAsistencia
+// Funcion encargda de validar la asistencia del cliente
 async function registrarAsistencia() {
     const idUsuario = selectCliente.value;
     if (!idUsuario) return;
@@ -122,34 +196,73 @@ async function registrarAsistencia() {
     btnAccionToggle.disabled = true;
 
     try {
-        // 1. Si está adentro, simplemente lo sacamos (enviamos idClienteMembresia como null o no lo enviamos)
+        // Si está adentro, registramos la salida directamente (no se valida límite para salir)
         if (clienteAdentro) {
             await ejecutarLlamadaAsistencia(idUsuario, null);
             return;
         }
 
-        // 2. Si está afuera (quiere ENTRAR), verificamos su membresía
         const historial = await apiRequest(`/cliente-membresias/historial/${idUsuario}`, { token: getToken() });
-
         const historialArray = Array.isArray(historial) ? historial : [];
-
-        // Filtramos solo las membresías activas
         const membresiasActivas = historialArray.filter(mem => mem.estado === 'ACTIVO');
 
         if (membresiasActivas.length === 0) {
-            // NO TIENE MEMBRESÍA ACTIVA: Mostrar Modal de Excepción
             mostrarModalExcepcion(idUsuario, historialArray);
         } else if (membresiasActivas.length === 1) {
-            // TIENE EXACTAMENTE UNA: Entra sin problemas, mandando ese ID
-            await ejecutarLlamadaAsistencia(idUsuario, membresiasActivas[0].idCliMem);
+            // En vez de registrar directo, validamos el límite primero
+            await procesarIngresoConValidacion(idUsuario, membresiasActivas.at(0).idCliMem);
         } else {
-            // TIENE MÁS DE UNA: Mostrar Modal para elegir
-            idUsuarioExcepcion = idUsuario; // Reutilizamos esta variable para guardar el ID del usuario actual
+            idUsuarioExcepcion = idUsuario;
             mostrarModalMultiplesMembresias(membresiasActivas);
         }
     } catch (error) {
         alert("Error al verificar acceso: " + error.message);
         btnAccionToggle.disabled = false;
+    }
+}
+
+// Nueva función que intercepta y consulta el límite antes de registrar
+async function procesarIngresoConValidacion(idUsuario, idCliMem) {
+    try {
+        const validacion = await apiRequest(`/api/recepcion/asistencia/validar-limite/${idCliMem}`, { token: getToken() });
+
+        // 1. CERRAR EL MODAL MÚLTIPLE DE FORMA SEGURA (Solo si está abierto)
+        const modalMultiple = document.getElementById('modalMultiplesMembresias');
+        if (modalMultiple && modalMultiple.open) {
+            modalMultiple.close();
+        }
+
+        if (validacion.limiteExcedido) {
+            // 2. Verificar que el modal de límite realmente exista en el HTML
+            const modalLimite = document.getElementById('modalLimiteExcedido');
+            if (!modalLimite) {
+                alert("Error: Falta el código HTML del modal 'modalLimiteExcedido'.");
+                return;
+            }
+
+            // Rellenar datos del modal
+            document.getElementById('limiteNombre').textContent = validacion.nombreMembresia;
+            document.getElementById('limitePermitido').textContent = validacion.diasPermitidos + " días/sem";
+            document.getElementById('limiteActuales').textContent = validacion.asistenciasActuales + " asistencias";
+            document.getElementById('limiteExtra').textContent = validacion.asistenciasExtra + " extra";
+            document.getElementById('limiteUltimo').textContent = validacion.ultimoIngreso || "Desconocido";
+
+            // Guardar contexto global para el botón de autorización
+            idUsuarioExcepcion = idUsuario;
+            idClienteMembresiaSeleccionado = idCliMem;
+
+            // Mostrar la advertencia
+            modalLimite.showModal();
+        } else {
+            // El cliente está dentro de los límites, registrar normalmente
+            await ejecutarLlamadaAsistencia(idUsuario, idCliMem);
+        }
+    } catch (error) {
+        alert("Error al validar el límite: " + error.message);
+    } finally {
+        // Rehabilitamos el botón principal por si acaso
+        const btnToggle = document.getElementById('btnAccionToggle');
+        if (btnToggle) btnToggle.disabled = false;
     }
 }
 
@@ -185,6 +298,7 @@ function mostrarModalMultiplesMembresias(membresiasActivas) {
 
     select.innerHTML = '';
 
+
     membresiasActivas.forEach(mem => {
         select.innerHTML += `<option value="${mem.idCliMem}">${mem.nombreMembresia} | ${mem.diasAsistencia} dias/sem | (Pagado: ${mem.fechaPago})</option>`;
     });
@@ -193,50 +307,6 @@ function mostrarModalMultiplesMembresias(membresiasActivas) {
     btnAccionToggle.disabled = false;
 }
 
-// Evento para el botón de confirmar en el modal de múltiples membresías
-document.getElementById('btnConfirmarMembresiaMultiple').addEventListener('click', async () => {
-    const modal = document.getElementById('modalMultiplesMembresias');
-    const select = document.getElementById('selectMembresiaActiva');
-    const idCliMemSeleccionado = select.value;
-
-    if (!idCliMemSeleccionado) return;
-
-    const btn = document.getElementById('btnConfirmarMembresiaMultiple');
-    const textoOriginal = btn.textContent;
-    btn.textContent = "Procesando...";
-    btn.disabled = true;
-
-    try {
-        await ejecutarLlamadaAsistencia(idUsuarioExcepcion, parseInt(idCliMemSeleccionado));
-        modal.close();
-    } catch (error) {
-        // El error ya se maneja
-    } finally {
-        btn.textContent = textoOriginal;
-        btn.disabled = false;
-        idUsuarioExcepcion = null;
-    }
-});
-
-// En el evento 'btnAutorizarExcepcion' (modal membresia vencida), actualizamos la llamada:
-document.getElementById('btnAutorizarExcepcion').addEventListener('click', async () => {
-    const modal = document.getElementById('modalMembresiaVencida');
-    const btn = document.getElementById('btnAutorizarExcepcion');
-    const textoOriginal = btn.textContent;
-    btn.textContent = "Autorizando...";
-    btn.disabled = true;
-
-    try {
-        // Si es excepción (vencida), enviamos null como idClienteMembresia
-        await ejecutarLlamadaAsistencia(idUsuarioExcepcion, null);
-        modal.close();
-    } catch (error) {
-    } finally {
-        btn.textContent = textoOriginal;
-        btn.disabled = false;
-        idUsuarioExcepcion = null;
-    }
-});
 
 // Nueva función para manejar el Modal
 function mostrarModalExcepcion(idUsuario, historial) {
@@ -270,26 +340,5 @@ function mostrarModalExcepcion(idUsuario, historial) {
     btnAccionToggle.disabled = false; // Rehabilitar el botón principal por si cancela
 }
 
-// Evento para el botón de autorizar dentro del modal
-document.getElementById('btnAutorizarExcepcion').addEventListener('click', async () => {
-    const modal = document.getElementById('modalMembresiaVencida');
-
-    // Cambiamos el texto para mostrar que está cargando
-    const btn = document.getElementById('btnAutorizarExcepcion');
-    const textoOriginal = btn.textContent;
-    btn.textContent = "Autorizando...";
-    btn.disabled = true;
-
-    try {
-        await ejecutarLlamadaAsistencia(idUsuarioExcepcion);
-        modal.close();
-    } catch (error) {
-        // El error ya se maneja en ejecutarLlamadaAsistencia
-    } finally {
-        btn.textContent = textoOriginal;
-        btn.disabled = false;
-        idUsuarioExcepcion = null;
-    }
-});
 
 function mostrarToast(m) { toast.textContent = m; toast.hidden = false; setTimeout(() => toast.hidden = true, 4000); }

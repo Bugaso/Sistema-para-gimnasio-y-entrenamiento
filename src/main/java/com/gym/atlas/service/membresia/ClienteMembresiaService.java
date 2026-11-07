@@ -11,9 +11,11 @@ import com.gym.atlas.repository.membresia.ClienteMembresiaRepository;
 import com.gym.atlas.repository.membresia.MembresiaRepository;
 import com.gym.atlas.repository.membresia.TipoMembresiaRepository;
 import com.gym.atlas.repository.usuario.UsuarioRepository;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -35,6 +37,30 @@ public class ClienteMembresiaService {
         this.usuarioRepository = usuarioRepository;
         this.tipoMembresiaRepository = tipoMembresiaRepository;
     }
+
+    // Se ejecuta automáticamente todos los días a la medianoche
+    @Scheduled(cron = "0 0 0 * * ?")
+    @Transactional
+    public void actualizarEstadosVencidos() {
+        LocalDate hoy = LocalDate.now();
+        // Lógica para buscar membresías ACTIVAS cuya fecha de vencimiento ya pasó,
+        // cambiarles el estado a VENCIDO, y hacer un saveAll().
+        clienteMembresiaRepository.findAll().stream().forEach(cliMem ->{
+            LocalDateTime vencimiento = cliMem.getFechaPago().plusDays(
+                    cliMem.getIdTipoMembresia().getDuracionMembresia()*cliMem.getCantCuotas());
+
+            String estado =  cliMem.getEstado();
+            if(vencimiento.isBefore(LocalDateTime.now())
+                    && estado.equalsIgnoreCase("VENCIDO")
+                    && estado.equalsIgnoreCase("BAJA")){
+
+                cliMem.setEstado("VENCIDO");
+                System.out.println("EL ESTADO SE ACTUALIZA A VENCIDO");
+                clienteMembresiaRepository.save(cliMem);
+            }
+        });
+    }
+
 
     @Transactional
     public ClienteMembresia registrarPago(RegistrarClienteMembresiaRequest request) {
@@ -81,32 +107,20 @@ public class ClienteMembresiaService {
         }
 
         listaCliMemDTO = listaCliMem.stream().map(cliMem -> {
-                        LocalDateTime vencimiento = cliMem.getFechaPago().plusDays(
-                                cliMem.getIdTipoMembresia().getDuracionMembresia()*cliMem.getCantCuotas());
-
-                        String estado =  cliMem.getEstado();
-                        if(vencimiento.isBefore(LocalDateTime.now())
-                                && estado.equalsIgnoreCase("VENCIDO")
-                                && estado.equalsIgnoreCase("BAJA")){
-
-                            cliMem.setEstado("VENCIDO");
-                            System.out.println("EL ESTADO SE ACTUALIZA A VENCIDO");
-                            clienteMembresiaRepository.save(cliMem);
-                        }
-
 
                         ClienteMembresiaDTO clienteMembresiaDTO = new ClienteMembresiaDTO(
                             cliMem.getIdCliMem(),
                             cliMem.getUsuario(),
                             cliMem.getIdTipoMembresia().getIdTipoMem(),
                             cliMem.getIdTipoMembresia().getMembresia().getDescripMembresia(),
-                            cliMem.getCantCuotas(),
                             cliMem.getIdTipoMembresia().getDiasAsistencia(),
+                            cliMem.getCantCuotas(),
                             cliMem.getFechaPago().toLocalDate().toString(),
-                            estado,
+                            cliMem.getEstado(),
                             cliMem.getCantEfect(),
                             cliMem.getCostoTotal()
                         );
+            System.out.println("DTO DE CLIENTEMEMBRESIA: " +clienteMembresiaDTO.toString());
                     return clienteMembresiaDTO;
                 }
         ).toList();
@@ -121,24 +135,17 @@ public class ClienteMembresiaService {
         }
 
         List<ClienteMembresiaDTO> cliMemListDTO = cliMemList.stream().map( cliMem ->{
-                LocalDateTime vencimiento = cliMem.getFechaPago().plusDays(
-                        cliMem.getIdTipoMembresia().getDuracionMembresia()*cliMem.getCantCuotas());
 
-                String estado;
-                if(vencimiento.isAfter(LocalDateTime.now())){
-                    estado =  "ACTIVO";
-                }
-                else {estado = "VENCIDO";}
 
                 ClienteMembresiaDTO cliMemDTO = new ClienteMembresiaDTO(
                         cliMem.getIdCliMem(),
                         cliMem.getUsuario(),
                         cliMem.getIdTipoMembresia().getIdTipoMem(),
                         cliMem.getIdTipoMembresia().getMembresia().getDescripMembresia(),
-                        cliMem.getCantCuotas(),
                         cliMem.getIdTipoMembresia().getDiasAsistencia(),
+                        cliMem.getCantCuotas(),
                         cliMem.getFechaPago().toString(),
-                        estado,
+                        cliMem.getEstado(),
                         cliMem.getCantEfect(),
                         cliMem.getCostoTotal()
                 );

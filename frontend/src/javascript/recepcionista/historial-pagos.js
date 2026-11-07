@@ -78,7 +78,7 @@ function renderizarTabla(lista) {
         const dniCliente = reg.usuario?.dniUs || reg.dniCliente || '-';
         const nombrePlan = reg.nombreMembresia || 'Plan Base';
         // Formateo de fecha
-        const diasAsistencia = reg.diasAsistencia;
+        const diasAsistencia = reg.diasAsistencia || 0;
         const fecha = reg.fechaPago;
         let estado = reg.estado;
 

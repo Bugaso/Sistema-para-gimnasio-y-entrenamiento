@@ -108,6 +108,28 @@
     </div>
 </dialog>
 
+<!-- MODAL: LÍMITE DE ASISTENCIAS EXCEDIDO -->
+<dialog class="admin-dialog admin-confirm-dialog" id="modalLimiteExcedido">
+    <div style="padding: 24px; text-align: center;">
+        <span class="admin-warning" aria-hidden="true" style="color: #eab308;">!</span>
+        <h2 style="margin-top: 15px;">Límite Semanal Excedido</h2>
+        <p style="color: var(--muted); margin-top: 10px;">Este cliente ya ha superado los días permitidos (o ya registró un ingreso hoy) para esta modalidad.</p>
+
+        <div style="text-align: left; background: #1a1a1a; padding: 16px; border-radius: 8px; margin: 20px 0; border: 1px solid var(--border);">
+            <p style="margin-bottom: 8px;"><strong style="color: var(--muted);">Modalidad:</strong> <span id="limiteNombre" style="float: right; color: #fff;"></span></p>
+            <p style="margin-bottom: 8px;"><strong style="color: var(--muted);">Límite de la Membresía:</strong> <span id="limitePermitido" style="float: right; color: #fff;"></span></p>
+            <p style="margin-bottom: 8px;"><strong style="color: var(--muted);">Asistencias esta semana:</strong> <span id="limiteActuales" style="float: right; color: #ef9d89; font-weight: bold;"></span></p>
+            <p style="margin-bottom: 8px;"><strong style="color: var(--muted);">Asistencias extra:</strong> <span id="limiteExtra" style="float: right; color: #eab308; font-weight: bold;"></span></p>
+            <p style="margin-bottom: 0;"><strong style="color: var(--muted);">Último ingreso formal:</strong> <span id="limiteUltimo" style="float: right; color: #fff;"></span></p>
+        </div>
+
+        <div class="admin-dialog-actions" style="margin-top: 24px; justify-content: center;">
+            <button type="button" onclick="document.getElementById('modalLimiteExcedido').close()">Denegar Ingreso</button>
+            <button class="admin-primary-action" type="button" id="btnAutorizarLimite">Autorizar Excepción</button>
+        </div>
+    </div>
+</dialog>
+
 
 <div class="admin-toast" id="toast" hidden></div>
 <script type="module" src="../src/javascript/recepcionista/asistencia.js"></script>

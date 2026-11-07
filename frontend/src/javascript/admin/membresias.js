@@ -381,7 +381,7 @@ window.confirmarEliminarTipo = (nombreMem, idTipo, duracion, dias, planificacion
 
     // Rellenamos el modal con los detalles amigables
     document.getElementById('bajaTipoNombre').textContent = nombreMem;
-    document.getElementById('bajaTipoDuracion').textContent = duracion === 1 ? 'Diario (1 día)' : 'Mensual (30 días)';
+    document.getElementById('bajaTipoDuracion').textContent = duracion === 1 ? 'Diario (1 día)' : 'Mensual (31 días)';
     document.getElementById('bajaTipoAsistencia').textContent = dias + ' días/sem';
     document.getElementById('bajaTipoPlanificacion').textContent = planificacion ? 'Sí' : 'No';
     document.getElementById('bajaTipoCosto').textContent = '$' + costo;
