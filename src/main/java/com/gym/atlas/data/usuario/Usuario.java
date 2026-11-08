@@ -11,7 +11,7 @@ import java.util.Collection;
 import java.util.List;
 
 @Entity
-@Table(name = "Usuario") // Respetando mayúsculas como en el script original
+@Table(name = "usuario") // Respetando mayúsculas como en el script original
 public class Usuario implements UserDetails {
 
     @Id

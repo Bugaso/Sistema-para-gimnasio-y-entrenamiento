@@ -39,10 +39,10 @@ public class RutinaController {
         return ResponseEntity.ok(rutinaService.listarRutinas());
     }
 
-    @GetMapping("/asignaciones")
-    public ResponseEntity<List<AsignacionResponse>> listarAsignaciones() {
-        return ResponseEntity.ok(rutinaService.listarAsignaciones());
-    }
+//    @GetMapping("/asignaciones")
+//    public ResponseEntity<List<AsignacionResponse>> listarAsignaciones() {
+//        return ResponseEntity.ok(rutinaService.listarAsignaciones());
+//    }
 
     @DeleteMapping("/asignacion/{id}")
     public ResponseEntity<MessageResponse> eliminarAsignacion(@PathVariable Integer id) {
@@ -62,5 +62,11 @@ public class RutinaController {
     @PutMapping("/actualizar/{id}")
     public ResponseEntity<MessageResponse> actualizarRutina(@PathVariable Integer id, @RequestBody RutinaCompletaRequest request) {
         return ResponseEntity.ok(rutinaService.actualizarRutinaCompleta(id, request));
+    }
+
+    @GetMapping("/asignaciones")
+    public ResponseEntity<List<AsignacionResponse>> listarAsignaciones() {
+        // CAMBIADO: Ahora llama a listarAsignaciones_coach() en lugar de listarAsignaciones()
+        return ResponseEntity.ok(rutinaService.listarAsignaciones_coach());
     }
 }

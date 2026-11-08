@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Registrar Sesión — Coach</title>
+    <link rel="stylesheet" href="../src/css/admin/admin.css" />
+    <link rel="stylesheet" href="../src/css/index/index.css" />
+    <style>
+        /* ESTILOS ADAPTADOS AL TEMA CLARO */
+        .table-input { width: 100%; padding: 8px 12px; border: 1px solid #d1d5d2; border-radius: 4px; background-color: #ffffff; color: #333; }
+        .table-input:focus { border-color: var(--lime); outline: none; box-shadow: 0 0 0 3px rgb(217 4 41 / 10%); }
+
+        .ejercicio-card { background: #ffffff; border: 1px solid #d1d5d2; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .ejercicio-titulo { color: var(--lime); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
+        .ejercicio-titulo h3 { margin: 0; font-family: 'Oswald', sans-serif; font-size: 1.6rem; text-transform: uppercase; color: #333; }
+
+        .info-planificada { font-size: 0.9rem; color: #666; margin-bottom: 20px; background: #f7f9f9; padding: 12px 16px; border-radius: 4px; border: 1px solid #eaeaea; }
+
+        /* Botón de remover serie (X) */
+        button.is-danger.remove-serie { background: transparent; border: 1px solid #d1d5d2; color: #888; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        button.is-danger.remove-serie:hover { border-color: #ef7e64; color: #ef7e64; background: rgb(239 126 100 / 10%); }
+    </style>
+</head>
+<body class="admin-page">
+
+<div class="admin-shell" data-admin-shell>
+    <aside data-layout-sidebar></aside>
+    <div class="admin-workspace">
+        <header data-layout-topbar></header>
+
+        <div class="admin-content">
+            <div class="admin-heading admin-heading-compact">
+                <div>
+                    <p class="eyebrow">Ejecución</p>
+                    <h1>Registrar Sesión de Entrenamiento</h1>
+                </div>
+            </div>
+
+            <!-- PASO 1: SELECCIONAR CLIENTE Y DÍA -->
+            <div class="admin-panel" style="margin-bottom: 30px;">
+                <div class="admin-panel-heading">
+                    <div>
+                        <h2>1. Seleccionar Asignación y Día</h2>
+                    </div>
+                </div>
+                <div class="admin-form-grid" style="padding: 24px;">
+                    <label class="admin-field">
+                        <span>Cliente (Asignación Activa)</span>
+                        <select id="selectAsignacion" required></select>
+                    </label>
+
+                    <label class="admin-field">
+                        <span>Día de la Semana</span>
+                        <select id="selectDia" required>
+                            <option value="">Seleccione...</option>
+                            <option value="Lunes">Lunes</option>
+                            <option value="Martes">Martes</option>
+                            <option value="Miércoles">Miércoles</option>
+                            <option value="Jueves">Jueves</option>
+                            <option value="Viernes">Viernes</option>
+                            <option value="Sábado">Sábado</option>
+                            <option value="Domingo">Domingo</option>
+                        </select>
+                    </label>
+
+                    <label class="admin-field">
+                        <span>Fecha de la Sesión</span>
+                        <input type="date" id="fechaSesion" required />
+                    </label>
+                </div>
+            </div>
+
+            <!-- PASO 2: LLENAR DATOS REALES (Se genera dinámicamente en JS) -->
+            <form id="formSesion" style="display: none;">
+                <div class="admin-panel" style="margin-bottom: 40px; background: transparent; border: none; padding: 0;">
+                    <h2 style="margin-bottom: 20px; font-family: 'Oswald', sans-serif; text-transform: uppercase;">2. Registro de Series (Ejecución Real)</h2>
+                    <div id="contenedorEjercicios"></div>
+
+                    <p class="admin-form-status" id="formStatus"></p>
+                    <div class="admin-dialog-actions" style="margin-top: 24px;">
+                        <button class="admin-primary-action" type="submit" style="width: 100%; padding: 12px; font-size: 1.1rem;">Guardar Sesión Completa</button>
+                    </div>
+                </div>
+            </form>
+
+        </div>
+    </div>
+</div>
+
+<div class="admin-toast" id="toast" hidden></div>
+<script type="module" src="../src/javascript/coach/registrar-sesion.js"></script>
+</body>
+</html>

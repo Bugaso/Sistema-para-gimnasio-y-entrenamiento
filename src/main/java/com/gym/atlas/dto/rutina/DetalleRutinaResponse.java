@@ -5,6 +5,7 @@ import java.time.LocalTime;
 public record DetalleRutinaResponse(
         Integer idDetalle,
         String diaSemana,
+        Integer idEjercicio,
         String nombreEjercicio,
         String rangoSeries,
         String rangoRep,

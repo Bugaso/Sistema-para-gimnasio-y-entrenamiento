@@ -19,6 +19,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDate;
 import java.util.List;
 
+import org.springframework.security.core.context.SecurityContextHolder;
+
 @Service
 public class RutinaService {
 
@@ -180,7 +182,8 @@ public class RutinaService {
                 .map(d -> new DetalleRutinaResponse(
                         d.getIdDetalle(),
                         d.getDiaSemana(),
-                        d.getEjercicio().getNomEjercicio(), // Ajusta si tu campo de nombre es distinto
+                        d.getEjercicio().getIdEjercicio(),
+                        d.getEjercicio().getNomEjercicio(),
                         d.getRangoSeries(),
                         d.getRangoRep(),
                         d.getRangoPeso(),
@@ -249,6 +252,23 @@ public class RutinaService {
 
         });
         return new MessageResponse("Rutina actualizada exitosamente.");
+    }
+
+    public List<AsignacionResponse> listarAsignaciones_coach() {
+        // Obtenemos el email del coach logueado desde el token
+        String emailCoach = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        // Usamos el nuevo método del repositorio
+        return asignacionRepository.findByCoachMailUs(emailCoach).stream()
+                .map(a -> new AsignacionResponse(
+                        a.getIdCliCou(),
+                        a.getCliente().getNomApe(),
+                        a.getCliente().getDniUs(),
+                        a.getRutina().getIdRutina(),
+                        a.getRutina().getNombreRutina(),
+                        a.getFechaPlan(),
+                        a.getDuracionPlan()
+                )).toList();
     }
 
 }

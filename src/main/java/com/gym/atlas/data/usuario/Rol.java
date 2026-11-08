@@ -3,7 +3,7 @@ package com.gym.atlas.data.usuario;
 import jakarta.persistence.*;
 
 @Entity
-@Table(name = "Rol")
+@Table(name = "rol")
 public class Rol {
 
     @Id

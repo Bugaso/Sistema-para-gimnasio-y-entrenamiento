@@ -4,6 +4,7 @@ import { renderAdminLayout } from '../layout-admin.js';
 const form = document.getElementById('formMusculosAsociados');
 const tabla = document.getElementById('tablaRelaciones');
 const confirmDialog = document.getElementById('confirmDialog');
+const errorDuplicadoDialog = document.getElementById('errorDuplicadoDialog');
 const inputBuscar = document.getElementById('inputBuscar');
 const selectEjercicio = document.getElementById('idEjercicio');
 const selectGrupoMusc = document.getElementById('idGrupoMusc');
@@ -26,11 +27,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('btnCancelarModal')?.addEventListener('click', () => confirmDialog.close());
     document.getElementById('btnConfirmarEliminar')?.addEventListener('click', procesarEliminacion);
 
+    // Evento para cerrar el modal de error de duplicado
+    document.getElementById('btnCerrarError')?.addEventListener('click', () => errorDuplicadoDialog.close());
+
     await Promise.all([cargarEjercicios(), cargarGruposMusculares()]);
     await cargarRelaciones();
 });
 
-// Cargas de selects (igual que antes)
+// Cargas de selects
 async function cargarEjercicios() {
     try {
         const token = getToken();
@@ -109,9 +113,22 @@ form.addEventListener('submit', async (e) => {
     const id = document.getElementById('idMuscAsociados').value;
     const token = getToken();
 
+    const idGrup = parseInt(selectGrupoMusc.value);
+    const idEj = parseInt(selectEjercicio.value);
+
+    // VALIDACIÓN: Evitar duplicados revisando el array en memoria si es un POST (nuevo registro)
+    if (!id) {
+        const existeDuplicado = relacionesTotales.find(rel => rel.idGrupoMusc === idGrup && rel.idEjercicio === idEj);
+
+        if (existeDuplicado) {
+            errorDuplicadoDialog.showModal(); // Mostramos el error de Baltasar
+            return; // Detenemos la ejecución para que no llegue al backend
+        }
+    }
+
     const payload = {
-        idGrupoMusc: parseInt(selectGrupoMusc.value),
-        idEjercicio: parseInt(selectEjercicio.value),
+        idGrupoMusc: idGrup,
+        idEjercicio: idEj,
         prioridadMusc: document.getElementById('prioridadMusc').value
     };
 
