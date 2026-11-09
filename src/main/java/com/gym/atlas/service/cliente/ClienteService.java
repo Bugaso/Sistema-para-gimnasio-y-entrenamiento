@@ -6,10 +6,12 @@ import com.gym.atlas.data.rutina.HistorialSerie;
 import com.gym.atlas.data.usuario.Usuario;
 import com.gym.atlas.dto.MessageResponse;
 import com.gym.atlas.dto.cliente.ClienteRutinaResponse;
+
 import com.gym.atlas.dto.cliente.PerfilClienteRequest;
 import com.gym.atlas.dto.cliente.PerfilClienteResponse;
 import com.gym.atlas.dto.rutina.DetalleRutinaResponse;
 import com.gym.atlas.dto.rutina.RutinaConDetallesResponse;
+import com.gym.atlas.dto.rutina.RutinaResponse;
 import com.gym.atlas.repository.rutina.DetalleRutinaRepository;
 import com.gym.atlas.repository.rutina.ClienteCoachRepository;
 import com.gym.atlas.repository.rutina.HistorialRutinaRepository;
@@ -120,14 +122,16 @@ public class ClienteService {
                 ))
                 .toList();
 
-        return new ClienteRutinaResponse(new RutinaConDetallesResponse(
-                rutina.getIdRutina(),
-                rutina.getNombreRutina(),
-                rutina.getDescripcion(),
-                rutina.getEsPlantilla(),
-                rutina.getFechaCreacion(),
+        return new ClienteRutinaResponse(
+                new RutinaResponse(
+                    rutina.getIdRutina(),
+                    rutina.getNombreRutina(),
+                    rutina.getDescripcion(),
+                    rutina.getEsPlantilla(),
+                    rutina.getFechaCreacion()
+                ),
                 detalles
-        ));
+        );
     }
 
     // MÉTODO 2: OBTENER EL HISTORIAL DE SESIÓN POR FECHA

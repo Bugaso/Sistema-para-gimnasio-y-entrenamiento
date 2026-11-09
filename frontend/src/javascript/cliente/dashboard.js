@@ -14,7 +14,7 @@ let asignacionActiva = null;
 document.addEventListener('DOMContentLoaded', async () => {
     const token = getToken();
     if (!token) {
-        window.location.href = '/login.html';
+        window.location.href = '/login';
         return;
     }
 
@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
     document.getElementById('btnCerrarSesion').addEventListener('click', () => {
         clearToken();
-        window.location.href = '/login.html';
+        window.location.href = '/login';
     });
 
     // Cargas iniciales
@@ -160,14 +160,14 @@ async function cargarEntrenamientoDelDia(fechaStr) {
             const nombreDia = dias[fecha.getDay()];
 
             // Filtrar los detalles de la rutina activa para este día específico
-            const ejerciciosDelDia = asignacionActiva.rutina.detalles.filter(d => d.diaSemana === nombreDia);
+            const ejerciciosDelDia = asignacionActiva.detalles.filter(d => d.diaSemana === nombreDia);
 
             if (ejerciciosDelDia.length === 0) {
                 tabla.innerHTML = `<tr><td colspan="4" style="text-align: center; color: #666;">Día de descanso. No hay ejercicios planificados.</td></tr>`;
             } else {
                 tabla.innerHTML = '';
                 ejerciciosDelDia.forEach(ej => {
-                    const esfuerzoOPeso = ej.rangoPeso ? `${ej.rangoPeso} kg` : (ej.medidaEsfuerzo ? `${ej.medidaEsfuerzo} ${ej.cantMedida || ''}` : '-');
+                    const esfuerzoOPeso = ej.rangoPeso +" / " +ej.medidaEsfuerzo +" "+ej.cantMedida;
                     tabla.innerHTML += `
                         <tr>
                             <td><strong>${ej.nombreEjercicio}</strong></td>
