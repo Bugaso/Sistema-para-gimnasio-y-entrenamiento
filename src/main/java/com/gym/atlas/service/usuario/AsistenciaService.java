@@ -171,7 +171,43 @@ public class AsistenciaService {
 
     public List<AsistenciaHistorialResponse> obtenerHistorialPorFecha(LocalDate fechaInicio, LocalDate fechaFin) {
 
-        return null;
+        List<AsistenciaCliente> listaAsistencia = asistenciaRepo.findAsistenciaClienteByFechaHorarioEntradaBetween(
+                fechaInicio.atStartOfDay(),
+                fechaFin.atTime(LocalTime.MAX)
+        );
+
+        List<AsistenciaHistorialResponse> asisCliDTOList = listaAsistencia.stream().map(
+                asistenciaCliente -> {
+                    AsistenciaHistorialResponse asisDTO;
+                    boolean extra = listaAsistencia.stream().filter(
+                            clienteAsis ->{
+                                return clienteAsis.getCliente().getIdUsuario() == asistenciaCliente.getCliente().getIdUsuario();
+                            }
+                            ).toList().size() > 1;
+                    if(asistenciaCliente.getIdCliMem() == null){
+                        asisDTO = new AsistenciaHistorialResponse(
+                                asistenciaCliente.getIdAsistencia(),
+                                asistenciaCliente.getCliente().getNomApe(),
+                                asistenciaCliente.getCliente().getDniUs(),
+                                null,
+                                asistenciaCliente.getFechaHorarioEntrada(),
+                                asistenciaCliente.getFechaHorarioSalida(),
+                                true,
+                                extra);
+                    }else{
+                        asisDTO = new AsistenciaHistorialResponse(
+                                asistenciaCliente.getIdAsistencia(),
+                                asistenciaCliente.getCliente().getNomApe(),
+                                asistenciaCliente.getCliente().getDniUs(),
+                                asistenciaCliente.getIdCliMem().getIdTipoMembresia().getMembresia().getDescripMembresia(),
+                                asistenciaCliente.getFechaHorarioEntrada(),
+                                asistenciaCliente.getFechaHorarioSalida(),
+                                false, extra);
+                    }
+                    return asisDTO;}
+        ).toList();
+
+        return asisCliDTOList;
 
     }
 }

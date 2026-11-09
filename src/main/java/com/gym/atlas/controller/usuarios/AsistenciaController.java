@@ -54,8 +54,9 @@ public class AsistenciaController {
 
     @GetMapping("/historial/fecha")
     public ResponseEntity<List<AsistenciaHistorialResponse>> obtenerHistorialPorFecha(
-            @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
-            @RequestParam("fecha") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin) {
+            @RequestParam("fechaInicio") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaInicio,
+            @RequestParam("fechaFin") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fechaFin
+    ) {
 
         // En tu AsistenciaService deberás buscar todas las asistencias donde
         // la fechaHorarioEntrada coincida con la fecha recibida, mapearlas al DTO

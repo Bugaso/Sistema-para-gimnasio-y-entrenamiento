@@ -3,14 +3,20 @@ import { renderRecepcionLayout } from './layout-recepcionista.js'; // Ajusta la 
 
 // Elementos del DOM
 const filtroFecha = document.getElementById('filtroFecha');
+const filtroFechaMax = document.getElementById('filtroFechaFin');
 const filtroHoraMin = document.getElementById('filtroHoraMin');
 const filtroHoraMax = document.getElementById('filtroHoraMax');
 const filtroAdentro = document.getElementById('filtroAdentro');
+
 const buscadorHistorial = document.getElementById('buscadorHistorial');
 const tablaBody = document.getElementById('tablaHistorialAsistencia');
 const contadorVisibles = document.getElementById('contadorVisibles');
+const filtroSelect = document.getElementById('selectorFiltro');
+
+// Encabezados para el ordenamiento
+const thNombre = document.getElementById('thNombre');
+const thEntrada = document.getElementById('thEntrada');
 const colSalida = document.getElementById('colSalida');
-const filtroSelect = document.getElementById('selectorFiltro')
 
 // Modal Elements
 const modal = document.getElementById('modalDetalleAsistencia');
@@ -19,6 +25,7 @@ const alertaMembresia = document.getElementById('alertaMembresia');
 const alertaExtra = document.getElementById('alertaExtra');
 
 let asistenciasDelDia = []; // Almacena los datos originales traídos del backend
+let ordenActual = { columna: null, ascendente: true }; // Controla el estado del ordenamiento
 
 document.addEventListener('DOMContentLoaded', async () => {
     renderRecepcionLayout('historial_asistencia');
@@ -30,23 +37,29 @@ document.addEventListener('DOMContentLoaded', async () => {
     const tzOffset = (new Date()).getTimezoneOffset() * 60000;
     const localISOTime = (new Date(Date.now() - tzOffset)).toISOString().split('T')[0];
     filtroFecha.value = localISOTime;
+    filtroFechaMax.value = localISOTime;
 
     // Cargar datos iniciales
     await obtenerDatosDelBackend();
 
     filtroSelect.addEventListener('change', filtroFechaDia)
 
-    // Eventos que disparan una nueva llamada al backend (solo cambio de fecha)
+    // Eventos que disparan una nueva llamada al backend
     filtroFecha.addEventListener('change', obtenerDatosDelBackend);
+    filtroFechaMax.addEventListener('change', obtenerDatosDelBackend);
 
     // Eventos que disparan filtros locales (instantáneos)
     buscadorHistorial.addEventListener('input', renderizarTabla);
     filtroHoraMin.addEventListener('change', renderizarTabla);
     filtroHoraMax.addEventListener('change', renderizarTabla);
 
+    // Eventos de ordenamiento al hacer clic en los encabezados
+    if (thNombre) thNombre.addEventListener('click', () => cambiarOrden('nombre'));
+    if (thEntrada) thEntrada.addEventListener('click', () => cambiarOrden('entrada'));
+    if (colSalida) colSalida.addEventListener('click', () => cambiarOrden('salida'));
+
     filtroFechaDia();
     filtroAdentro.addEventListener('change', () => {
-        // Ocultar/Mostrar la columna "Salida" según el checkbox
         colSalida.style.display = filtroAdentro.checked ? 'none' : 'table-cell';
         renderizarTabla();
     });
@@ -65,12 +78,19 @@ async function filtroFechaDia(){
 // Llama al backend con la fecha seleccionada
 async function obtenerDatosDelBackend() {
     const fecha = filtroFecha.value;
-    if (!fecha) return;
+    const fechaFin = filtroFechaMax.value;
+    if (!fecha || !fechaFin) return;
 
     tablaBody.innerHTML = '<tr><td colspan="5" style="text-align: center;">Cargando registros...</td></tr>';
 
     try {
-        const data = await apiRequest(`/api/recepcion/asistencia/historial/dia?fecha=${fecha}`, { token: getToken() });
+        let data;
+        if(filtroSelect.value === "dia"){
+            data = await apiRequest(`/api/recepcion/asistencia/historial/dia?fecha=${fecha}`, { token: getToken() });
+        }else{
+            data = await apiRequest(`/api/recepcion/asistencia/historial/fecha?fechaInicio=${fecha}&fechaFin=${fechaFin}`, { token: getToken() });
+        }
+
         asistenciasDelDia = Array.isArray(data) ? data : [];
         renderizarTabla();
     } catch (error) {
@@ -78,33 +98,70 @@ async function obtenerDatosDelBackend() {
     }
 }
 
-// Filtra la data en memoria y dibuja la tabla
+// Función para actualizar el estado del ordenamiento y los íconos visuales
+function cambiarOrden(columna) {
+    if (ordenActual.columna === columna) {
+        ordenActual.ascendente = !ordenActual.ascendente; // Invierte el orden si es la misma columna
+    } else {
+        ordenActual.columna = columna;
+        ordenActual.ascendente = true; // Por defecto arranca de menor a mayor al cambiar de columna
+    }
+
+    // Limpiar íconos
+    document.querySelectorAll('.sort-icon').forEach(icon => icon.textContent = '');
+
+    // Dibujar la flechita correspondiente
+    const icono = ordenActual.ascendente ? ' ▲' : ' ▼';
+    if (ordenActual.columna === 'nombre' && thNombre) thNombre.querySelector('.sort-icon').textContent = icono;
+    if (ordenActual.columna === 'entrada' && thEntrada) thEntrada.querySelector('.sort-icon').textContent = icono;
+    if (ordenActual.columna === 'salida' && colSalida) colSalida.querySelector('.sort-icon').textContent = icono;
+
+    renderizarTabla();
+}
+
+// Filtra, ordena y dibuja la tabla
 function renderizarTabla() {
     const terminoBusqueda = buscadorHistorial.value.toLowerCase().trim();
-    const minHora = filtroHoraMin.value; // ej: "08:00"
+    const minHora = filtroHoraMin.value;
     const maxHora = filtroHoraMax.value;
     const soloAdentro = filtroAdentro.checked;
 
+    // 1. Aplicar Filtros
     let filtrados = asistenciasDelDia.filter(asistencia => {
-        // 1. Filtro Texto (Nombre o DNI)
         const matchTexto = asistencia.nombreCompleto.toLowerCase().includes(terminoBusqueda) ||
             asistencia.dni.toString().includes(terminoBusqueda);
         if (!matchTexto) return false;
-
-        // 2. Filtro Solo Adentro (No tiene fechaHoraSalida)
         if (soloAdentro && asistencia.fechaHoraSalida) return false;
 
-        // Extraer solo la parte de la hora "HH:MM" de la fecha de entrada
         const horaEntrada = extraerHora(asistencia.fechaHoraEntrada);
-
-        // 3. Filtro Hora Mínima
         if (minHora && horaEntrada < minHora) return false;
-
-        // 4. Filtro Hora Máxima
         if (maxHora && horaEntrada > maxHora) return false;
 
         return true;
     });
+
+    // 2. Aplicar Ordenamiento
+    if (ordenActual.columna) {
+        filtrados.sort((a, b) => {
+            let valorA, valorB;
+
+            if (ordenActual.columna === 'nombre') {
+                valorA = a.nombreCompleto.toLowerCase();
+                valorB = b.nombreCompleto.toLowerCase();
+            } else if (ordenActual.columna === 'entrada') {
+                valorA = new Date(a.fechaHoraEntrada).getTime();
+                valorB = new Date(b.fechaHoraEntrada).getTime();
+            } else if (ordenActual.columna === 'salida') {
+                // Si la salida es nula (aún en el gym), se manda al final de la lista
+                valorA = a.fechaHoraSalida ? new Date(a.fechaHoraSalida).getTime() : (ordenActual.ascendente ? Infinity : -Infinity);
+                valorB = b.fechaHoraSalida ? new Date(b.fechaHoraSalida).getTime() : (ordenActual.ascendente ? Infinity : -Infinity);
+            }
+
+            if (valorA < valorB) return ordenActual.ascendente ? -1 : 1;
+            if (valorA > valorB) return ordenActual.ascendente ? 1 : -1;
+            return 0;
+        });
+    }
 
     dibujarFilas(filtrados);
 }
@@ -118,13 +175,19 @@ function dibujarFilas(lista) {
         return;
     }
 
-    lista.forEach((item, index) => {
-        const horaIn = extraerHora(item.fechaHoraEntrada) || '--:--';
-        const horaOut = extraerHora(item.fechaHoraSalida) || '--:--';
+    lista.forEach((item) => {
+        let horaIn;
+        let horaOut;
+        if(filtroSelect.value === "dia"){
+            horaIn = extraerHora(item.fechaHoraEntrada) || '--:--';
+            horaOut = extraerHora(item.fechaHoraSalida) || '--:--';
+        }else{
+            horaIn = extraerFecha(item.fechaHoraEntrada) + " " + extraerHora(item.fechaHoraEntrada);
+            horaOut = extraerFecha(item.fechaHoraSalida) + " " + extraerHora(item.fechaHoraSalida);
+        }
 
         const tr = document.createElement('tr');
         tr.className = 'row-clickable';
-        // Guardamos el objeto completo en formato JSON dentro del atributo data para leerlo al hacer clic
         tr.dataset.info = JSON.stringify(item);
 
         tr.innerHTML = `
@@ -155,10 +218,8 @@ function abrirModalDetalle(item) {
     document.getElementById('detalleEntrada').textContent = horaIn;
     document.getElementById('detalleSalida').textContent = horaOut ? horaOut : 'Aún en el local';
 
-    // Cálculo de Permanencia
     document.getElementById('detallePermanencia').textContent = calcularPermanencia(item.fechaHoraEntrada, item.fechaHoraSalida);
 
-    // Alertas
     alertaMembresia.style.display = item.ingresoSinMembresia ? 'block' : 'none';
     alertaExtra.style.display = item.esAsistenciaExtra ? 'block' : 'none';
     contenedorAlertas.style.display = (item.ingresoSinMembresia || item.esAsistenciaExtra) ? 'block' : 'none';
@@ -166,7 +227,6 @@ function abrirModalDetalle(item) {
     modal.showModal();
 }
 
-// Utilidad: Convierte "2024-03-25T14:30:00" en "14:30"
 function extraerHora(fechaIso) {
     if (!fechaIso) return null;
     const dateObj = new Date(fechaIso);
@@ -175,15 +235,19 @@ function extraerHora(fechaIso) {
     return `${horas}:${minutos}`;
 }
 
-// Utilidad: Calcula la diferencia entre dos fechas, si la salida es null, usa la hora actual
+function extraerFecha(fechaIso){
+    if(!fechaIso) return null;
+    const dateObj = new Date(fechaIso);
+    return dateObj.toLocaleDateString();
+}
+
 function calcularPermanencia(entradaIso, salidaIso) {
     if (!entradaIso) return '-';
 
     const inicio = new Date(entradaIso);
-    const fin = salidaIso ? new Date(salidaIso) : new Date(); // Si no ha salido, calcula hasta "ahora"
+    const fin = salidaIso ? new Date(salidaIso) : new Date();
 
     let diffMilisegundos = fin - inicio;
-
     if (diffMilisegundos < 0) return 'Error de reloj';
 
     const horas = Math.floor(diffMilisegundos / 1000 / 60 / 60);
