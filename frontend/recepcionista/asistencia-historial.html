@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Historial de Asistencia — Atlas Gym</title>
+    <link rel="stylesheet" href="../src/css/admin/admin.css" />
+    <link rel="stylesheet" href="../src/css/index/index.css" />
+    <style>
+        .filter-group { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
+        .stat-badge { background: whitesmoke; padding: 6px 12px; border-radius: 4px; border: 1px solid #333; font-size: 0.8rem; color: var(--lime); font-weight: bold; }
+        .row-clickable { cursor: pointer; transition: background 0.2s; }
+        .row-clickable:hover { background: rgba(255,255,255,0.05) !important; }
+        .status-alert { color: #ef9d89; font-size: 0.8rem; font-weight: bold; margin-top: 4px; display: block; }
+    </style>
+</head>
+<body class="admin-page">
+
+<div class="admin-shell" data-admin-shell>
+    <aside data-layout-sidebar></aside>
+    <div class="admin-workspace">
+        <header data-layout-topbar></header>
+
+        <div class="admin-content">
+            <div class="admin-heading admin-heading-compact">
+                <div>
+                    <p class="eyebrow">Recepción</p>
+                    <h1>Historial de Accesos</h1>
+                </div>
+            </div>
+
+            <!-- PANEL DE FILTROS -->
+            <div class="admin-panel" style="margin-bottom: 24px;">
+                <div class="admin-toolbar" style="flex-wrap: wrap; gap: 20px; padding: 20px 24px;">
+
+                    <!-- Búsqueda -->
+                    <label class="admin-search" style="width: min(300px, 100%);">
+                        <span aria-hidden="true">⌕</span>
+                        <input type="text" id="buscadorHistorial" placeholder="Buscar por DNI o Nombre..." autocomplete="off" />
+                    </label>
+
+                    <label class="admin-filter">
+                        <select id="selectorFiltro">
+                            <option value = "dia">Dia</option>
+                            <option value = "fecha">Fecha</option>
+                        </select>
+                    </label>
+                    <div class="filter-group">
+                        <!-- Calendario -->
+                        <label class="admin-field" style="margin: 0; min-width: 140px;">
+                            <input type="date" id="filtroFecha" style="min-height: 44px;" />
+                        </label>
+
+                        <div id="rangoFecha" hidden>
+
+                            <label class="admin-field" style="margin: 0; min-width: 140px; display: flex; gap: 8px; align-items: center; flex-direction: row;">
+                                <span style="margin:0;">Hasta:</span>
+                                <input type="date" id="filtroFechaFin" style="min-height: 44px;" />
+                            </label>
+                        </div>
+
+                        <div id="rangoHoras" hidden>
+                            <!-- Rango de Horas -->
+                            <label class="admin-field" style="margin: 0; display: flex; align-items: center; gap: 8px; flex-direction: row;">
+                                <span style="margin:0;">De:</span>
+                                <input type="time" id="filtroHoraMin" style="min-height: 44px; width: 110px;" />
+                            </label>
+                            <label class="admin-field" style="margin: 0; display: flex; align-items: center; gap: 8px; flex-direction: row;">
+                                <span style="margin:0;">A:</span>
+                                <input type="time" id="filtroHoraMax" style="min-height: 44px; width: 110px;" />
+                            </label>
+                        </div>
+                        <!-- Checkbox Solo Adentro -->
+                        <label class="remember" style="margin-left: anchor-size()">
+                            <input type="checkbox" id="filtroAdentro">
+                            <span style="color: #1a1d1c; font-weight: bold;">Solo en el gimnasio</span>
+                        </label>
+                    </div>
+
+                    <!-- Contador Dinámico -->
+                    <div style="margin-left: auto;">
+                        <span class="stat-badge">Total visibles: <span id="contadorVisibles">0</span></span>
+                    </div>
+                </div>
+
+                <!-- TABLA -->
+                <div class="admin-table-wrap">
+                    <table class="admin-table">
+                        <thead>
+                        <tr>
+                            <th>Cliente</th>
+                            <th>Documento</th>
+                            <th>Modalidad</th>
+                            <th>Entrada</th>
+                            <th id="colSalida">Salida</th>
+                        </tr>
+                        </thead>
+                        <tbody id="tablaHistorialAsistencia">
+                        <tr><td colspan="5" style="text-align: center;">Cargando...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: DETALLE DE ASISTENCIA -->
+<dialog class="admin-dialog admin-confirm-dialog" id="modalDetalleAsistencia">
+    <div style="padding: 24px; text-align: center;">
+        <h2 style="margin-top: 15px; margin-bottom: 5px;">Detalle de Permanencia</h2>
+        <p style="color: var(--lime); font-weight: bold; font-size: 1.1rem; margin-bottom: 20px;" id="detalleNombre">-</p>
+
+        <div style="text-align: left; background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid var(--border);">
+            <p style="margin-bottom: 12px;"><strong style="color: var(--muted);">Entrada:</strong> <span id="detalleEntrada" style="float: right; color: #fff;">-</span></p>
+            <p style="margin-bottom: 12px;"><strong style="color: var(--muted);">Salida:</strong> <span id="detalleSalida" style="float: right; color: #fff;">-</span></p>
+            <hr style="border-color: #333; margin: 15px 0;">
+            <p style="margin-bottom: 8px; font-size: 1.1rem;"><strong style="color: var(--lime);">Tiempo de estadía:</strong> <span id="detallePermanencia" style="float: right; color: #fff; font-weight: bold;">-</span></p>
+        </div>
+
+        <!-- Alertas de Infracciones -->
+        <div id="contenedorAlertas" style="margin-top: 20px; display: none;">
+            <div id="alertaMembresia" style="background: rgb(239 126 100 / 10%); border: 1px solid #ef7e64; padding: 12px; border-radius: 6px; margin-bottom: 10px; color: #ef9d89; font-size: 0.85rem; text-align: left; display: none;">
+                ⚠️ <strong>Atención:</strong> Este usuario ingresó sin tener una membresía vigente activa al momento del registro.
+            </div>
+            <div id="alertaExtra" style="background: rgb(234 179 8 / 10%); border: 1px solid #eab308; padding: 12px; border-radius: 6px; color: #fde047; font-size: 0.85rem; text-align: left; display: none;">
+                ⚡ <strong>Día Extra:</strong> Esta asistencia se registró fuera de la formalidad (excedió el límite semanal permitido).
+            </div>
+        </div>
+
+        <div class="admin-dialog-actions" style="margin-top: 24px; justify-content: center;">
+            <button type="button" onclick="document.getElementById('modalDetalleAsistencia').close()" class="admin-primary-action">Cerrar</button>
+        </div>
+    </div>
+</dialog>
+
+<div class="admin-toast" id="toast" hidden></div>
+<script type="module" src="../src/javascript/recepcionista/historial-asistencia.js"></script>
+</body>
+</html>

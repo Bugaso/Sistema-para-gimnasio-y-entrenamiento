@@ -64,13 +64,6 @@
 
         <!-- JPA + Hibernate (Hibernate viene incluido por defecto) -->
 
-
-        <!-- Driver JDBC de MariaDB -->
-        <dependency>
-            <groupId>org.mariadb.jdbc</groupId>
-            <artifactId>mariadb-java-client</artifactId>
-        </dependency>
-
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-devtools</artifactId>
