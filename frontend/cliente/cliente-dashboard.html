@@ -1,0 +1,140 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Mi Panel — Atlas Gym</title>
+    <link rel="stylesheet" href="../src/css/admin/admin.css" />
+    <link rel="stylesheet" href="../src/css/index/index.css" />
+    <style>
+        /* ESTILOS CLAROS Y PESTAÑAS PARA EL CLIENTE */
+        .client-header { background: #ffffff; border-bottom: 1px solid #d1d5d2; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
+        .client-header h1 { font-family: 'Oswald', sans-serif; text-transform: uppercase; margin: 0; color: #333; font-size: 1.8rem; }
+
+        .client-tabs { display: flex; gap: 20px; padding: 0 24px; background: #ffffff; border-bottom: 1px solid #d1d5d2; }
+        .tab-btn { background: transparent; border: none; padding: 16px 8px; font-size: 1rem; font-weight: bold; color: #888d89; cursor: pointer; border-bottom: 3px solid transparent; transition: 0.3s; }
+        .tab-btn.active { color: var(--lime); border-bottom-color: var(--lime); }
+        .tab-btn:hover:not(.active) { color: #333; }
+
+        .client-container { padding: 32px 24px; max-width: 900px; margin: 0 auto; }
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Inputs y Tarjetas modo claro */
+        .client-input { width: 100%; padding: 12px; border: 1px solid #d1d5d2; border-radius: 6px; background-color: #f7f9f9; color: #333; font-size: 1rem; margin-top: 6px; }
+        .client-input:focus { border-color: var(--lime); outline: none; background-color: #ffffff; box-shadow: 0 0 0 3px rgb(217 4 41 / 10%); }
+
+        .card { background: #ffffff; border: 1px solid #d1d5d2; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eaeaea; padding-bottom: 16px; margin-bottom: 16px; }
+        .card-header h2 { margin: 0; font-family: 'Oswald', sans-serif; text-transform: uppercase; color: #333; }
+
+        /* Estilos para el calendario/fecha de rutina */
+        .date-picker-wrap { display: flex; align-items: center; gap: 12px; background: #f7f9f9; padding: 16px; border-radius: 8px; border: 1px solid #d1d5d2; margin-bottom: 24px; }
+        .date-picker-wrap input[type="date"] { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; color: #333; }
+
+        /* Badges de estado de sesión */
+        .badge-planificado { background: #f3f4f6; color: #4b5563; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; border: 1px solid #d1d5db; }
+        .badge-completado { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; border: 1px solid #bbf7d0; }
+    </style>
+</head>
+<body style="background-color: #f0f2f2; margin: 0; font-family: 'Inter', sans-serif;">
+
+<!-- HEADER CLIENTE -->
+<header class="client-header">
+    <h1>Atlas Gym <span style="color: var(--lime);">| Cliente</span></h1>
+    <button id="btnCerrarSesion" style="background: transparent; border: 1px solid #d1d5d2; padding: 8px 16px; border-radius: 4px; cursor: pointer; font-weight: bold; color: #555;">Cerrar Sesión</button>
+</header>
+
+<!-- PESTAÑAS (TABS) -->
+<nav class="client-tabs">
+    <button class="tab-btn active" data-target="perfil">Mi Perfil</button>
+    <button class="tab-btn" data-target="rutina" id="tabRutina" style="display: none;">Mi Entrenamiento</button>
+</nav>
+
+<!-- CONTENEDOR PRINCIPAL -->
+<main class="client-container">
+
+    <!-- VISTA 1: PERFIL -->
+    <section id="perfil" class="tab-content active">
+        <div class="card">
+            <div class="card-header">
+                <h2>Datos Personales</h2>
+            </div>
+            <form id="formPerfilCliente">
+                <div class="admin-form-grid">
+                    <label class="admin-field admin-field-wide">
+                        <span style="font-weight: bold; color: #555;">Nombre y Apellido</span>
+                        <input type="text" id="nomApe" class="client-input" required />
+                    </label>
+                    <label class="admin-field">
+                        <span style="font-weight: bold; color: #555;">DNI</span>
+                        <input type="text" id="dniUs" class="client-input" readonly style="background: #e5e7eb; cursor: not-allowed;" />
+                    </label>
+                   <label class="admin-field">
+                        <span style="font-weight: bold; color: #555;">Fecha de Nacimiento</span>
+                        <input type="date" id="fechaNacimiento" class="client-input" required />
+                    </label>
+                    <label class="admin-field">
+                        <span style="font-weight: bold; color: #555;">Teléfono</span>
+                        <input type="text" id="telUs" class="client-input" required />
+                    </label>
+                    <label class="admin-field">
+                        <span style="font-weight: bold; color: #555;">Email</span>
+                        <input type="email" id="mailUs" class="client-input" required />
+                    </label>
+                    <label class="admin-field admin-field-wide">
+                        <span style="font-weight: bold; color: #555;">Contacto de Emergencia</span>
+                        <input type="text" id="contacoE" class="client-input" placeholder="Nombre y teléfono de emergencia..." />
+                    </label>
+                </div>
+                <div style="margin-top: 24px; text-align: right;">
+                    <span id="perfilStatus" style="margin-right: 15px; font-weight: bold;"></span>
+                    <button type="submit" class="admin-primary-action" style="padding: 12px 24px;">Guardar Cambios</button>
+                </div>
+            </form>
+        </div>
+    </section>
+
+    <!-- VISTA 2: RUTINA Y CALENDARIO -->
+    <section id="rutina" class="tab-content">
+
+        <div class="date-picker-wrap">
+            <div>
+                <h3 style="margin: 0 0 5px 0; color: #333; font-family: 'Oswald', sans-serif; text-transform: uppercase;">Calendario de Entrenamiento</h3>
+                <p style="margin: 0; color: #666; font-size: 0.9rem;">Selecciona una fecha para ver tu rutina o tu sesión completada.</p>
+            </div>
+            <div style="margin-left: auto; text-align: right;">
+                <input type="date" id="fechaCalendario" />
+                <div id="diaSemanaLabel" style="margin-top: 5px; font-weight: bold; color: var(--lime);"></div>
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2 id="tituloDiaRutina">Ejercicios del Día</h2>
+                <span id="estadoSesionBadge" class="badge-planificado">Planificado</span>
+            </div>
+
+            <div class="admin-table-wrap">
+                <table class="admin-table" style="width: 100%;">
+                    <thead>
+                    <tr>
+                        <th>Ejercicio</th>
+                        <th>Series</th>
+                        <th>Repeticiones</th>
+                        <th>Peso / Esfuerzo</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tablaEjerciciosCliente">
+                    <tr><td colspan="4" style="text-align: center; padding: 20px;">Cargando entrenamiento...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+</main>
+
+<script type="module" src="../src/javascript/cliente/dashboard.js"></script>
+</body>
+</html>

@@ -258,3 +258,26 @@ function renderizarCarruselMembresias(contenedor, grupos) {
         `;
     });
 }
+
+//Funcion para el Cliente
+document.addEventListener('DOMContentLoaded', () => {
+    const authContainer = document.getElementById('authContainer');
+    const token = getToken();
+
+    // Estilos alineados con Atlas Gym
+    if (token) {
+        // El usuario ya inició sesión: lo mandamos a su panel
+        authContainer.innerHTML = `
+            <a href="/cliente/cliente-dashboard.html" style="background-color: var(--lime, #a3e635); color: #121212; padding: 8px 16px; font-weight: bold; text-decoration: none; border-radius: 4px; transition: 0.3s;">
+                 Mi Perfil
+            </a>
+        `;
+    } else {
+        // El usuario no tiene sesión: lo mandamos al login
+        authContainer.innerHTML = `
+            <a href="/inicio-sesion.html" style="background-color: transparent; color: #fff; border: 1px solid #fff; padding: 8px 16px; font-weight: bold; text-decoration: none; border-radius: 4px; transition: 0.3s;">
+                Iniciar Sesión
+            </a>
+        `;
+    }
+});

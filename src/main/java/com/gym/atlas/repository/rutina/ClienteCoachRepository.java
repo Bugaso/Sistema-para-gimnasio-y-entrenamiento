@@ -9,4 +9,7 @@ import java.util.List;
 @Repository
 public interface ClienteCoachRepository extends JpaRepository<ClienteCoach, Integer> {
     List<ClienteCoach> findByCoachMailUs(String mailUs);
+
+    // AGREGAR ESTA LÍNEA PARA EL CLIENTE:
+    List<ClienteCoach> findByClienteMailUs(String mailUs);
 }

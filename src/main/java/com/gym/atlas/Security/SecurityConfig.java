@@ -55,7 +55,9 @@ public class SecurityConfig {
             "/recepcionista",
             "/recepcionista/**",
             "/coach",
-            "/coach/**"
+            "/coach/**",
+
+            "/cliente", "/cliente/**"
     };
 
     private static final String[] AUTH_ENDPOINTS = {
@@ -77,6 +79,9 @@ public class SecurityConfig {
             "/api/coach/**"
     };
 
+    // Proteger los datos (API) del cliente
+    private static final String[] CLIENTE_ENDPOINTS = { "/api/cliente/**" };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -93,7 +98,10 @@ public class SecurityConfig {
                         .requestMatchers(ADMIN_ENDPOINTS).hasRole("ADMIN")
                         .requestMatchers(RECEPCION_ENDPOINTS).hasAnyRole("RECEPCIONISTA", "ADMIN")
                         .requestMatchers(COACH_ENDPOINTS).hasAnyRole("COACH", "ADMIN")
-                        .requestMatchers("/api/coach/historial/**").hasRole("COACH") // Asegúrate de que esta línea esté presente
+                        .requestMatchers("/api/coach/historial/**").hasRole("COACH")
+
+                        // Filtro para los datos del cliente
+                        .requestMatchers(CLIENTE_ENDPOINTS).hasAnyRole("CLIENTE", "ADMIN")
 
                         // 2. DESPUÉS ponemos las rutas públicas.
                         // Así, los HTML estáticos de /admin/** siguen siendo accesibles,
