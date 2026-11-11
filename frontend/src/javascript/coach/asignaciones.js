@@ -4,7 +4,16 @@ import { renderCoachLayout } from '../layout-coach.js';
 const formAsignacion = document.getElementById('formAsignacion');
 const tablaAsignaciones = document.getElementById('tablaAsignaciones');
 const toast = document.getElementById('toast');
-let rutinaDetalleActual = null; // Guardamos el detalle actual para el modal
+
+// Modal Eliminar DOM
+const modalEliminar = document.getElementById('confirmDialogEliminar');
+const btnCancelarEliminar = document.getElementById('btnCancelarEliminar');
+const btnConfirmarEliminar = document.getElementById('btnConfirmarEliminar');
+
+// Datos cacheados
+let asignacionesTotales = [];
+let rutinaDetalleActual = null;
+let idAsignacionAEliminar = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     renderCoachLayout('asignaciones');
@@ -25,11 +34,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
 
         if (btnEliminar) {
-            await eliminarAsignacion(btnEliminar.dataset.id);
+            abrirModalEliminar(btnEliminar.dataset.id);
         }
     });
 
-    // EVENTOS DEL MODAL
+    // EVENTOS DEL MODAL DE DETALLE
     document.getElementById('CerrarModal')?.addEventListener('click', () => {
         document.getElementById('modalDetalle').style.display = 'none';
     });
@@ -37,6 +46,14 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('selectDiaFiltro')?.addEventListener('change', (e) => {
         renderizarEjerciciosPorDia(e.target.value);
     });
+
+    // EVENTOS DEL MODAL DE ELIMINACIÓN
+    btnCancelarEliminar?.addEventListener('click', () => {
+        modalEliminar.close();
+        idAsignacionAEliminar = null;
+    });
+
+    btnConfirmarEliminar?.addEventListener('click', procesarEliminacion);
 });
 
 async function cargarClientes() {
@@ -80,16 +97,17 @@ async function cargarPlantillas() {
 async function cargarTablaAsignaciones() {
     try {
         const asignaciones = await apiRequest('/api/coach/rutina/asignaciones', { token: getToken() });
+        asignacionesTotales = asignaciones;
         tablaAsignaciones.innerHTML = '';
+
         if(asignaciones.length === 0) {
             tablaAsignaciones.innerHTML = '<tr><td colspan="6">No hay asignaciones registradas.</td></tr>';
             return;
         }
 
-        // ESTILOS DE BOTONES (Unificados con la pestaña de creación)
-        const estiloBotonBase = "background: transparent; border: 1px solid #333; color: #a1a1aa; padding: 6px 12px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px; cursor: pointer; border-radius: 4px; transition: all 0.2s;";
+        const estiloBotonBase = "background: transparent; border: 1px solid #d1d5d2; color: #555; padding: 6px 12px; font-size: 0.75rem; font-weight: 600; letter-spacing: 0.5px; cursor: pointer; border-radius: 4px; transition: all 0.2s;";
         const estiloVer = estiloBotonBase + " margin-right: 8px;";
-        const estiloEliminarHover = "onmouseover=\"this.style.borderColor='#ef4444'; this.style.color='#ef4444'\" onmouseout=\"this.style.borderColor='#333'; this.style.color='#a1a1aa'\"";
+        const estiloEliminarHover = "onmouseover=\"this.style.borderColor='#ef7e64'; this.style.color='#ef7e64'\" onmouseout=\"this.style.borderColor='#d1d5d2'; this.style.color='#555'\"";
 
         asignaciones.forEach(asig => {
             tablaAsignaciones.innerHTML += `
@@ -100,8 +118,7 @@ async function cargarTablaAsignaciones() {
                     <td>${asig.fechaPlan}</td>
                     <td>${asig.duracionPlan}</td>
                     <td style="display: flex; gap: 8px;">
-                        <!-- GUARDAMOS EL ID DE LA RUTINA EN data-id-rutina PARA PODER VER EL DETALLE -->
-                        <button type="button" class="btn-ver" data-id-rutina="${asig.idRutina}" style="${estiloVer}" onmouseover="this.style.background='#27272a'" onmouseout="this.style.background='transparent'">VER</button>
+                        <button type="button" class="btn-ver" data-id-rutina="${asig.idRutina}" style="${estiloVer}" onmouseover="this.style.background='#f7f9f9'" onmouseout="this.style.background='transparent'">VER</button>
                         <button type="button" class="btn-eliminar" data-id="${asig.idCliCou}" style="${estiloBotonBase}" ${estiloEliminarHover}>ELIMINAR</button>
                     </td>
                 </tr>
@@ -112,7 +129,7 @@ async function cargarTablaAsignaciones() {
     }
 }
 
-// --- LÓGICA DEL MODAL "VER" ---
+// --- LÓGICA DEL MODAL "VER DETALLE" ---
 async function verDetalleRutina(idRutina) {
     try {
         const rutina = await apiRequest(`/api/coach/rutina/${idRutina}`, { token: getToken() });
@@ -121,8 +138,8 @@ async function verDetalleRutina(idRutina) {
         document.getElementById('modalTituloRutina').textContent = rutina.nombreRutina;
         document.getElementById('modalDescRutina').textContent = rutina.descripcion || 'Sin descripción';
         document.getElementById('modalTipoRutina').innerHTML = rutina.esPlantilla ?
-            'Tipo: <span style="color: #a3e635;">Plantilla General</span>' :
-            'Tipo: <span style="color: #9ca3af;">Personalizada</span>';
+            'Tipo: <span style="color: var(--lime);">Plantilla General</span>' :
+            'Tipo: <span style="color: #666;">Personalizada</span>';
 
         const diasDisponibles = [...new Set(rutina.detalles.map(d => d.diaSemana))];
         const selectDia = document.getElementById('selectDiaFiltro');
@@ -163,26 +180,51 @@ function renderizarEjerciciosPorDia(diaSeleccionado) {
                 <td>${d.rangoSeries || '-'}</td>
                 <td>${d.rangoRep || '-'}</td>
                 <td>${d.rangoPeso || '-'}</td>
-                <td>${d.medidaEsfuerzo || '-'} - ${d.cantMedida}</td>
+                <td>${d.medidaEsfuerzo || '-'} - ${d.cantMedida || ''}</td>
             </tr>
         `;
     });
 }
 
-async function eliminarAsignacion(id) {
-    if(!confirm('¿Estás seguro de eliminar esta asignación?')) return;
-    try {
-        await apiRequest(`/api/coach/rutina/asignacion/${id}`, { method: 'DELETE', token: getToken() });
-        mostrarToast('Asignación eliminada');
-        await cargarTablaAsignaciones();
-    } catch (error) { alert('Error: ' + error.message); }
+// --- LÓGICA DEL MODAL DE ELIMINACIÓN ---
+function abrirModalEliminar(id) {
+    idAsignacionAEliminar = id;
+    const asig = asignacionesTotales.find(a => a.idCliCou == id);
+    if (!asig) return;
+
+    document.getElementById('modalEliminarCliente').textContent = asig.clienteNombre || '-';
+    document.getElementById('modalEliminarRutina').textContent = asig.rutinaNombre || '-';
+    document.getElementById('modalEliminarFecha').textContent = `${asig.fechaPlan || '-'} (${asig.duracionPlan || '-'})`;
+
+    modalEliminar.showModal();
 }
 
+async function procesarEliminacion() {
+    if (!idAsignacionAEliminar) return;
+
+    btnConfirmarEliminar.textContent = 'Eliminando...';
+    btnConfirmarEliminar.disabled = true;
+
+    try {
+        await apiRequest(`/api/coach/rutina/asignacion/${idAsignacionAEliminar}`, { method: 'DELETE', token: getToken() });
+        mostrarToast('Asignación eliminada con éxito');
+        modalEliminar.close();
+        await cargarTablaAsignaciones();
+    } catch (error) {
+        alert('Error al eliminar: ' + error.message);
+    } finally {
+        btnConfirmarEliminar.textContent = 'ELIMINAR ASIGNACIÓN';
+        btnConfirmarEliminar.disabled = false;
+        idAsignacionAEliminar = null;
+    }
+}
+
+// --- CREAR ASIGNACIÓN ---
 formAsignacion.addEventListener('submit', async (e) => {
     e.preventDefault();
     const payload = {
         idUsuario: parseInt(document.getElementById('idClienteAsignar').value),
-        idUsCoach: null, // Ya se saca del backend por token
+        idUsCoach: null,
         idRutina: parseInt(document.getElementById('idRutinaAsignar').value),
         duracionPlan: document.getElementById('duracionPlan').value.trim()
     };

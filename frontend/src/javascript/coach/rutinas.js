@@ -268,7 +268,7 @@ document.getElementById('btnCancelarEdicion')?.addEventListener('click', () => {
 
 
 // --- ELIMINAR RUTINA ---
-async function eliminarRutina(id) {
+/*async function eliminarRutina(id) {
     if(!confirm('¿Estás seguro de eliminar esta rutina? Se perderán sus configuraciones.')) return;
     try {
         await apiRequest(`/api/coach/rutina/${id}`, { method: 'DELETE', token: getToken() });
@@ -277,7 +277,7 @@ async function eliminarRutina(id) {
     } catch (error) {
         alert('No se pudo eliminar la rutina: ' + error.message);
     }
-}
+}*/
 
 
 // --- TABLA DINÁMICA DE CREACIÓN (CON INPUTS RESTRINGIDOS) ---
@@ -439,3 +439,81 @@ function mostrarToast(mensaje) {
     toast.hidden = false;
     setTimeout(() => { toast.hidden = true; }, 3500);
 }
+
+// --- LÓGICA DEL MODAL DE ELIMINACIÓN ---
+let idRutinaAEliminar = null;
+const modalEliminar = document.getElementById('confirmDialogEliminar');
+const btnCancelarEliminar = document.getElementById('btnCancelarEliminar');
+const btnConfirmarEliminar = document.getElementById('btnConfirmarEliminar');
+
+// Abrir el modal estilizado
+async function eliminarRutina(id) {
+    idRutinaAEliminar = id;
+
+    // Obtener los detalles de la rutina para mostrarlos en el modal
+    try {
+        const rutina = await apiRequest(`/api/coach/rutina/${id}`, { token: getToken() });
+
+        document.getElementById('modalEliminarNombre').textContent = rutina.nombreRutina;
+
+        // Formatear fecha
+        let fechaFormat = '-';
+        if (rutina.fechaCreacion) {
+            // Suponiendo formato YYYY-MM-DD
+            const partes = rutina.fechaCreacion.split('-');
+            if (partes.length === 3) {
+                fechaFormat = `${partes[2]}/${partes[1]}/${partes[0]}`;
+            } else {
+                fechaFormat = rutina.fechaCreacion;
+            }
+        }
+        document.getElementById('modalEliminarFecha').textContent = fechaFormat;
+
+        // VERIFICACIÓN DE ASIGNACIONES
+        // Aquí deberías llamar a un endpoint (si existe) que verifique si la rutina tiene clientes
+        // Ej: const asignaciones = await apiRequest(`/api/coach/rutina/${id}/asignaciones`, { token: getToken() });
+        // Por ahora, simularemos que verificamos (puedes ajustar esta lógica según tu backend)
+        const advertencia = document.getElementById('mensajeAdvertenciaAsignacion');
+
+        // Si tu objeto rutina ya devuelve un booleano o lista de asignaciones, úsalo aquí.
+        // Asumiendo que el backend te dice si está en uso:
+        if (rutina.enUso || (rutina.asignaciones && rutina.asignaciones.length > 0)) {
+            advertencia.style.display = 'block';
+        } else {
+            advertencia.style.display = 'none';
+        }
+
+        modalEliminar.showModal();
+
+    } catch (error) {
+        alert('Error al cargar la información de la rutina para eliminar.');
+        console.error(error);
+    }
+}
+
+// Cerrar modal
+btnCancelarEliminar.addEventListener('click', () => {
+    modalEliminar.close();
+    idRutinaAEliminar = null;
+});
+
+// Procesar eliminación real
+btnConfirmarEliminar.addEventListener('click', async () => {
+    if (!idRutinaAEliminar) return;
+
+    btnConfirmarEliminar.textContent = 'Eliminando...';
+    btnConfirmarEliminar.disabled = true;
+
+    try {
+        await apiRequest(`/api/coach/rutina/${idRutinaAEliminar}`, { method: 'DELETE', token: getToken() });
+        mostrarToast('Rutina eliminada con éxito');
+        modalEliminar.close();
+        await cargarTablaRutinas();
+    } catch (error) {
+        alert('No se pudo eliminar la rutina: ' + error.message);
+    } finally {
+        btnConfirmarEliminar.textContent = 'ELIMINAR RUTINA';
+        btnConfirmarEliminar.disabled = false;
+        idRutinaAEliminar = null;
+    }
+});
