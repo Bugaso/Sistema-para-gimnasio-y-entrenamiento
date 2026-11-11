@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Estadísticas de Gastos — Atlas Gym" />
+    <title>Estadísticas de Gastos — Atlas Gym</title>
+    <link rel="stylesheet" href="../src/css/admin/admin.css" />
+    <link rel="stylesheet" href="../src/css/index/index.css" />
+
+    <!-- Importamos Chart.js desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        .stats-card { background: #ffffff; border: 1px solid #d1d5d2; border-radius: 8px; padding: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
+        .chart-container { position: relative; height: 400px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 20px; }
+        .total-display { font-size: 2.5rem; font-family: 'Oswald', sans-serif; color: var(--lime, #84cc16); text-align: center; margin: 10px 0 30px 0; }
+        .total-label { text-align: center; color: #666; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem; }
+    </style>
+</head>
+<body class="admin-page">
+
+<div class="admin-shell" data-admin-shell>
+    <aside data-layout-sidebar></aside>
+    <div class="admin-workspace">
+        <header data-layout-topbar></header>
+
+        <div class="admin-content">
+            <div class="admin-heading admin-heading-compact">
+                <div>
+                    <p class="eyebrow">Gestión Financiera</p>
+                    <h1>Estadísticas de Gastos</h1>
+                    <p>Visualiza la distribución de tus gastos pagados por categoría.</p>
+                </div>
+                <a class="admin-primary-action" href="/admin/index.html">← Volver al panel</a>
+            </div>
+
+            <div class="admin-toolbar" style="background: #f7f9f9; padding: 16px; border-radius: 8px; border: 1px solid #d1d5d2;">
+                <div style="display: flex; gap: 20px; align-items: center; width: 100%;">
+                    <strong style="color: #333;">Filtrar por Fecha:</strong>
+                    <label class="admin-filter">
+                        <select id="filtroAnio" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="Todos">Todos los Años</option>
+                        </select>
+                    </label>
+                    <label class="admin-filter">
+                        <select id="filtroMes" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
+                            <option value="Todos">Todos los Meses</option>
+                            <option value="01">Enero</option>
+                            <option value="02">Febrero</option>
+                            <option value="03">Marzo</option>
+                            <option value="04">Abril</option>
+                            <option value="05">Mayo</option>
+                            <option value="06">Junio</option>
+                            <option value="07">Julio</option>
+                            <option value="08">Agosto</option>
+                            <option value="09">Septiembre</option>
+                            <option value="10">Octubre</option>
+                            <option value="11">Noviembre</option>
+                            <option value="12">Diciembre</option>
+                        </select>
+                    </label>
+                </div>
+            </div>
+
+            <div class="stats-card">
+                <div class="total-label">Total Gastado (Pagado)</div>
+                <div class="total-display" id="totalMonto">$ 0,00</div>
+
+                <div class="chart-container">
+                    <canvas id="chartGastos"></canvas>
+                    <div id="emptyState" style="display: none; color: #888; text-align: center; font-style: italic;">
+                        No hay gastos pagados registrados para este período.
+                    </div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+
+<script type="module" src="../src/javascript/admin/estadisticas-gastos.js"></script>
+</body>
+</html>

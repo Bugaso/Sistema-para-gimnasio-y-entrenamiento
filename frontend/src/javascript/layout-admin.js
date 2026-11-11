@@ -120,6 +120,9 @@ export function renderAdminLayout(activeNav) {
                         <a class="admin-nav-link ${activeNav === 'comprobantes' ? 'is-active' : ''}" href="/admin/comprobantes.html">
                             <span aria-hidden="true">10</span>Comprobantes
                         </a> 
+                        <a class="admin-nav-link ${activeNav === 'estadisticas' ? 'is-active' : ''}" href="/admin/estadisticas-gastos.html">
+                            <span aria-hidden="true">11</span>Estadisticas gastos
+                        </a>
                     </div>             
                     
                 </nav>

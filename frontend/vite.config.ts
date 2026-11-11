@@ -36,7 +36,8 @@ export default defineConfig({
         coachHistorialCliente: path.resolve(__dirname, 'coach/historial-cliente.html'),
         recepcionistaAsistencia: path.resolve(__dirname, 'recepcionista/asistencia.html'),
         asistenciaHistorial : path.resolve(__dirname, 'recepcionista/asistencia-historial.html'),
-        clienteDashboard: path.resolve(__dirname, 'cliente/cliente-dashboard.html')
+        clienteDashboard: path.resolve(__dirname, 'cliente/cliente-dashboard.html'),
+        estadisticasGastos: path.resolve(__dirname, 'admin/estadisticas-gastos.html')
       },
     },
   },
