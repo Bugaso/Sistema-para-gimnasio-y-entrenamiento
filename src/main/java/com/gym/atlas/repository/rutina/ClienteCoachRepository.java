@@ -8,5 +8,14 @@ import java.util.List;
 
 @Repository
 public interface ClienteCoachRepository extends JpaRepository<ClienteCoach, Integer> {
+
+    List<ClienteCoach> findByEstadoTrue();
+
     List<ClienteCoach> findByCoachMailUs(String mailUs);
+
+    List<ClienteCoach> findByCoachMailUsAndEstadoTrue(String mailUs);
+
+    List<ClienteCoach> findByClienteMailUsAndEstadoTrue(String mailUs);
+
+    List<ClienteCoach> findByClienteMailUs(String mailUs);
 }

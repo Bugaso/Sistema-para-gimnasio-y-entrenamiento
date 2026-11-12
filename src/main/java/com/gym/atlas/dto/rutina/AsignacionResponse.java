@@ -9,5 +9,18 @@ public record AsignacionResponse(
         Integer idRutina,
         String rutinaNombre,
         LocalDate fechaPlan,
-        String duracionPlan
-) {}
+        String duracionPlan,
+        Boolean estado
+) {
+    public AsignacionResponse(
+            Integer idCliCou,
+            String clienteNombre,
+            Long clienteDni,
+            Integer idRutina,
+            String rutinaNombre,
+            LocalDate fechaPlan,
+            String duracionPlan
+    ) {
+        this(idCliCou, clienteNombre, clienteDni, idRutina, rutinaNombre, fechaPlan, duracionPlan, true);
+    }
+}

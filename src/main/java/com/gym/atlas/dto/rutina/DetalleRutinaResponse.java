@@ -12,5 +12,6 @@ public record DetalleRutinaResponse(
         String rangoPeso,
         LocalTime tiempoEstimado,
         String medidaEsfuerzo,
-        Integer cantMedida
+        Integer cantMedida,
+        String dirImgEjercicio
 ) {}

@@ -4,6 +4,7 @@ import com.gym.atlas.data.membresia.ClienteMembresia;
 import com.gym.atlas.data.usuario.AsistenciaCliente;
 import com.gym.atlas.data.usuario.Usuario;
 import com.gym.atlas.dto.MessageResponse;
+import com.gym.atlas.dto.asistencia.AsistenciaHistorialResponse;
 import com.gym.atlas.dto.asistencia.AsistenciaRequest;
 import com.gym.atlas.dto.asistencia.ValidacionAsistenciaResponse;
 import com.gym.atlas.dto.usuario.EstadoAsistenciaResponse;
@@ -118,5 +119,59 @@ public class AsistenciaService {
                 ultimoIngreso,
                 asistenciasExtra
         );
+    }
+
+    public List<AsistenciaHistorialResponse> obtenerHistorialPorDia(LocalDate fecha) {
+
+        LocalDateTime inicio = fecha.atStartOfDay(); // 00:00:00
+        LocalDateTime fin = fecha.atTime(LocalTime.MAX); // 23:59:59.999999999
+
+        // 2. Buscar en la base de datos
+        List<AsistenciaCliente> listaAsistencia = asistenciaRepo.findAsistenciaClienteByFechaHorarioEntradaBetween(inicio, fin);
+
+        // 3. Mapear tu respuesta...
+        List<AsistenciaHistorialResponse> listAsisDTO = listaAsistencia.stream().map(
+
+                asistenciaCliente -> {
+                    AsistenciaHistorialResponse asisDTO;
+                    boolean extra = listaAsistencia.stream().filter(
+                            clienteAsis ->{
+                                return clienteAsis.getCliente().getIdUsuario() == asistenciaCliente.getCliente().getIdUsuario();
+                            }
+                    ).toList().size() > 1;
+
+                    if(asistenciaCliente.getIdCliMem() == null){
+                        asisDTO = new AsistenciaHistorialResponse(
+                                asistenciaCliente.getIdAsistencia(),
+                                asistenciaCliente.getCliente().getNomApe(),
+                                asistenciaCliente.getCliente().getDniUs(),
+                                null,
+                                asistenciaCliente.getFechaHorarioEntrada(),
+                                asistenciaCliente.getFechaHorarioSalida(),
+                                true,
+                                extra);
+                    }else{
+                        asisDTO = new AsistenciaHistorialResponse(
+                                asistenciaCliente.getIdAsistencia(),
+                                asistenciaCliente.getCliente().getNomApe(),
+                                asistenciaCliente.getCliente().getDniUs(),
+                                asistenciaCliente.getIdCliMem().getIdTipoMembresia().getMembresia().getDescripMembresia(),
+                                asistenciaCliente.getFechaHorarioEntrada(),
+                                asistenciaCliente.getFechaHorarioSalida(),
+                                false,
+                                extra);
+                    }
+
+                    return asisDTO;
+                }
+        ).toList();
+
+        return listAsisDTO;
+    }
+
+    public List<AsistenciaHistorialResponse> obtenerHistorialPorFecha(LocalDate fechaInicio, LocalDate fechaFin) {
+
+        return null;
+
     }
 }

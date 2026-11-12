@@ -38,7 +38,7 @@
                         </label>
                         <label class="admin-field">
                             <span>Duración del Plan</span>
-                            <input type="text" id="duracionPlan" placeholder="Ej. 4 Semanas" required />
+                            <input type="number" id="duracionPlan" placeholder="Ej. 4 Semanas" required />
                         </label>
                     </div>
                     <p class="admin-form-status" id="formStatusAssign"></p>
@@ -108,6 +108,35 @@
     </div>
 
 </div>
+<!-- MODAL DE CONFIRMACIÓN PARA ELIMINAR ASIGNACIÓN -->
+<dialog class="admin-dialog admin-confirm-dialog" id="confirmDialogEliminar" style="border: 1px solid #d1d5d2; border-radius: 8px; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 32px; max-width: 450px;">
+    <form method="dialog" style="display: flex; flex-direction: column; align-items: center; text-align: center;">
+        <span class="admin-warning" aria-hidden="true" style="color: #ef4444; border: 1px solid #ef4444; width: 40px; height: 40px; display: flex; justify-content: center; align-items: center; border-radius: 4px; font-weight: bold; margin-bottom: 16px;">!</span>
+        <h2 style="font-family: 'Oswald', sans-serif; text-transform: uppercase; font-size: 2rem; margin: 0 0 10px 0;">Eliminar Asignación</h2>
+        <p style="color: #666; margin-bottom: 24px;">¿Estás seguro de que deseas desvincular esta rutina del cliente?</p>
+
+        <div style="background: #f7f9f9; border: 1px solid #d1d5d2; border-radius: 8px; padding: 16px; width: 100%; text-align: left; margin-bottom: 24px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <strong style="color: #555;">Cliente:</strong>
+                <span id="modalEliminarCliente" style="font-weight: bold; color: #333;"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <strong style="color: #555;">Rutina:</strong>
+                <span id="modalEliminarRutina" style="font-weight: bold; color: #333;"></span>
+            </div>
+            <div style="display: flex; justify-content: space-between;">
+                <strong style="color: #555;">Fecha / Duración:</strong>
+                <span id="modalEliminarFecha" style="font-weight: bold; color: #333;"></span>
+            </div>
+        </div>
+
+        <div class="admin-dialog-actions" style="display: flex; gap: 10px; width: 100%;">
+            <button type="button" id="btnCancelarEliminar" style="flex: 1; background: transparent; border: 1px solid #d1d5d2; padding: 12px; border-radius: 4px; font-weight: bold; cursor: pointer; color: #555;">CANCELAR</button>
+            <button type="button" class="admin-danger-action" id="btnConfirmarEliminar" style="flex: 1; background: #ef4444; border: none; padding: 12px; border-radius: 4px; color: white; font-weight: bold; cursor: pointer;">ELIMINAR ASIGNACIÓN</button>
+        </div>
+    </form>
+</dialog>
+
 <div class="admin-toast" id="toast" hidden></div>
 <script type="module" src="../src/javascript/coach/asignaciones.js"></script>
 </body>

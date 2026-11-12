@@ -1,37 +1,65 @@
 import { apiRequest, getToken } from '../api.js';
 import { renderCoachLayout } from '../layout-coach.js';
 
-const selectAsignacion = document.getElementById('selectAsignacion');
+// Elementos principales
+const inputClienteSeleccionado = document.getElementById('inputClienteSeleccionado');
+const btnAbrirModalClientes = document.getElementById('btnAbrirModalClientes');
+const selectRutinaCliente = document.getElementById('selectRutinaCliente');
 const selectDia = document.getElementById('selectDia');
-const btnCargarRutina = document.getElementById('btnCargarRutina');
+const fechaSesion = document.getElementById('fechaSesion');
 const contenedorEjercicios = document.getElementById('contenedorEjercicios');
 const formSesion = document.getElementById('formSesion');
 const toast = document.getElementById('toast');
 
-// Guardaremos la asignación y la rutina actual en memoria
-let asignacionesCache = [];
+// Elementos del Modal
+const modalClientes = document.getElementById('modalClientes');
+const btnCerrarModalClientes = document.getElementById('btnCerrarModalClientes');
+const inputBuscarCliente = document.getElementById('inputBuscarCliente');
+const tbodyClientesModal = document.getElementById('tbodyClientesModal');
+
+// Caché en memoria
+let clientesAgrupados = [];
 let rutinaPlanificadaActual = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     renderCoachLayout('registrar-sesion');
     if (!getToken()) { window.location.href = '/login'; return; }
 
-    // Setear fecha actual por defecto
-    document.getElementById('fechaSesion').value = new Date().toISOString().split('T')[0];
+    // Setear fecha local actual por defecto
+    const tzOffset = (new Date()).getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(Date.now() - tzOffset)).toISOString().split('T')[0];
+    fechaSesion.value = localISOTime;
 
-    await cargarAsignaciones();
     autoseleccionarDiaActual();
-    selectAsignacion.addEventListener('change', generarVistaEjercicios);
-    selectDia.addEventListener('change', generarVistaEjercicios);
+    await cargarAsignaciones();
 
-    /*btnCargarRutina.addEventListener('click', generarVistaEjercicios);*/
+    // Eventos del Modal
+    btnAbrirModalClientes.addEventListener('click', abrirModalClientes);
+    inputClienteSeleccionado.addEventListener('click', abrirModalClientes);
+    btnCerrarModalClientes.addEventListener('click', cerrarModalClientes);
+
+    modalClientes.addEventListener('click', (e) => {
+        if (e.target === modalClientes) cerrarModalClientes();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalClientes.classList.contains('active')) {
+            cerrarModalClientes();
+        }
+    });
+
+    inputBuscarCliente.addEventListener('input', (e) => {
+        filtrarClientesModal(e.target.value);
+    });
+
+    // Eventos de selección de rutina y día
+    selectRutinaCliente.addEventListener('change', alSeleccionarRutina);
+    selectDia.addEventListener('change', generarVistaEjercicios);
 });
 
 function autoseleccionarDiaActual() {
     if (!selectDia) return;
 
-    // Mapeo de los días según Date().getDay() que va de 0 (Domingo) a 6 (Sábado)
-    // NOTA: Los nombres deben coincidir EXACTAMENTE con los 'value' de tu HTML
     const diasSemana = [
         "Domingo",   // 0
         "Lunes",     // 1
@@ -43,58 +71,171 @@ function autoseleccionarDiaActual() {
     ];
 
     const numeroDiaHoy = new Date().getDay();
-    const nombreDiaHoy = diasSemana[numeroDiaHoy];
-
-    // Asigna el valor al select para que cambie visualmente
-    selectDia.value = nombreDiaHoy;
+    selectDia.value = diasSemana[numeroDiaHoy];
 }
 
-// 1. Obtener los clientes asignados al coach
+// 1. Obtener asignaciones del coach y agruparlas por cliente (DNI)
 async function cargarAsignaciones() {
     try {
-        // Usamos el endpoint que ya tenías para listar asignaciones
         const asignaciones = await apiRequest('/api/coach/rutina/asignaciones', { token: getToken() });
-        asignacionesCache = asignaciones;
 
-        selectAsignacion.innerHTML = '<option value="">Seleccione asignación...</option>';
+        const mapaClientes = new Map();
 
         asignaciones.forEach(a => {
-            selectAsignacion.innerHTML += `<option value="${a.idCliCou}" data-rutina="${a.idRutina}">
-                ${a.clienteNombre} (DNI: ${a.clienteDni}) — Plan: ${a.rutinaNombre}
-            </option>`;
+            const clave = a.clienteDni ?? a.clienteNombre;
+            if (!mapaClientes.has(clave)) {
+                mapaClientes.set(clave, {
+                    nombre: a.clienteNombre,
+                    dni: a.clienteDni,
+                    asignaciones: []
+                });
+            }
+            mapaClientes.get(clave).asignaciones.push({
+                idCliCou: a.idCliCou,
+                idRutina: a.idRutina,
+                rutinaNombre: a.rutinaNombre,
+                fechaPlan: a.fechaPlan,
+                duracionPlan: a.duracionPlan
+            });
         });
+
+        clientesAgrupados = Array.from(mapaClientes.values());
+        renderizarTablaClientesModal(clientesAgrupados);
     } catch (error) {
         console.error("Error al cargar asignaciones", error);
+        tbodyClientesModal.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #ef4444;">Error al cargar clientes asignados.</td></tr>`;
     }
 }
 
-// 2. Al dar clic en "Cargar", traemos la rutina y armamos los inputs
-async function generarVistaEjercicios() {
-    const idAsignacion = selectAsignacion.value;
+// --- LÓGICA DEL MODAL DE CLIENTES ---
+function abrirModalClientes() {
+    inputBuscarCliente.value = '';
+    renderizarTablaClientesModal(clientesAgrupados);
+    modalClientes.classList.add('active');
+    setTimeout(() => inputBuscarCliente.focus(), 50);
+}
 
-    const dia = selectDia.value;
+function cerrarModalClientes() {
+    modalClientes.classList.remove('active');
+}
 
-    if (!idAsignacion || !dia) {
-        /*alert("Selecciona un cliente y un día.");*/
+function normalizarTexto(texto) {
+    return String(texto || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+}
+
+function filtrarClientesModal(termino) {
+    const query = normalizarTexto(termino);
+
+    if (!query) {
+        renderizarTablaClientesModal(clientesAgrupados);
+        return;
+    }
+
+    const filtrados = clientesAgrupados.filter(cliente => {
+        const nombreNorm = normalizarTexto(cliente.nombre);
+        const dniStr = String(cliente.dni || '');
+        return nombreNorm.includes(query) || dniStr.includes(query);
+    });
+
+    renderizarTablaClientesModal(filtrados);
+}
+
+function renderizarTablaClientesModal(listaClientes) {
+    tbodyClientesModal.innerHTML = '';
+
+    if (!listaClientes || listaClientes.length === 0) {
+        tbodyClientesModal.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #666;">No se encontraron clientes con ese criterio.</td></tr>`;
+        return;
+    }
+
+    listaClientes.forEach(cliente => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${cliente.nombre}</strong></td>
+            <td>${cliente.dni ?? '-'}</td>
+            <td style="text-align: center;">
+                <button type="button" class="admin-primary-action btn-elegir-cliente" style="min-height: 32px; padding: 0 14px; font-size: 0.75rem;">
+                    Seleccionar
+                </button>
+            </td>
+        `;
+
+        tr.querySelector('.btn-elegir-cliente').addEventListener('click', () => {
+            seleccionarCliente(cliente);
+        });
+
+        tbodyClientesModal.appendChild(tr);
+    });
+}
+
+function seleccionarCliente(cliente) {
+    inputClienteSeleccionado.value = `${cliente.nombre} (DNI: ${cliente.dni ?? 'N/A'})`;
+
+    // Poblar selector de rutinas del cliente
+    selectRutinaCliente.innerHTML = '<option value="">Seleccione una rutina...</option>';
+    cliente.asignaciones.forEach(asig => {
+        const opt = document.createElement('option');
+        opt.value = asig.idCliCou;
+        opt.dataset.rutina = asig.idRutina;
+        opt.textContent = asig.rutinaNombre;
+        selectRutinaCliente.appendChild(opt);
+    });
+
+    selectRutinaCliente.disabled = false;
+
+    // Mantener fecha y día deshabilitados hasta que elija una rutina
+    selectDia.disabled = true;
+    fechaSesion.disabled = true;
+    formSesion.style.display = 'none';
+    contenedorEjercicios.innerHTML = '';
+
+    cerrarModalClientes();
+}
+
+function alSeleccionarRutina() {
+    const idAsignacion = selectRutinaCliente.value;
+
+    if (!idAsignacion) {
+        selectDia.disabled = true;
+        fechaSesion.disabled = true;
         formSesion.style.display = 'none';
         contenedorEjercicios.innerHTML = '';
         return;
     }
 
-    // Buscar qué ID de rutina tiene esta asignación
-    const opcionSeleccionada = selectAsignacion.options[selectAsignacion.selectedIndex];
+    // Habilitar día de la semana y fecha al elegir la rutina
+    selectDia.disabled = false;
+    fechaSesion.disabled = false;
+
+    generarVistaEjercicios();
+}
+
+// 2. Traer la rutina y armar los inputs según el día seleccionado
+async function generarVistaEjercicios() {
+    const idAsignacion = selectRutinaCliente.value;
+    const dia = selectDia.value;
+
+    if (!idAsignacion || !dia) {
+        formSesion.style.display = 'none';
+        contenedorEjercicios.innerHTML = '';
+        return;
+    }
+
+    const opcionSeleccionada = selectRutinaCliente.options[selectRutinaCliente.selectedIndex];
     const idRutina = opcionSeleccionada.dataset.rutina;
 
     try {
-        // Usamos el endpoint de detalle de rutina que ya existe
         const rutina = await apiRequest(`/api/coach/rutina/${idRutina}`, { token: getToken() });
         rutinaPlanificadaActual = rutina;
 
-        // Filtrar solo los ejercicios de ese día
         const ejerciciosDelDia = rutina.detalles.filter(d => d.diaSemana === dia);
 
         if (ejerciciosDelDia.length === 0) {
-            contenedorEjercicios.innerHTML = `<p style="color: #ef4444;">No hay ejercicios planificados para el día ${dia}.</p>`;
+            contenedorEjercicios.innerHTML = `<p style="color: #ef4444; font-weight: 600;">No hay ejercicios planificados para el día ${dia} en esta rutina.</p>`;
             formSesion.style.display = 'block';
             document.querySelector('#formSesion button[type="submit"]').style.display = 'none';
             return;
@@ -113,9 +254,9 @@ function renderizarTarjetas(ejercicios) {
     contenedorEjercicios.innerHTML = '';
     formSesion.style.display = 'block';
     document.querySelector('#formSesion button[type="submit"]').style.display = 'block';
+    document.getElementById('formStatus').textContent = '';
 
     ejercicios.forEach((ej, index) => {
-        // Intentar deducir cuántas series planificó (si puso "4" o "3-4", extraemos el primer número para dibujar filas vacías)
         let seriesSugeridas = 1;
         const match = ej.rangoSeries ? ej.rangoSeries.match(/\d+/) : null;
         if (match) seriesSugeridas = parseInt(match[0]);
@@ -152,10 +293,9 @@ function renderizarTarjetas(ejercicios) {
 
         const tbody = document.getElementById(`tbody-ej-${index}`);
 
-        // Función para agregar una fila
         const agregarFila = (nroSerie) => {
             const tr = document.createElement('tr');
-            tr.dataset.idejercicio = ej.idEjercicio; // Guardamos el ID real del ejercicio en la fila
+            tr.dataset.idejercicio = ej.idEjercicio;
             tr.innerHTML = `
                 <td style="text-align:center;"><strong>${nroSerie}</strong></td>
                 <td><input type="number" class="table-input rep-val" placeholder="Ej: 12" required /></td>
@@ -171,7 +311,6 @@ function renderizarTarjetas(ejercicios) {
                 <td><input type="number" class="table-input tiem-val" placeholder="Ej: 45" /></td>
                 <td><button type="button" class="is-danger remove-serie">X</button></td>
             `;
-            // Eliminar fila y recalcular números de serie
             tr.querySelector('.remove-serie').addEventListener('click', () => {
                 tr.remove();
                 actualizarNumerosSerie(tbody);
@@ -179,12 +318,10 @@ function renderizarTarjetas(ejercicios) {
             tbody.appendChild(tr);
         };
 
-        // Generar filas sugeridas
         for (let i = 1; i <= seriesSugeridas; i++) {
             agregarFila(i);
         }
 
-        // Botón "Agregar Serie" extra
         card.querySelector('.btn-add-serie').addEventListener('click', () => {
             const numActuales = tbody.querySelectorAll('tr').length;
             agregarFila(numActuales + 1);
@@ -192,7 +329,6 @@ function renderizarTarjetas(ejercicios) {
     });
 }
 
-// Función auxiliar para que si borras la Serie 2, la Serie 3 pase a ser la 2.
 function actualizarNumerosSerie(tbody) {
     const filas = tbody.querySelectorAll('tr');
     filas.forEach((fila, i) => {
@@ -203,10 +339,18 @@ function actualizarNumerosSerie(tbody) {
 // 4. Guardar Sesión (Enviar el POST)
 formSesion.addEventListener('submit', async (e) => {
     e.preventDefault();
-    const idAsignacion = selectAsignacion.value;
-    const fecha = document.getElementById('fechaSesion').value;
-    const opcionSeleccionada = selectAsignacion.options[selectAsignacion.selectedIndex];
-    const idRutina = opcionSeleccionada.dataset.rutina;
+    const formStatus = document.getElementById('formStatus');
+    formStatus.textContent = '';
+
+    const idAsignacion = selectRutinaCliente.value;
+    const fecha = fechaSesion.value;
+    const opcionSeleccionada = selectRutinaCliente.options[selectRutinaCliente.selectedIndex];
+    const idRutina = opcionSeleccionada?.dataset?.rutina;
+
+    if (!idAsignacion || !idRutina) {
+        formStatus.textContent = "Debes seleccionar un cliente y una rutina válida.";
+        return;
+    }
 
     const seriesData = [];
     const filasTotales = document.querySelectorAll('tbody tr');
@@ -220,7 +364,6 @@ formSesion.addEventListener('submit', async (e) => {
         const esfCant = fila.querySelector('.esf-cant').value;
         const tiem = fila.querySelector('.tiem-val').value;
 
-        // Solo guardamos si anotó al menos repeticiones o peso o tiempo (no guardamos filas vacías)
         if (reps || peso || tiem) {
             seriesData.push({
                 idEjercicio: parseInt(idEj),
@@ -235,7 +378,7 @@ formSesion.addEventListener('submit', async (e) => {
     });
 
     if (seriesData.length === 0) {
-        document.getElementById('formStatus').textContent = "Debes registrar datos en al menos una serie.";
+        formStatus.textContent = "Debes registrar datos en al menos una serie.";
         return;
     }
 
@@ -258,8 +401,12 @@ formSesion.addEventListener('submit', async (e) => {
         formSesion.style.display = 'none';
 
     } catch (error) {
-        document.getElementById('formStatus').textContent = error.message;
+        formStatus.textContent = error.message;
     }
 });
 
-function mostrarToast(m) { toast.textContent = m; toast.hidden = false; setTimeout(() => toast.hidden = true, 3500); }
+function mostrarToast(m) {
+    toast.textContent = m;
+    toast.hidden = false;
+    setTimeout(() => toast.hidden = true, 3500);
+}

@@ -65,8 +65,8 @@ public class RutinaController {
     }
 
     @GetMapping("/asignaciones")
-    public ResponseEntity<List<AsignacionResponse>> listarAsignaciones() {
-        // CAMBIADO: Ahora llama a listarAsignaciones_coach() en lugar de listarAsignaciones()
-        return ResponseEntity.ok(rutinaService.listarAsignaciones_coach());
+    public ResponseEntity<List<AsignacionResponse>> listarAsignaciones(
+            @RequestParam(defaultValue = "false") boolean incluirInactivas) {
+        return ResponseEntity.ok(rutinaService.listarAsignaciones_coach(incluirInactivas));
     }
 }
