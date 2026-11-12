@@ -8,8 +8,12 @@ import java.util.List;
 
 @Repository
 public interface ClienteCoachRepository extends JpaRepository<ClienteCoach, Integer> {
-    List<ClienteCoach> findByCoachMailUs(String mailUs);
+    List<ClienteCoach> findByCoachMailUsAndActivoTrue(String mailUs);
 
-    // AGREGAR ESTA LÍNEA PARA EL CLIENTE:
+    List<ClienteCoach> findByClienteMailUsAndActivoTrue(String mailUs);
+
+    // Se mantiene sin filtro para recuperar el historial incluso de rutinas ya desasignadas
     List<ClienteCoach> findByClienteMailUs(String mailUs);
+
+    List<ClienteCoach> findByActivoTrue();
 }

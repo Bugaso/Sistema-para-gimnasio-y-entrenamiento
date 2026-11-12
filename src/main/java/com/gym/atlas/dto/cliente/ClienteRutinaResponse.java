@@ -9,6 +9,7 @@ import java.util.List;
 public record ClienteRutinaResponse(
 
         RutinaResponse rutina,
+        Integer idCliCou,
         List<DetalleRutinaResponse> detalles
 )
 {

@@ -7,7 +7,6 @@
     <link rel="stylesheet" href="../src/css/admin/admin.css" />
     <link rel="stylesheet" href="../src/css/index/index.css" />
     <style>
-        /* ESTILOS CLAROS Y PESTAÑAS PARA EL CLIENTE */
         .client-header { background: #ffffff; border-bottom: 1px solid #d1d5d2; padding: 20px 24px; display: flex; justify-content: space-between; align-items: center; }
         .client-header h1 { font-family: 'Oswald', sans-serif; text-transform: uppercase; margin: 0; color: #333; font-size: 1.8rem; }
 
@@ -16,11 +15,10 @@
         .tab-btn.active { color: var(--lime); border-bottom-color: var(--lime); }
         .tab-btn:hover:not(.active) { color: #333; }
 
-        .client-container { padding: 32px 24px; max-width: 900px; margin: 0 auto; }
+        .client-container { padding: 32px 24px; max-width: 960px; margin: 0 auto; }
         .tab-content { display: none; }
         .tab-content.active { display: block; }
 
-        /* Inputs y Tarjetas modo claro */
         .client-input { width: 100%; padding: 12px; border: 1px solid #d1d5d2; border-radius: 6px; background-color: #f7f9f9; color: #333; font-size: 1rem; margin-top: 6px; }
         .client-input:focus { border-color: var(--lime); outline: none; background-color: #ffffff; box-shadow: 0 0 0 3px rgb(217 4 41 / 10%); }
 
@@ -28,13 +26,31 @@
         .card-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eaeaea; padding-bottom: 16px; margin-bottom: 16px; }
         .card-header h2 { margin: 0; font-family: 'Oswald', sans-serif; text-transform: uppercase; color: #333; }
 
-        /* Estilos para el calendario/fecha de rutina */
-        .date-picker-wrap { display: flex; align-items: center; gap: 12px; background: #f7f9f9; padding: 16px; border-radius: 8px; border: 1px solid #d1d5d2; margin-bottom: 24px; }
-        .date-picker-wrap input[type="date"] { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; color: #333; }
+        /* Actualizado para manejar 2 selectores */
+        .date-picker-wrap { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: #f7f9f9; padding: 16px; border-radius: 8px; border: 1px solid #d1d5d2; margin-bottom: 24px; flex-wrap: wrap; }
+        .date-picker-wrap input[type="date"], .date-picker-wrap select { padding: 10px; border: 1px solid #ccc; border-radius: 4px; font-weight: bold; color: #333; background: #fff; cursor: pointer; }
 
-        /* Badges de estado de sesión */
         .badge-planificado { background: #f3f4f6; color: #4b5563; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; border: 1px solid #d1d5db; }
         .badge-completado { background: #dcfce7; color: #166534; padding: 4px 10px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; border: 1px solid #bbf7d0; }
+
+        .table-input { width: 100%; padding: 8px 12px; border: 1px solid #d1d5d2; border-radius: 4px; background-color: #ffffff; color: #333; }
+        .table-input:focus { border-color: var(--lime); outline: none; box-shadow: 0 0 0 3px rgb(217 4 41 / 10%); }
+
+        .ejercicio-card { background: #ffffff; border: 1px solid #d1d5d2; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
+        .ejercicio-titulo { color: var(--lime); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
+        .ejercicio-titulo h3 { margin: 0; font-family: 'Oswald', sans-serif; font-size: 1.6rem; text-transform: uppercase; color: #333; }
+
+        .info-planificada { font-size: 0.9rem; color: #666; margin-bottom: 20px; background: #f7f9f9; padding: 12px 16px; border-radius: 4px; border: 1px solid #eaeaea; }
+
+        button.is-danger.remove-serie { background: transparent; border: 1px solid #d1d5d2; color: #888; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
+        button.is-danger.remove-serie:hover { border-color: #ef7e64; color: #ef7e64; background: rgb(239 126 100 / 10%); }
+
+        .btn-ver-video { background: transparent; border: 1px solid #6b7270; color: #6b7270; padding: 6px 14px; border-radius: 4px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase; cursor: pointer; transition: 0.2s; margin-left: auto; margin-right: 12px; }
+        .btn-ver-video:hover { background: #6b7270; color: white; }
+
+        .video-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; border-radius: 8px; margin-top: 15px; display: none; }
+        .video-container.active { display: block; }
+        .video-container iframe { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }
     </style>
 </head>
 <body style="background-color: #f0f2f2; margin: 0; font-family: 'Inter', sans-serif;">
@@ -70,7 +86,7 @@
                         <span style="font-weight: bold; color: #555;">DNI</span>
                         <input type="text" id="dniUs" class="client-input" readonly style="background: #e5e7eb; cursor: not-allowed;" />
                     </label>
-                   <label class="admin-field">
+                    <label class="admin-field">
                         <span style="font-weight: bold; color: #555;">Fecha de Nacimiento</span>
                         <input type="date" id="fechaNacimiento" class="client-input" required />
                     </label>
@@ -100,41 +116,55 @@
 
         <div class="date-picker-wrap">
             <div>
-                <h3 style="margin: 0 0 5px 0; color: #333; font-family: 'Oswald', sans-serif; text-transform: uppercase;">Calendario de Entrenamiento</h3>
-                <p style="margin: 0; color: #666; font-size: 0.9rem;">Selecciona una fecha para ver tu rutina o tu sesión completada.</p>
+                <h3 style="margin: 0 0 5px 0; color: #333; font-family: 'Oswald', sans-serif; text-transform: uppercase;">Mi Calendario</h3>
+                <p style="margin: 0; color: #666; font-size: 0.9rem;">Elige una fecha y el día de rutina a registrar.</p>
             </div>
-            <div style="margin-left: auto; text-align: right;">
-                <input type="date" id="fechaCalendario" />
-                <div id="diaSemanaLabel" style="margin-top: 5px; font-weight: bold; color: var(--lime);"></div>
+            <div style="display: flex; gap: 10px; align-items: center;">
+                <div>
+                    <label style="display: block; font-size: 0.75rem; color: #666; font-weight: bold; margin-bottom: 2px;">Fecha de Registro</label>
+                    <input type="date" id="fechaCalendario" />
+                </div>
+                <div>
+                    <label style="display: block; font-size: 0.75rem; color: #666; font-weight: bold; margin-bottom: 2px;">Día Planificado</label>
+                    <select id="selectDiaSemanaManual">
+                        <option value="Domingo">Domingo</option>
+                        <option value="Lunes">Lunes</option>
+                        <option value="Martes">Martes</option>
+                        <option value="Miércoles">Miércoles</option>
+                        <option value="Jueves">Jueves</option>
+                        <option value="Viernes">Viernes</option>
+                        <option value="Sábado">Sábado</option>
+                    </select>
+                </div>
             </div>
         </div>
 
-        <div class="card">
-            <div class="card-header">
-                <h2 id="tituloDiaRutina">Ejercicios del Día</h2>
+        <div class="card" style="padding-bottom: 5px;">
+            <div class="card-header" style="border: none; padding-bottom: 5px; display: flex; align-items: center; gap: 15px; flex-wrap: wrap;">
+                <select id="selectorRutinaDia" class="client-input" style="width: auto; font-family: 'Oswald', sans-serif; font-size: 1.4rem; margin: 0; padding: 4px 35px 4px 10px; font-weight: bold; text-transform: uppercase; color: #333; height: auto; line-height: 1.2; border-color: var(--lime); cursor: pointer;">
+                    <option value="">Ejercicios del Día</option>
+                </select>
                 <span id="estadoSesionBadge" class="badge-planificado">Planificado</span>
             </div>
-
-            <div class="admin-table-wrap">
-                <table class="admin-table" style="width: 100%;">
-                    <thead>
-                    <tr>
-                        <th>Ejercicio</th>
-                        <th>Series</th>
-                        <th>Repeticiones</th>
-                        <th>Peso / Esfuerzo</th>
-                    </tr>
-                    </thead>
-                    <tbody id="tablaEjerciciosCliente">
-                    <tr><td colspan="4" style="text-align: center; padding: 20px;">Cargando entrenamiento...</td></tr>
-                    </tbody>
-                </table>
+            <div style="padding: 0 24px 15px;">
+                <span id="infoRutinaSeleccionada" style="font-size: 0.85rem; color: #666; font-weight: bold; background: #f3f4f6; padding: 4px 10px; border-radius: 4px; display: none;"></span>
             </div>
         </div>
+
+        <!-- FORMULARIO DE REGISTRO IDENTICO AL DEL COACH -->
+        <form id="formSesionCliente">
+            <div id="contenedorEjerciciosCliente"></div>
+            <div id="botonGuardarSesionContainer" style="display: none; text-align: right; margin-bottom: 30px;">
+                <p id="registroStatus" style="color: #ef9d89; font-size: 0.85rem; font-weight: bold; display: inline-block; margin-right: 15px;"></p>
+                <button class="admin-primary-action" type="submit" style="padding: 12px 30px; font-size: 1.1rem;">Guardar Sesión Completa</button>
+            </div>
+        </form>
+
     </section>
 
 </main>
 
+<div class="admin-toast" id="toast" hidden></div>
 <script type="module" src="../src/javascript/cliente/dashboard.js"></script>
 </body>
 </html>

@@ -24,6 +24,8 @@ public class EjercicioController {
         return ResponseEntity.ok(service.obtenerEjercicios());
     }
 
+
+
     @PostMapping
     public ResponseEntity<MessageResponse> crearEjercicio(@RequestBody EjercicioRequest request) {
         return ResponseEntity.ok(service.crearEjercicio(request));

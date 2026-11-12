@@ -4,9 +4,16 @@ import com.gym.atlas.dto.MessageResponse;
 import com.gym.atlas.dto.cliente.ClienteRutinaResponse;
 import com.gym.atlas.dto.cliente.PerfilClienteRequest;
 import com.gym.atlas.dto.cliente.PerfilClienteResponse;
+import com.gym.atlas.dto.cliente.RegistroSesionClienteRequest;
+import com.gym.atlas.dto.ejercicio.EjercicioResponse;
+import com.gym.atlas.dto.ejercicio.EjercicioVerResponse;
+import com.gym.atlas.dto.ejercicio.HistorialRutinaClienteResponse;
+import com.gym.atlas.dto.historial.HistorialDetalleResponse;
 import com.gym.atlas.service.cliente.ClienteService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/cliente")
@@ -30,13 +37,24 @@ public class ClienteController {
 
     // Endpoint para ver qué rutina tiene asignada actualmente el cliente
     @GetMapping("/rutina-activa")
-    public ResponseEntity<ClienteRutinaResponse> obtenerRutinaActiva() {
-        return ResponseEntity.ok(clienteService.obtenerRutinaActiva());
+    public ResponseEntity<List<ClienteRutinaResponse>> obtenerRutinaActiva() {
+        return ResponseEntity.ok(clienteService.obtenerRutinasActivas());
     }
 
+    @GetMapping("/ejercicio/{nombreEjercicio}")
+    public ResponseEntity<EjercicioVerResponse> verEjercicio(@PathVariable String nombreEjercicio){
+        return ResponseEntity.ok(clienteService.obtenerEjercicio(nombreEjercicio));
+    }
     // Endpoint para ver si el cliente ya entrenó en una fecha específica
     @GetMapping("/historial-sesion")
-    public ResponseEntity<?> obtenerHistorialSesion(@RequestParam String fecha) {
-        return ResponseEntity.ok(clienteService.obtenerHistorialPorFecha(fecha));
+    public ResponseEntity<List<HistorialRutinaClienteResponse>> obtenerHistorialSesion(@RequestParam String fecha) {
+
+        return ResponseEntity.ok(clienteService.obtenerHistorialSesionPorFecha(fecha));
+    }
+
+    // NUEVO ENDPOINT PARA REGISTRAR LA SESIÓN
+    @PostMapping("/historial/registrar")
+    public ResponseEntity<MessageResponse> registrarSesionCliente(@RequestBody RegistroSesionClienteRequest request) {
+        return ResponseEntity.ok(clienteService.registrarSesion(request));
     }
 }

@@ -12,7 +12,7 @@
         .table-input:focus { border-color: var(--lime); outline: none; box-shadow: 0 0 0 3px rgb(217 4 41 / 10%); }
 
         .ejercicio-card { background: #ffffff; border: 1px solid #d1d5d2; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .ejercicio-titulo { color: var(--lime); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
+        .ejercicio-titulo { color: var(--lime); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
         .ejercicio-titulo h3 { margin: 0; font-family: 'Oswald', sans-serif; font-size: 1.6rem; text-transform: uppercase; color: #333; }
 
         .info-planificada { font-size: 0.9rem; color: #666; margin-bottom: 20px; background: #f7f9f9; padding: 12px 16px; border-radius: 4px; border: 1px solid #eaeaea; }
@@ -20,6 +20,91 @@
         /* Botón de remover serie (X) */
         button.is-danger.remove-serie { background: transparent; border: 1px solid #d1d5d2; color: #888; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
         button.is-danger.remove-serie:hover { border-color: #ef7e64; color: #ef7e64; background: rgb(239 126 100 / 10%); }
+
+        /* Selector de cliente con botón */
+        .cliente-selector-group { display: flex; gap: 8px; align-items: stretch; }
+        .cliente-selector-group input { flex: 1; background-color: #f7f9f9; cursor: pointer; font-weight: 600; color: #333; }
+        .cliente-selector-group button { white-space: nowrap; padding: 0 16px; }
+
+        /* Estilos para campos deshabilitados */
+        select:disabled, input[type="date"]:disabled {
+            background-color: #eceeef;
+            color: #999;
+            cursor: not-allowed;
+            opacity: 0.75;
+        }
+
+        /* Modal de Selección de Clientes */
+        .coach-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+        .coach-modal-backdrop.active { display: flex; }
+
+        .coach-modal-card {
+            background: #ffffff;
+            border: 1px solid #d1d5d2;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 680px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.18);
+            overflow: hidden;
+        }
+
+        .coach-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 24px;
+            border-bottom: 1px solid #eaeaea;
+            background: #f7f9f9;
+        }
+        .coach-modal-header h3 {
+            margin: 0;
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            font-size: 1.35rem;
+            color: #333;
+        }
+        .btn-cerrar-modal {
+            background: transparent;
+            border: 1px solid #d1d5d2;
+            color: #555;
+            border-radius: 4px;
+            padding: 4px 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-cerrar-modal:hover { background: #e5e7eb; }
+
+        .coach-modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+        }
+        .modal-search-box {
+            margin-bottom: 16px;
+        }
+        .modal-search-box input {
+            width: 100%;
+            padding: 10px 14px;
+            border: 1px solid #d1d5d2;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+        .modal-search-box input:focus {
+            border-color: var(--lime);
+            outline: none;
+            box-shadow: 0 0 0 3px rgb(217 4 41 / 10%);
+        }
     </style>
 </head>
 <body class="admin-page">
@@ -37,22 +122,32 @@
                 </div>
             </div>
 
-            <!-- PASO 1: SELECCIONAR CLIENTE Y DÍA -->
+            <!-- PASO 1: SELECCIONAR CLIENTE, RUTINA, DÍA Y FECHA -->
             <div class="admin-panel" style="margin-bottom: 30px;">
                 <div class="admin-panel-heading">
                     <div>
-                        <h2>1. Seleccionar Asignación y Día</h2>
+                        <h2>1. Seleccionar Cliente, Rutina y Día</h2>
                     </div>
                 </div>
                 <div class="admin-form-grid" style="padding: 24px;">
                     <label class="admin-field">
-                        <span>Cliente (Asignación Activa)</span>
-                        <select id="selectAsignacion" required></select>
+                        <span>Cliente</span>
+                        <div class="cliente-selector-group">
+                            <input type="text" id="inputClienteSeleccionado" placeholder="Ningún cliente seleccionado..." readonly required />
+                            <button type="button" id="btnAbrirModalClientes" class="admin-primary-action">Buscar</button>
+                        </div>
+                    </label>
+
+                    <label class="admin-field">
+                        <span>Rutina Asignada</span>
+                        <select id="selectRutinaCliente" required disabled>
+                            <option value="">Seleccione primero un cliente...</option>
+                        </select>
                     </label>
 
                     <label class="admin-field">
                         <span>Día de la Semana</span>
-                        <select id="selectDia" required>
+                        <select id="selectDia" required disabled>
                             <option value="">Seleccione...</option>
                             <option value="Lunes">Lunes</option>
                             <option value="Martes">Martes</option>
@@ -66,7 +161,7 @@
 
                     <label class="admin-field">
                         <span>Fecha de la Sesión</span>
-                        <input type="date" id="fechaSesion" required />
+                        <input type="date" id="fechaSesion" required disabled />
                     </label>
                 </div>
             </div>
@@ -84,6 +179,37 @@
                 </div>
             </form>
 
+        </div>
+    </div>
+</div>
+
+<!-- MODAL DE BÚSQUEDA Y SELECCIÓN DE CLIENTES -->
+<div id="modalClientes" class="coach-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="tituloModalClientes">
+    <div class="coach-modal-card">
+        <div class="coach-modal-header">
+            <h3 id="tituloModalClientes">Seleccionar Cliente</h3>
+            <button type="button" id="btnCerrarModalClientes" class="btn-cerrar-modal">✕</button>
+        </div>
+        <div class="coach-modal-body">
+            <div class="modal-search-box">
+                <input type="text" id="inputBuscarCliente" placeholder="Filtrar por nombre, apellido o DNI..." autocomplete="off" />
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Nombre y Apellido</th>
+                        <th>DNI</th>
+                        <th style="width: 130px; text-align: center;">Acción</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tbodyClientesModal">
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: #666;">Cargando clientes...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
         </div>
     </div>
 </div>

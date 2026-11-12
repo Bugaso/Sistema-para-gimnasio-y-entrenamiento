@@ -1,5 +1,6 @@
 package com.gym.atlas.service.cliente;
 
+import com.gym.atlas.data.ejercicio.Ejercicio;
 import com.gym.atlas.data.rutina.ClienteCoach;
 import com.gym.atlas.data.rutina.HistorialRutina;
 import com.gym.atlas.data.rutina.HistorialSerie;
@@ -9,9 +10,14 @@ import com.gym.atlas.dto.cliente.ClienteRutinaResponse;
 
 import com.gym.atlas.dto.cliente.PerfilClienteRequest;
 import com.gym.atlas.dto.cliente.PerfilClienteResponse;
+import com.gym.atlas.dto.cliente.RegistroSesionClienteRequest;
+import com.gym.atlas.dto.ejercicio.*;
+import com.gym.atlas.dto.historial.HistorialDetalleResponse;
+import com.gym.atlas.dto.historial.SerieRealizadaResponse;
 import com.gym.atlas.dto.rutina.DetalleRutinaResponse;
 import com.gym.atlas.dto.rutina.RutinaConDetallesResponse;
 import com.gym.atlas.dto.rutina.RutinaResponse;
+import com.gym.atlas.repository.ejercicio.EjercicioRepository;
 import com.gym.atlas.repository.rutina.DetalleRutinaRepository;
 import com.gym.atlas.repository.rutina.ClienteCoachRepository;
 import com.gym.atlas.repository.rutina.HistorialRutinaRepository;
@@ -23,10 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.Date;
 import java.time.LocalDate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class ClienteService {
@@ -37,6 +41,7 @@ public class ClienteService {
     private final DetalleRutinaRepository detalleRutinaRepository;
     private final HistorialRutinaRepository historialRutinaRepository;
     private final HistorialSerieRepository historialSerieRepository;
+    private final EjercicioRepository ejercicioRep;
 
     // 2. Inyección de dependencias en el constructor único
     public ClienteService(
@@ -44,12 +49,15 @@ public class ClienteService {
             ClienteCoachRepository asignacionRepository,
             DetalleRutinaRepository detalleRutinaRepository,
             HistorialRutinaRepository historialRutinaRepository,
-            HistorialSerieRepository historialSerieRepository) {
+            HistorialSerieRepository historialSerieRepository,
+            EjercicioRepository ejercicioRep
+    ) {
         this.usuarioRepository = usuarioRepository;
         this.asignacionRepository = asignacionRepository;
         this.detalleRutinaRepository = detalleRutinaRepository;
         this.historialRutinaRepository = historialRutinaRepository;
         this.historialSerieRepository = historialSerieRepository;
+        this.ejercicioRep = ejercicioRep;
     }
 
     // Método auxiliar para obtener el usuario logueado
@@ -95,85 +103,182 @@ public class ClienteService {
 
     // MÉTODO 1: OBTENER RUTINA ACTIVA DEL CLIENTE
     @Transactional(readOnly = true)
-    public ClienteRutinaResponse obtenerRutinaActiva() {
+    public List<ClienteRutinaResponse> obtenerRutinasActivas() { // Cambiado a List
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        List<ClienteCoach> asignaciones = asignacionRepository.findByClienteMailUs(email);
+        // Obtiene solo las rutinas activas
+        List<ClienteCoach> asignaciones = asignacionRepository.findByClienteMailUsAndActivoTrue(email);
 
-        ClienteCoach asignacion = asignaciones.stream()
-                .findFirst()
-                .orElseThrow(() -> new RuntimeException("No tienes rutinas asignadas actualmente."));
+        if (asignaciones.isEmpty()) {
+            throw new RuntimeException("No tienes rutinas asignadas actualmente.");
+        }
 
-        var rutina = asignacion.getRutina();
-        List<DetalleRutinaResponse> detalles = detalleRutinaRepository
-                .findByRutinaIdRutina(rutina.getIdRutina())
-                .stream()
-                .map(detalle -> new DetalleRutinaResponse(
-                        detalle.getIdDetalle(),
-                        detalle.getDiaSemana(),
-                        detalle.getEjercicio().getIdEjercicio(),
-                        detalle.getEjercicio().getNomEjercicio(),
-                        detalle.getRangoSeries(),
-                        detalle.getRangoRep(),
-                        detalle.getRangoPeso(),
-                        detalle.getTiempoEstimado(),
-                        detalle.getMedidaEsfuerzo(),
-                        detalle.getCantMedida()
-                ))
-                .toList();
+        // Recorremos todas las asignaciones del usuario y mapeamos cada una
+        return asignaciones.stream().map(asignacion -> {
+            var rutina = asignacion.getRutina();
+            List<DetalleRutinaResponse> detalles = detalleRutinaRepository
+                    .findByRutinaIdRutina(rutina.getIdRutina())
+                    .stream()
+                    .map(detalle -> new DetalleRutinaResponse(
+                            detalle.getIdDetalle(),
+                            detalle.getDiaSemana(),
+                            detalle.getEjercicio().getIdEjercicio(),
+                            detalle.getEjercicio().getNomEjercicio(),
+                            detalle.getRangoSeries(),
+                            detalle.getRangoRep(),
+                            detalle.getRangoPeso(),
+                            detalle.getTiempoEstimado(),
+                            detalle.getMedidaEsfuerzo(),
+                            detalle.getCantMedida(),
+                            detalle.getEjercicio().getDirImgEjercicio()
+                    ))
+                    .toList();
 
-        return new ClienteRutinaResponse(
-                new RutinaResponse(
-                    rutina.getIdRutina(),
-                    rutina.getNombreRutina(),
-                    rutina.getDescripcion(),
-                    rutina.getEsPlantilla(),
-                    rutina.getFechaCreacion()
-                ),
-                detalles
-        );
+            return new ClienteRutinaResponse(
+                    new RutinaResponse(
+                            rutina.getIdRutina(),
+                            rutina.getNombreRutina(),
+                            rutina.getDescripcion(),
+                            rutina.getEsPlantilla(),
+                            rutina.getFechaCreacion()
+                    ),
+                    asignacion.getIdCliCou(),
+                    detalles
+            );
+        }).toList(); // Devolvemos la lista completa
     }
 
     // MÉTODO 2: OBTENER EL HISTORIAL DE SESIÓN POR FECHA
-    public Map<String, Object> obtenerHistorialPorFecha(String fechaStr) {
+    public List<HistorialRutinaClienteResponse> obtenerHistorialSesionPorFecha(String fechaStr) {
         LocalDate fecha = LocalDate.parse(fechaStr);
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        // 1. Encontrar la asignación del cliente
         List<ClienteCoach> asignaciones = asignacionRepository.findByClienteMailUs(email);
-        if (asignaciones.isEmpty()) return Map.of(); // Devuelve vacío si no tiene coach
+        if (asignaciones.isEmpty()) return List.of();
 
-        ClienteCoach asignacion = asignaciones.get(0);
-
-        // 2. Buscar todos los historiales de esa asignación
-        List<HistorialRutina> historiales = historialRutinaRepository.findByAsignacionIdCliCouOrderByFechaRegistroDesc(asignacion.getIdCliCou());
-
-        // 3. Filtrar para ver si entrenó exactamente en la fecha que pide el calendario
-        Optional<HistorialRutina> historialDelDia = historiales.stream()
-                .filter(h -> h.getFechaRegistro().equals(fecha)) // Convertimos a LocalDate para comparar seguro
-                .findFirst();
-
-        // Si no entrenó ese día, devolvemos un JSON vacío para que el frontend muestre "Planificado"
-        if (historialDelDia.isEmpty()) {
-            return Map.of("ejerciciosRealizados", List.of());
+        // 1. Recopilar todas las sesiones registradas en esa fecha (soporta múltiples rutinas)
+        List<HistorialRutina> historialesDelDia = new ArrayList<>();
+        for (ClienteCoach asignacion : asignaciones) {
+            List<HistorialRutina> hist = historialRutinaRepository.findByAsignacionIdCliCouOrderByFechaRegistroDesc(asignacion.getIdCliCou());
+            historialesDelDia.addAll(hist.stream()
+                    .filter(h -> h.getFechaRegistro().equals(fecha))
+                    .toList());
         }
 
-        // 4. Si SÍ entrenó, buscamos el peso y repeticiones
-        List<HistorialSerie> series = historialSerieRepository.findByHistorialRutinaIdHistRut(historialDelDia.get().getIdHistRut());
+        if (historialesDelDia.isEmpty()) return List.of();
 
-        List<Map<String, Object>> ejerciciosRealizados = series.stream()
-                .map(s -> {
-                    Map<String, Object> dto = new HashMap<>();
+        // 2. Mapear cada historial a la clase Response
+        return historialesDelDia.stream().map(hr -> {
+            List<HistorialSerie> series = historialSerieRepository.findByHistorialRutinaIdHistRut(hr.getIdHistRut());
 
-                    dto.put("nombreEjercicio", s.getEjercicio().getNomEjercicio());
-                    dto.put("seriesRealizadas", s.getNroSerie());
-                    dto.put("repsRealizadas", s.getNroRepeticiones());
-                    dto.put("pesoRealizado", s.getNroPeso());
+            // Agrupar las series por el ID del ejercicio
+            Map<Integer, List<HistorialSerie>> seriesAgrupadas = series.stream()
+                    .collect(Collectors.groupingBy(s -> s.getEjercicio().getIdEjercicio()));
 
-                    return dto;
-                })
-                .toList();
+            // Construir los ejercicios con sus series internas
+            List<HistorialEjercicioClienteResponse> ejerciciosResponse = seriesAgrupadas.entrySet().stream().map(entry -> {
+                HistorialSerie primeraSerie = entry.getValue().get(0);
 
-        return Map.of("ejerciciosRealizados", ejerciciosRealizados);
+                List<SerieClienteRealizadoResponse> seriesResp = entry.getValue().stream().map(s -> new SerieClienteRealizadoResponse(
+                        s.getIdSerie(),
+                        s.getNroSerie(),
+                        s.getNroRepeticiones(),
+                        s.getNroPeso(),
+                        s.getMedidaEsfuerzo(),
+                        s.getCantMedida(),
+                        s.getTiempoSegundos()
+                )).toList();
+
+                return new HistorialEjercicioClienteResponse(
+                        primeraSerie.getEjercicio().getIdEjercicio(),
+                        primeraSerie.getEjercicio().getNomEjercicio(),
+                        seriesResp
+                );
+            }).toList();
+
+            // Evitar null si la entidad Coach no está cargada
+            String nomCoach = "Sin Asignar";
+            if (hr.getAsignacion() != null && hr.getAsignacion().getCoach() != null) {
+                nomCoach = hr.getAsignacion().getCoach().getNomApe();
+            }
+            HistorialRutinaClienteResponse histCli = new HistorialRutinaClienteResponse(
+                    hr.getIdHistRut(),
+                    hr.getAsignacion().getIdCliCou(),
+                    hr.getRutina().getIdRutina(),
+                    hr.getRutina().getNombreRutina(),
+                    nomCoach,
+                    hr.getFechaRegistro(),
+                    ejerciciosResponse
+            );
+            System.out.println(histCli.toString());
+            return histCli;
+        }).toList();
+    }
+
+    public EjercicioVerResponse obtenerEjercicio(String nombreEjercicio) {
+        Ejercicio ej = ejercicioRep.findByNomEjercicio(nombreEjercicio).orElseThrow();
+        return new EjercicioVerResponse(
+                ej.getIdEjercicio(),
+                ej.getCategoria().getNombreCat(),
+                ej.getEquipamiento().getNomEquipamiento(),
+                ej.getNomEjercicio(),
+                ej.getDescEjercicio(),
+                ej.getDirImgEjercicio()
+        );
+    }
+
+    // Añade esto al final de tu clase ClienteService
+
+    @Transactional
+    public MessageResponse registrarSesion(RegistroSesionClienteRequest request) {
+        // 1. Validar que el usuario logueado es el dueño de la asignación
+        String email = SecurityContextHolder.getContext().getAuthentication().getName();
+
+        ClienteCoach asignacion = asignacionRepository.findById(request.idCliCou())
+                .orElseThrow(() -> new RuntimeException("Asignación no encontrada."));
+
+        if (!asignacion.getCliente().getMailUs().equals(email)) {
+            throw new RuntimeException("No tienes permiso para registrar en esta rutina.");
+        }
+
+        // 2. Comprobar si ya existe un registro para esta rutina en este día exacto
+        boolean yaRegistrado = historialRutinaRepository
+                .findByAsignacionIdCliCouOrderByFechaRegistroDesc(asignacion.getIdCliCou())
+                .stream()
+                .anyMatch(h -> h.getFechaRegistro().equals(request.fechaRegistro()));
+
+        if (yaRegistrado) {
+            throw new RuntimeException("Ya registraste esta rutina en la fecha seleccionada.");
+        }
+
+        // 3. Crear cabecera: HistorialRutina
+        HistorialRutina nuevoHistorial = new HistorialRutina();
+        nuevoHistorial.setAsignacion(asignacion);
+        nuevoHistorial.setRutina(asignacion.getRutina());
+        nuevoHistorial.setFechaRegistro(request.fechaRegistro());
+
+        HistorialRutina historialGuardado = historialRutinaRepository.save(nuevoHistorial);
+
+        // 4. Crear los detalles de series: HistorialSerie
+        List<HistorialSerie> seriesAGuardar = request.series().stream().map(serieReq -> {
+            Ejercicio ejercicio = ejercicioRep.findById(serieReq.idEjercicio())
+                    .orElseThrow(() -> new RuntimeException("Ejercicio ID " + serieReq.idEjercicio() + " no encontrado"));
+
+            HistorialSerie hs = new HistorialSerie();
+            hs.setHistorialRutina(historialGuardado);
+            hs.setEjercicio(ejercicio);
+            hs.setNroSerie(serieReq.nroSerie());
+            hs.setNroRepeticiones(serieReq.nroRepeticiones());
+            hs.setNroPeso(serieReq.nroPeso());
+            hs.setMedidaEsfuerzo(serieReq.medidaEsfuerzo());
+            hs.setCantMedida(serieReq.cantMedida());
+            hs.setTiempoSegundos(serieReq.tiempoSegundos());
+            return hs;
+        }).toList();
+
+        // 5. Guardar todas las series en bloque
+        historialSerieRepository.saveAll(seriesAGuardar);
+
+        return new MessageResponse("Sesión registrada exitosamente.");
     }
 }
