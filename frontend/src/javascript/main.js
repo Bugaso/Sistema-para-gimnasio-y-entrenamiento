@@ -42,15 +42,16 @@ const token = getToken()
 if (authLink && token) {
   getProfile(token)
     .then((profile) => {
-      const firstName = profile?.nomApe?.trim().split(/\s+/)[0]
+      const firstName = profile?.nomApe?.trim()
       authLink.textContent = firstName
-        ? `${firstName} · Cerrar sesión`
-        : "Cerrar sesión"
+        ? `${firstName} `
+        : ""
       authLink.href = "#"
       authLink.addEventListener("click", (event) => {
-        event.preventDefault()
-        clearToken()
-        window.location.reload()
+          authLink.href = '/cliente/cliente-dashboard.html'
+        //event.preventDefault()
+        //clearToken()
+        //window.location.reload()
       })
     })
     .catch((error) => {
@@ -259,6 +260,7 @@ function renderizarCarruselMembresias(contenedor, grupos) {
     });
 }
 
+/*
 //Funcion para el Cliente
 document.addEventListener('DOMContentLoaded', () => {
     const authContainer = document.getElementById('authContainer');
@@ -275,9 +277,10 @@ document.addEventListener('DOMContentLoaded', () => {
     } else {
         // El usuario no tiene sesión: lo mandamos al login
         authContainer.innerHTML = `
-            <a href="/inicio-sesion.html" style="background-color: transparent; color: #fff; border: 1px solid #fff; padding: 8px 16px; font-weight: bold; text-decoration: none; border-radius: 4px; transition: 0.3s;">
+            <a href="/login" style="background-color: transparent; color: #fff; border: 1px solid #fff; padding: 8px 16px; font-weight: bold; text-decoration: none; border-radius: 4px; transition: 0.3s;">
                 Iniciar Sesión
             </a>
         `;
     }
 });
+*/
