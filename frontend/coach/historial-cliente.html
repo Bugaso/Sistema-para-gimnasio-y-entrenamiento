@@ -6,19 +6,7 @@
     <title>Historial de Clientes — Coach</title>
     <link rel="stylesheet" href="../src/css/admin/admin.css" />
     <link rel="stylesheet" href="../src/css/index/index.css" />
-    <style>
-        /* ESTILOS ADAPTADOS AL TEMA CLARO */
-        .table-input { width: 100%; padding: 8px 12px; border: 1px solid #d1d5d2; border-radius: 4px; background-color: #ffffff; color: #333; }
-        .table-input:focus { border-color: var(--lime); outline: none; box-shadow: 0 0 0 3px rgb(217 4 41 / 10%); }
-
-        .ejercicio-card { background: #ffffff; border: 1px solid #d1d5d2; border-radius: 8px; padding: 24px; margin-bottom: 24px; box-shadow: 0 2px 8px rgba(0,0,0,0.02); }
-        .ejercicio-titulo { color: var(--lime); margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;}
-        .ejercicio-titulo h3 { margin: 0; font-family: 'Oswald', sans-serif; font-size: 1.6rem; text-transform: uppercase; color: #333; }
-
-        /* Botón de remover serie (X) para mantener consistencia */
-        button.is-danger.remove-serie { background: transparent; border: 1px solid #d1d5d2; color: #888; padding: 6px 12px; border-radius: 4px; font-weight: bold; cursor: pointer; transition: all 0.2s; }
-        button.is-danger.remove-serie:hover { border-color: #ef7e64; color: #ef7e64; background: rgb(239 126 100 / 10%); }
-    </style>
+    <link rel="stylesheet" href="../src/css/coach/historial-cliente.css" />
 </head>
 <body class="admin-page">
 
@@ -35,13 +23,45 @@
                 </div>
             </div>
 
-            <!-- SELECCIÓN DE CLIENTE -->
+            <!-- SELECCIÓN DE CLIENTE, RUTINA Y FILTROS -->
             <div class="admin-panel" style="margin-bottom: 30px;">
-                <div class="admin-form-grid" style="padding: 24px;">
-                    <label class="admin-field" style="grid-column: span 2;">
-                        <span>Cliente (Asignación Activa)</span>
-                        <select id="selectAsignacionHistorial" required></select>
-                    </label>
+                <div class="admin-panel-heading">
+                    <div>
+                        <h2>1. Seleccionar Cliente y Filtros de Búsqueda</h2>
+                    </div>
+                </div>
+                <div class="admin-form-grid filtros-historial-grid" style="padding: 24px;">
+                    <div class="admin-field">
+                        <span>Cliente</span>
+                        <div class="cliente-selector-group">
+                            <input type="text" id="inputClienteSeleccionado" placeholder="Ningún cliente seleccionado..." readonly required />
+                            <button type="button" id="btnAbrirModalClientes" class="admin-primary-action">Buscar</button>
+                        </div>
+                    </div>
+
+                    <div class="admin-field">
+                        <span>Rutina Asignada</span>
+                        <select id="selectAsignacionHistorial" required disabled>
+                            <option value="">Seleccione primero un cliente...</option>
+                        </select>
+                        <label class="checkbox-bajas-label">
+                            <input type="checkbox" id="checkMostrarInactivas" disabled />
+                            <span>Mostrar asignaciones dadas de baja</span>
+                        </label>
+                    </div>
+
+                    <div class="admin-field">
+                        <span>Fecha Desde</span>
+                        <input type="date" id="fechaDesde" disabled />
+                    </div>
+
+                    <div class="admin-field">
+                        <span>Fecha Hasta</span>
+                        <input type="date" id="fechaHasta" disabled />
+                        <div class="acciones-fecha-row">
+                            <button type="button" id="btnLimpiarFechas" class="btn-limpiar-fechas" disabled>Limpiar Fechas</button>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -62,7 +82,7 @@
                         </tr>
                         </thead>
                         <tbody id="tablaSesiones">
-                        <tr><td colspan="3">Seleccione un cliente para ver su historial.</td></tr>
+                        <tr><td colspan="3">Seleccione un cliente y una rutina para ver su historial.</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -92,6 +112,37 @@
     </div>
 </div>
 
+<!-- MODAL DE BÚSQUEDA Y SELECCIÓN DE CLIENTES -->
+<div id="modalClientes" class="coach-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="tituloModalClientes">
+    <div class="coach-modal-card">
+        <div class="coach-modal-header">
+            <h3 id="tituloModalClientes">Seleccionar Cliente</h3>
+            <button type="button" id="btnCerrarModalClientes" class="btn-cerrar-modal">✕</button>
+        </div>
+        <div class="coach-modal-body">
+            <div class="modal-search-box">
+                <input type="text" id="inputBuscarCliente" placeholder="Filtrar por nombre, apellido o DNI..." autocomplete="off" />
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Nombre y Apellido</th>
+                        <th>DNI</th>
+                        <th style="width: 130px; text-align: center;">Acción</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tbodyClientesModal">
+                    <tr>
+                        <td colspan="3" style="text-align: center; color: #666;">Cargando clientes...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
 <!-- MODAL: CONFIRMACIÓN DE ELIMINACIÓN DE SESIÓN -->
 <dialog class="admin-dialog admin-confirm-dialog" id="modalConfirmarEliminarSesion">
     <form method="dialog">
@@ -100,7 +151,6 @@
             <h2 style="margin-top: 15px;">Eliminar Sesión</h2>
             <p style="color: var(--muted); margin-top: 10px;">¿Estás seguro de que deseas eliminar este registro de entrenamiento?</p>
 
-            <!-- Bloque de detalles con fondo claro -->
             <div style="text-align: left; background: #f7f9f9; padding: 16px; border-radius: 8px; margin: 20px 0; border: 1px solid #d1d5d2;">
                 <p style="margin-bottom: 8px;"><strong style="color: #666;">Rutina:</strong> <span id="eliminarSesionNombreRutina" style="float: right; color: #333; font-weight: bold;"></span></p>
                 <p style="margin-bottom: 0;"><strong style="color: #666;">Fecha:</strong> <span id="eliminarSesionFecha" style="float: right; color: #333; font-weight: bold;"></span></p>

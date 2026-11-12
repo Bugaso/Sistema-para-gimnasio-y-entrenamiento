@@ -118,7 +118,7 @@ public class RutinaService {
         asignacion.setRutina(rutina);
         asignacion.setFechaPlan(request.fechaPlan() != null ? request.fechaPlan() : LocalDate.now());
         asignacion.setDuracionPlan(request.duracionPlan());
-        asignacion.setActivo(true);
+        asignacion.setEstado(true);
 
         asignacionRepository.save(asignacion);
 
@@ -150,7 +150,7 @@ public class RutinaService {
         ClienteCoach asignacion = asignacionRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("La asignación no existe."));
 
-        asignacion.setActivo(false);
+        asignacion.setEstado(false);
         asignacionRepository.save(asignacion);
 
         return new MessageResponse("Asignación eliminada correctamente.");
@@ -240,11 +240,15 @@ public class RutinaService {
         return new MessageResponse("Rutina actualizada exitosamente.");
     }
 
-    // Listar asignaciones activas del coach logueado
-    public List<AsignacionResponse> listarAsignaciones_coach() {
+    // Listar asignaciones del coach logueado (activas o incluyendo dadas de baja)
+    public List<AsignacionResponse> listarAsignaciones_coach(boolean incluirInactivas) {
         String emailCoach = SecurityContextHolder.getContext().getAuthentication().getName();
 
-        return asignacionRepository.findByCoachMailUsAndActivoTrue(emailCoach).stream()
+        List<ClienteCoach> asignaciones = incluirInactivas
+                ? asignacionRepository.findByCoachMailUs(emailCoach)
+                : asignacionRepository.findByCoachMailUsAndEstadoTrue(emailCoach);
+
+        return asignaciones.stream()
                 .map(a -> new AsignacionResponse(
                         a.getIdCliCou(),
                         a.getCliente().getNomApe(),
@@ -252,7 +256,8 @@ public class RutinaService {
                         a.getRutina().getIdRutina(),
                         a.getRutina().getNombreRutina(),
                         a.getFechaPlan(),
-                        a.getDuracionPlan()
+                        a.getDuracionPlan(),
+                        a.getEstado()
                 )).toList();
     }
 

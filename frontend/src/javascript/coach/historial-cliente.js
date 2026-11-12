@@ -1,12 +1,30 @@
 import { apiRequest, getToken } from '../api.js';
 import { renderCoachLayout } from '../layout-coach.js';
 
+// Elementos principales
+const inputClienteSeleccionado = document.getElementById('inputClienteSeleccionado');
+const btnAbrirModalClientes = document.getElementById('btnAbrirModalClientes');
 const selectAsignacion = document.getElementById('selectAsignacionHistorial');
+const checkMostrarInactivas = document.getElementById('checkMostrarInactivas');
+const fechaDesde = document.getElementById('fechaDesde');
+const fechaHasta = document.getElementById('fechaHasta');
+const btnLimpiarFechas = document.getElementById('btnLimpiarFechas');
 const tablaSesiones = document.getElementById('tablaSesiones');
 const formEditarSesion = document.getElementById('formEditarSesion');
 const contenedorEjercicios = document.getElementById('contenedorEjerciciosHistorial');
 const toast = document.getElementById('toast');
 const modalConfirmarEliminar = document.getElementById('modalConfirmarEliminarSesion');
+
+// Elementos del Modal de Clientes
+const modalClientes = document.getElementById('modalClientes');
+const btnCerrarModalClientes = document.getElementById('btnCerrarModalClientes');
+const inputBuscarCliente = document.getElementById('inputBuscarCliente');
+const tbodyClientesModal = document.getElementById('tbodyClientesModal');
+
+// Caché en memoria
+let clientesAgrupados = [];
+let clienteActualSeleccionado = null;
+let sesionesCache = [];
 let idSesionAEliminar = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
@@ -14,8 +32,44 @@ document.addEventListener('DOMContentLoaded', async () => {
     if (!getToken()) { window.location.href = '/login'; return; }
 
     await cargarAsignaciones();
-    selectAsignacion.addEventListener('change', cargarHistorialCliente);
 
+    // Eventos del Modal de Clientes
+    btnAbrirModalClientes.addEventListener('click', abrirModalClientes);
+    inputClienteSeleccionado.addEventListener('click', abrirModalClientes);
+    btnCerrarModalClientes.addEventListener('click', cerrarModalClientes);
+
+    modalClientes.addEventListener('click', (e) => {
+        if (e.target === modalClientes) cerrarModalClientes();
+    });
+
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modalClientes.classList.contains('active')) {
+            cerrarModalClientes();
+        }
+    });
+
+    inputBuscarCliente.addEventListener('input', (e) => {
+        filtrarClientesModal(e.target.value);
+    });
+
+    // Eventos de Rutina, Checkbox de bajas y Rango de fechas
+    checkMostrarInactivas.addEventListener('change', () => {
+        if (clienteActualSeleccionado) {
+            actualizarSelectorRutinasCliente();
+        }
+    });
+
+    selectAsignacion.addEventListener('change', cargarHistorialCliente);
+    fechaDesde.addEventListener('change', renderizarTablaSesionesFiltradas);
+    fechaHasta.addEventListener('change', renderizarTablaSesionesFiltradas);
+
+    btnLimpiarFechas.addEventListener('click', () => {
+        fechaDesde.value = '';
+        fechaHasta.value = '';
+        renderizarTablaSesionesFiltradas();
+    });
+
+    // Eventos de Edición y Eliminación de Sesión
     document.getElementById('btnCancelarEdicion').addEventListener('click', () => {
         formEditarSesion.style.display = 'none';
         window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -26,81 +80,243 @@ document.addEventListener('DOMContentLoaded', async () => {
     });
 
     document.getElementById('btnProcesarEliminarSesion').addEventListener('click', eliminarSesionBackend);
-
 });
 
+// 1. Obtener todas las asignaciones (activas + dadas de baja) y agruparlas por cliente
 async function cargarAsignaciones() {
     try {
-        const asignaciones = await apiRequest('/api/coach/rutina/asignaciones', { token: getToken() });
-        selectAsignacion.innerHTML = '<option value="">Seleccione asignación...</option>';
+        const asignaciones = await apiRequest('/api/coach/rutina/asignaciones?incluirInactivas=true', { token: getToken() });
+
+        const mapaClientes = new Map();
+
         asignaciones.forEach(a => {
-            selectAsignacion.innerHTML += `<option value="${a.idCliCou}">
-                ${a.clienteNombre} (DNI: ${a.clienteDni}) — Plan: ${a.rutinaNombre}
-            </option>`;
+            const clave = a.clienteDni ?? a.clienteNombre;
+            if (!mapaClientes.has(clave)) {
+                mapaClientes.set(clave, {
+                    nombre: a.clienteNombre,
+                    dni: a.clienteDni,
+                    asignaciones: []
+                });
+            }
+            mapaClientes.get(clave).asignaciones.push({
+                idCliCou: a.idCliCou,
+                idRutina: a.idRutina,
+                rutinaNombre: a.rutinaNombre,
+                fechaPlan: a.fechaPlan,
+                duracionPlan: a.duracionPlan,
+                estado: a.estado !== false
+            });
         });
+
+        clientesAgrupados = Array.from(mapaClientes.values());
+        renderizarTablaClientesModal(clientesAgrupados);
     } catch (error) {
         console.error("Error al cargar asignaciones", error);
+        tbodyClientesModal.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #ef4444;">Error al cargar clientes asignados.</td></tr>`;
     }
 }
 
-// 1. Mostrar la tabla de fechas
-async function cargarHistorialCliente() {
-    const idAsignacion = selectAsignacion.value;
-    formEditarSesion.style.display = 'none'; // Ocultar form si cambia de cliente
+// --- LÓGICA DEL MODAL DE CLIENTES ---
+function abrirModalClientes() {
+    inputBuscarCliente.value = '';
+    renderizarTablaClientesModal(clientesAgrupados);
+    modalClientes.classList.add('active');
+    setTimeout(() => inputBuscarCliente.focus(), 50);
+}
 
-    if (!idAsignacion) {
-        tablaSesiones.innerHTML = '<tr><td colspan="3">Seleccione un cliente para ver su historial.</td></tr>';
+function cerrarModalClientes() {
+    modalClientes.classList.remove('active');
+}
+
+function normalizarTexto(texto) {
+    return String(texto || '')
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .trim();
+}
+
+function filtrarClientesModal(termino) {
+    const query = normalizarTexto(termino);
+
+    if (!query) {
+        renderizarTablaClientesModal(clientesAgrupados);
         return;
     }
 
+    const filtrados = clientesAgrupados.filter(cliente => {
+        const nombreNorm = normalizarTexto(cliente.nombre);
+        const dniStr = String(cliente.dni || '');
+        return nombreNorm.includes(query) || dniStr.includes(query);
+    });
+
+    renderizarTablaClientesModal(filtrados);
+}
+
+function renderizarTablaClientesModal(listaClientes) {
+    tbodyClientesModal.innerHTML = '';
+
+    if (!listaClientes || listaClientes.length === 0) {
+        tbodyClientesModal.innerHTML = `<tr><td colspan="3" style="text-align: center; color: #666;">No se encontraron clientes con ese criterio.</td></tr>`;
+        return;
+    }
+
+    listaClientes.forEach(cliente => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+            <td><strong>${cliente.nombre}</strong></td>
+            <td>${cliente.dni ?? '-'}</td>
+            <td style="text-align: center;">
+                <button type="button" class="admin-primary-action btn-elegir-cliente" style="min-height: 32px; padding: 0 14px; font-size: 0.75rem;">
+                    Seleccionar
+                </button>
+            </td>
+        `;
+
+        tr.querySelector('.btn-elegir-cliente').addEventListener('click', () => {
+            seleccionarCliente(cliente);
+        });
+
+        tbodyClientesModal.appendChild(tr);
+    });
+}
+
+function seleccionarCliente(cliente) {
+    clienteActualSeleccionado = cliente;
+    inputClienteSeleccionado.value = `${cliente.nombre} (DNI: ${cliente.dni ?? 'N/A'})`;
+
+    checkMostrarInactivas.disabled = false;
+    actualizarSelectorRutinasCliente();
+    cerrarModalClientes();
+}
+
+function actualizarSelectorRutinasCliente() {
+    const incluirBajas = checkMostrarInactivas.checked;
+    const asignacionPrevia = selectAsignacion.value;
+
+    const asignacionesFiltradas = clienteActualSeleccionado.asignaciones.filter(a =>
+        incluirBajas ? true : a.estado === true
+    );
+
+    selectAsignacion.innerHTML = '';
+    formEditarSesion.style.display = 'none';
+
+    if (asignacionesFiltradas.length === 0) {
+        selectAsignacion.innerHTML = '<option value="">Sin asignaciones activas (marque "Mostrar dadas de baja")</option>';
+        selectAsignacion.disabled = true;
+        habilitarFiltroFechas(false);
+        sesionesCache = [];
+        tablaSesiones.innerHTML = '<tr><td colspan="3">No hay rutinas disponibles con el filtro actual.</td></tr>';
+        return;
+    }
+
+    selectAsignacion.innerHTML = '<option value="">Seleccione una rutina...</option>';
+    asignacionesFiltradas.forEach(a => {
+        const opt = document.createElement('option');
+        opt.value = a.idCliCou;
+        opt.textContent = a.estado ? a.rutinaNombre : `${a.rutinaNombre} (Dada de baja)`;
+        selectAsignacion.appendChild(opt);
+    });
+
+    selectAsignacion.disabled = false;
+
+    // Si la rutina que estaba seleccionada sigue visible, mantenerla seleccionada
+    if (asignacionPrevia && asignacionesFiltradas.some(a => String(a.idCliCou) === String(asignacionPrevia))) {
+        selectAsignacion.value = asignacionPrevia;
+    } else {
+        sesionesCache = [];
+        habilitarFiltroFechas(false);
+        tablaSesiones.innerHTML = '<tr><td colspan="3">Seleccione una rutina para ver su historial.</td></tr>';
+    }
+}
+
+function habilitarFiltroFechas(habilitar) {
+    fechaDesde.disabled = !habilitar;
+    fechaHasta.disabled = !habilitar;
+    btnLimpiarFechas.disabled = !habilitar;
+    if (!habilitar) {
+        fechaDesde.value = '';
+        fechaHasta.value = '';
+    }
+}
+
+// 2. Consultar sesiones registradas de la asignación seleccionada
+async function cargarHistorialCliente() {
+    const idAsignacion = selectAsignacion.value;
+    formEditarSesion.style.display = 'none';
+
+    if (!idAsignacion) {
+        sesionesCache = [];
+        habilitarFiltroFechas(false);
+        tablaSesiones.innerHTML = '<tr><td colspan="3">Seleccione una rutina para ver su historial.</td></tr>';
+        return;
+    }
+
+    habilitarFiltroFechas(true);
+
     try {
         const resumen = await apiRequest(`/api/coach/historial/asignacion/${idAsignacion}`, { token: getToken() });
-        tablaSesiones.innerHTML = '';
-
-        if (resumen.length === 0) {
-            tablaSesiones.innerHTML = '<tr><td colspan="3">Este cliente aún no tiene sesiones registradas.</td></tr>';
-            return;
-        }
-
-        const estiloBotonVer = "background: transparent; border: 1px solid #a3e635; color: #a3e635; padding: 6px 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: all 0.2s;";
-        // NUEVO ESTILO PARA EL BOTON ELIMINAR
-        const estiloBotonEliminar = "background: transparent; border: 1px solid #333; color: #a1a1aa; padding: 6px 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: all 0.2s; margin-left: 8px;";
-        const hoverEliminar = "onmouseover=\"this.style.borderColor='#ef4444'; this.style.color='#ef4444'\" onmouseout=\"this.style.borderColor='#333'; this.style.color='#a1a1aa'\"";
-
-        resumen.forEach(r => {
-            tablaSesiones.innerHTML += `
-                <tr>
-                    <td><strong>${r.fechaRegistro}</strong></td>
-                    <td>${r.rutinaNombre}</td>
-                    <td style="display: flex;">
-                        <button type="button" class="btn-modificar-sesion" data-id="${r.idHistRut}" style="${estiloBotonVer}" onmouseover="this.style.background='#1a2e05'" onmouseout="this.style.background='transparent'">VER / EDITAR</button>
-                        <!-- NUEVO BOTÓN ELIMINAR -->
-                        <button type="button" class="btn-eliminar-sesion" data-id="${r.idHistRut}" data-nombre="${r.rutinaNombre}" data-fecha="${r.fechaRegistro}" style="${estiloBotonEliminar}" ${hoverEliminar}>ELIMINAR</button>
-                    </td>
-                </tr>
-            `;
-        });
-
-        // Eventos a los botones "VER / EDITAR"
-        document.querySelectorAll('.btn-modificar-sesion').forEach(btn => {
-            btn.addEventListener('click', async (e) => {
-                await abrirEdicionSesion(e.target.dataset.id);
-            });
-        });
-
-        // Eventos a los botones "ELIMINAR"
-        document.querySelectorAll('.btn-eliminar-sesion').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                abrirModalEliminarSesion(e.target.dataset.id, e.target.dataset.nombre, e.target.dataset.fecha);
-            });
-        });
-
+        sesionesCache = resumen || [];
+        renderizarTablaSesionesFiltradas();
     } catch (error) {
+        sesionesCache = [];
         tablaSesiones.innerHTML = '<tr><td colspan="3">Error al cargar el historial.</td></tr>';
     }
 }
 
-// 2. Traer el detalle de una sesión y armar los inputs
+function renderizarTablaSesionesFiltradas() {
+    tablaSesiones.innerHTML = '';
+
+    if (sesionesCache.length === 0) {
+        tablaSesiones.innerHTML = '<tr><td colspan="3">Este cliente aún no tiene sesiones registradas en esta rutina.</td></tr>';
+        return;
+    }
+
+    const desde = fechaDesde.value;
+    const hasta = fechaHasta.value;
+
+    const sesionesFiltradas = sesionesCache.filter(r => {
+        if (desde && r.fechaRegistro < desde) return false;
+        if (hasta && r.fechaRegistro > hasta) return false;
+        return true;
+    });
+
+    if (sesionesFiltradas.length === 0) {
+        tablaSesiones.innerHTML = '<tr><td colspan="3">No se encontraron sesiones en el rango de fechas seleccionado.</td></tr>';
+        return;
+    }
+
+    const estiloBotonVer = "background: transparent; border: 1px solid #a3e635; color: #a3e635; padding: 6px 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: all 0.2s;";
+    const estiloBotonEliminar = "background: transparent; border: 1px solid #333; color: #a1a1aa; padding: 6px 12px; font-size: 0.75rem; font-weight: 600; cursor: pointer; border-radius: 4px; transition: all 0.2s; margin-left: 8px;";
+    const hoverEliminar = "onmouseover=\"this.style.borderColor='#ef4444'; this.style.color='#ef4444'\" onmouseout=\"this.style.borderColor='#333'; this.style.color='#a1a1aa'\"";
+
+    sesionesFiltradas.forEach(r => {
+        tablaSesiones.innerHTML += `
+            <tr>
+                <td><strong>${r.fechaRegistro}</strong></td>
+                <td>${r.rutinaNombre}</td>
+                <td style="display: flex;">
+                    <button type="button" class="btn-modificar-sesion" data-id="${r.idHistRut}" style="${estiloBotonVer}" onmouseover="this.style.background='#1a2e05'" onmouseout="this.style.background='transparent'">VER / EDITAR</button>
+                    <button type="button" class="btn-eliminar-sesion" data-id="${r.idHistRut}" data-nombre="${r.rutinaNombre}" data-fecha="${r.fechaRegistro}" style="${estiloBotonEliminar}" ${hoverEliminar}>ELIMINAR</button>
+                </td>
+            </tr>
+        `;
+    });
+
+    document.querySelectorAll('.btn-modificar-sesion').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            await abrirEdicionSesion(e.target.dataset.id);
+        });
+    });
+
+    document.querySelectorAll('.btn-eliminar-sesion').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            abrirModalEliminarSesion(e.target.dataset.id, e.target.dataset.nombre, e.target.dataset.fecha);
+        });
+    });
+}
+
+// 3. Traer el detalle de una sesión y armar los inputs
 async function abrirEdicionSesion(idHistRut) {
     try {
         const detalle = await apiRequest(`/api/coach/historial/sesion/${idHistRut}`, { token: getToken() });
@@ -111,10 +327,9 @@ async function abrirEdicionSesion(idHistRut) {
 
         contenedorEjercicios.innerHTML = '';
 
-        // Agrupar las series por Ejercicio
         const seriesPorEjercicio = {};
         detalle.series.forEach(serie => {
-            if(!seriesPorEjercicio[serie.idEjercicio]) {
+            if (!seriesPorEjercicio[serie.idEjercicio]) {
                 seriesPorEjercicio[serie.idEjercicio] = {
                     nombre: serie.nombreEjercicio,
                     series: []
@@ -123,7 +338,6 @@ async function abrirEdicionSesion(idHistRut) {
             seriesPorEjercicio[serie.idEjercicio].series.push(serie);
         });
 
-        // Dibujar las tarjetas por cada ejercicio
         Object.entries(seriesPorEjercicio).forEach(([idEjercicio, datosEj], index) => {
             const card = document.createElement('div');
             card.className = 'ejercicio-card';
@@ -178,10 +392,8 @@ async function abrirEdicionSesion(idHistRut) {
                 tbody.appendChild(tr);
             };
 
-            // Dibujar las series existentes
             datosEj.series.forEach((s, idx) => agregarFila(idx + 1, s));
 
-            // Botón para agregar una nueva serie extra
             card.querySelector('.btn-add-serie').addEventListener('click', () => {
                 const numActuales = tbody.querySelectorAll('tr').length;
                 agregarFila(numActuales + 1);
@@ -189,7 +401,6 @@ async function abrirEdicionSesion(idHistRut) {
         });
 
         formEditarSesion.style.display = 'block';
-        // Scroll hasta el formulario
         formEditarSesion.scrollIntoView({ behavior: 'smooth' });
 
     } catch (error) {
@@ -203,7 +414,7 @@ function actualizarNumerosSerie(tbody) {
     filas.forEach((fila, i) => { fila.querySelector('td strong').textContent = i + 1; });
 }
 
-// 3. Enviar el PUT al backend
+// 4. Enviar el PUT al backend
 formEditarSesion.addEventListener('submit', async (e) => {
     e.preventDefault();
     const idHistRut = document.getElementById('idHistRutEditar').value;
@@ -245,6 +456,7 @@ formEditarSesion.addEventListener('submit', async (e) => {
 
         mostrarToast('Sesión actualizada correctamente');
         formEditarSesion.style.display = 'none';
+        await cargarHistorialCliente();
 
     } catch (error) {
         document.getElementById('formStatusHistorial').textContent = error.message;
@@ -252,26 +464,19 @@ formEditarSesion.addEventListener('submit', async (e) => {
 });
 
 // --- LÓGICA PARA ELIMINAR SESIÓN ---
-
-// Abrir el modal y cargar los datos visuales
 function abrirModalEliminarSesion(idHistRut, nombreRutina, fechaRegistro) {
     idSesionAEliminar = idHistRut;
 
-    // Convertir la fecha "yyyy-mm-dd" a un objeto Date (con ajuste de zona horaria)
     const fechaObj = new Date(fechaRegistro + 'T00:00:00');
-
-    // Obtener el día de la semana en español
     const diasSemana = ["Domingo", "Lunes", "Martes", "Miércoles", "Jueves", "Viernes", "Sábado"];
     const diaNombre = diasSemana[fechaObj.getDay()];
 
     document.getElementById('eliminarSesionNombreRutina').textContent = nombreRutina;
-    // Mostrar día + fecha (ej: "Lunes, 2024-03-25")
     document.getElementById('eliminarSesionFecha').textContent = `${diaNombre}, ${fechaRegistro}`;
 
     modalConfirmarEliminar.showModal();
 }
 
-// Consumir el endpoint DELETE
 async function eliminarSesionBackend() {
     if (!idSesionAEliminar) return;
 
@@ -284,12 +489,10 @@ async function eliminarSesionBackend() {
         modalConfirmarEliminar.close();
         mostrarToast('Sesión eliminada correctamente');
 
-        // Si estábamos editando esta misma sesión, cerramos el formulario
         if (document.getElementById('idHistRutEditar').value === idSesionAEliminar) {
             formEditarSesion.style.display = 'none';
         }
 
-        // Recargar la tabla
         await cargarHistorialCliente();
 
     } catch (error) {
@@ -297,4 +500,8 @@ async function eliminarSesionBackend() {
     }
 }
 
-function mostrarToast(m) { toast.textContent = m; toast.hidden = false; setTimeout(() => toast.hidden = true, 3500); }
+function mostrarToast(m) {
+    toast.textContent = m;
+    toast.hidden = false;
+    setTimeout(() => toast.hidden = true, 3500);
+}

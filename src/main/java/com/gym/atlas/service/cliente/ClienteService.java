@@ -107,7 +107,7 @@ public class ClienteService {
         String email = SecurityContextHolder.getContext().getAuthentication().getName();
 
         // Obtiene solo las rutinas activas
-        List<ClienteCoach> asignaciones = asignacionRepository.findByClienteMailUsAndActivoTrue(email);
+        List<ClienteCoach> asignaciones = asignacionRepository.findByClienteMailUsAndEstadoTrue(email);
 
         if (asignaciones.isEmpty()) {
             throw new RuntimeException("No tienes rutinas asignadas actualmente.");

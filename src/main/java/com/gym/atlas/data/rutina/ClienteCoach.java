@@ -29,8 +29,8 @@ public class ClienteCoach {
     @Column(length = 50)
     private String duracionPlan;
 
-    @Column(nullable = false)
-    private Boolean activo = true;
+    @Column(name="estado",nullable = false)
+    private Boolean estado = true;
 
     public ClienteCoach() {}
 
@@ -47,6 +47,6 @@ public class ClienteCoach {
     public void setFechaPlan(LocalDate fechaPlan) { this.fechaPlan = fechaPlan; }
     public String getDuracionPlan() { return duracionPlan; }
     public void setDuracionPlan(String duracionPlan) { this.duracionPlan = duracionPlan; }
-    public Boolean getActivo() { return activo; }
-    public void setActivo(Boolean activo) { this.activo = activo; }
+    public Boolean getEstado() { return estado; }
+    public void setEstado(Boolean activo) { this.estado = activo; }
 }
