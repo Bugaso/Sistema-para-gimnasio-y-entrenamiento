@@ -115,13 +115,16 @@ async function verificarAdminNavBar() {
 
 //Membresias dinamicas
 
-// Añade este código a tu archivo main.js
-
 document.addEventListener('DOMContentLoaded', async () => {
     // ... tu código existente (verificarAdminNavBar, etc.)
     await cargarMembresiasIndex();
+    const token = getToken();
+    if (token) {
+        await verificarVencimientoCliente(token);
+    }
 });
 
+// Función global para membresías
 async function cargarMembresiasIndex() {
     const carrusel = document.getElementById('carruselMembresias');
     if (!carrusel) return;
@@ -258,6 +261,54 @@ function renderizarCarruselMembresias(contenedor, grupos) {
             </article>
         `;
     });
+
+}
+
+
+// --- ALERTA DE VENCIMIENTO (CLIENTES) ---
+async function verificarVencimientoCliente(token) {
+    try {
+        // Consultamos el historial del usuario logueado
+        const historial = await apiRequest('/api/cliente/historial-pagos', { token });
+        if (!historial) return;
+
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+
+        // Recorremos sus membresías buscando las activas
+        for (let pago of historial) {
+            if (pago.estado === 'ACTIVO' && pago.fechaVencimiento) {
+                // Parseamos la fecha evitando problemas de zona horaria
+                const [year, month, day] = pago.fechaVencimiento.split('-');
+                const fechaVenc = new Date(year, month - 1, day);
+                fechaVenc.setHours(0, 0, 0, 0);
+
+                // Calculamos la diferencia en días
+                const diffTime = fechaVenc - hoy;
+                const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+                // Si restan 5 días o menos, mostramos el modal rojo
+                if (diffDays >= 0 && diffDays <= 5) {
+                    const modal = document.getElementById('modalVencimientoCliente');
+                    const texto = document.getElementById('textoVencimientoCliente');
+
+                    if (modal && texto) {
+                        const mensaje = diffDays === 0
+                            ? `¡Tu plan "${pago.nombreMembresia}" vence HOY!`
+                            : `Tu plan "${pago.nombreMembresia}" está por vencer en ${diffDays} día(s).`;
+
+                        texto.textContent = mensaje;
+                        modal.showModal();
+                    }
+                    // Detenemos el bucle al mostrar la primera alerta relevante
+                    break;
+                }
+            }
+        }
+    } catch (error) {
+        // Ignoramos el error silenciosamente (ej. si el usuario logueado es el Admin y no tiene ruta de cliente)
+        console.log("Comprobación de vencimiento omitida para este rol.");
+    }
 }
 
 /*
