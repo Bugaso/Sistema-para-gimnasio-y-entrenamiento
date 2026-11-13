@@ -33,6 +33,9 @@ async function cargarHistorial() {
         // Llamada a tu endpoint general
         historialTotal = await apiRequest('/cliente-membresias/historial', { token: getToken() });
         aplicarFiltros();
+
+        procesarVencimientos(historialTotal);
+
     } catch (error) {
         tabla.innerHTML = `<tr><td colspan="5" style="text-align:center; color: #ef9d89;">Error al cargar datos: ${error.message}</td></tr>`;
     }
@@ -73,13 +76,13 @@ function renderizarTabla(lista) {
     lista.forEach(reg => {
         const tr = document.createElement('tr');
 
-        // --- AJUSTA ESTOS NOMBRES SEGÚN TU DTO DE RESPUESTA ---
         const nombreCliente = reg.usuario?.nomApe || reg.nombreCliente || 'Cliente Desconocido';
         const dniCliente = reg.usuario?.dniUs || reg.dniCliente || '-';
         const nombrePlan = reg.nombreMembresia || 'Plan Base';
         // Formateo de fecha
         const diasAsistencia = reg.diasAsistencia || 0;
         const fecha = reg.fechaPago;
+        const fechaVencimiento = reg.fechaVencimiento || '-';
         let estado = reg.estado;
 
 
@@ -89,6 +92,7 @@ function renderizarTabla(lista) {
         // Estilos visuales para inactivos
         const estiloTexto = esInactivo ? 'color: var(--muted); text-decoration: line-through;' : '';
         const estiloEtiqueta = esInactivo ? 'background: #333; color: #aaa;' : '';
+        const estiloVencimiento = esInactivo ? '' : 'color: var(--lime); font-weight: bold;';
 
         // Botón de acción
         let botonHTML = '';
@@ -118,6 +122,7 @@ function renderizarTabla(lista) {
                 <strong style="${estiloTexto}">${diasAsistencia} días/sem</strong>
             </td>
             <td style="${estiloTexto}">${fecha}</td>
+            <td style="${estiloTexto} ${estiloVencimiento}">${fechaVencimiento}</td>
             <td>
                 <span class="role-label" style="${estiloEtiqueta}">${estado}</span>
             </td>
@@ -155,6 +160,105 @@ async function procesarBaja() {
         mostrarToast("Error al procesar la baja: " + error.message);
     } finally {
         idBajaSeleccionada = null;
+    }
+}
+
+// --- LÓGICA DE PRÓXIMOS VENCIMIENTOS ---
+function procesarVencimientos(lista) {
+    const panel = document.getElementById('panelVencimientos');
+    const contenedor = document.getElementById('listaVencimientos');
+    const btnVerMas = document.getElementById('btnVerMasVencimientos');
+
+    contenedor.innerHTML = '';
+
+    // Configurar 'hoy' a las 00:00:00 para calcular días exactos sin importar la hora
+    const hoy = new Date();
+    hoy.setHours(0, 0, 0, 0);
+
+    let proximos = [];
+
+    lista.forEach(reg => {
+        // Solo verificamos clientes activos. Si no tiene fechaVencimiento, lo saltamos.
+        if (reg.estado !== 'ACTIVO' || !reg.fechaVencimiento) return;
+
+        // Parsear "YYYY-MM-DD" desde el DTO para evitar problemas de zona horaria
+        const [year, month, day] = reg.fechaVencimiento.split('-');
+        const fechaVenc = new Date(year, month - 1, day);
+        fechaVenc.setHours(0, 0, 0, 0);
+
+        // Diferencia en milisegundos convertida a días
+        const diffTime = fechaVenc - hoy;
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+
+        // Filtramos solo los que vencen en 7 días o menos (incluso los que vencen hoy, diffDays == 0)
+        if (diffDays >= 0 && diffDays <= 7) {
+            proximos.push({ ...reg, diasRestantes: diffDays });
+        }
+    });
+
+    // Si no hay ninguno por vencer, ocultamos todo el panel superior
+    if (proximos.length === 0) {
+        panel.style.display = 'none';
+        return;
+    }
+
+    // Ordenar del más urgente (0) al menos urgente (7)
+    proximos.sort((a, b) => a.diasRestantes - b.diasRestantes);
+
+    panel.style.display = 'block';
+    let hayModerados = false;
+
+    proximos.forEach(p => {
+        const esUrgente = p.diasRestantes <= 3; // Rojo
+        if (!esUrgente) hayModerados = true;    // Naranja
+
+        const nombre = p.usuario?.nomApe || p.nombreCliente || 'Cliente';
+        const membresia = p.nombreMembresia || 'Plan';
+
+        // Diseño de colores
+        const colorFondo = esUrgente ? 'rgb(239 68 68 / 10%)' : 'rgb(249 115 22 / 10%)';
+        const colorBorde = esUrgente ? '#ef4444' : '#f97316';
+        const colorTexto = esUrgente ? '#ef4444' : '#ea580c';
+
+        const div = document.createElement('div');
+        div.className = esUrgente ? 'urgente' : 'moderado';
+        div.style = `background: ${colorFondo}; border-left: 4px solid ${colorBorde}; padding: 12px 16px; border-radius: 4px; display: flex; justify-content: space-between; align-items: center; font-size: 0.95rem;`;
+
+        if (!esUrgente) {
+            div.style.display = 'none'; // Los naranjas nacen ocultos
+        }
+
+        const fechaFormat = p.fechaVencimiento.split('-').reverse().join('/');
+        let textoDias = p.diasRestantes === 0 ? '¡Vence HOY!' : `Vence en ${p.diasRestantes} día(s)`;
+
+        div.innerHTML = `
+            <div>
+                <strong style="color: #333;">${nombre}</strong> <span style="color: #666; margin-left: 8px;">— ${membresia}</span>
+            </div>
+            <div style="color: ${colorTexto}; font-weight: bold; text-transform: uppercase; font-size: 0.85rem;">
+                ${textoDias} <span style="color: #888; margin-left: 8px; font-weight: normal;">(${fechaFormat})</span>
+            </div>
+        `;
+        contenedor.appendChild(div);
+    });
+
+    // Lógica del botón toggle "Ver más"
+    if (hayModerados) {
+        btnVerMas.style.display = 'inline-block';
+        let mostrandoTodo = false;
+
+        // Clonamos el botón para asegurar que no se dupliquen los eventos de clic al recargar
+        const nuevoBtn = btnVerMas.cloneNode(true);
+        btnVerMas.parentNode.replaceChild(nuevoBtn, btnVerMas);
+
+        nuevoBtn.addEventListener('click', () => {
+            mostrandoTodo = !mostrandoTodo;
+            const moderados = contenedor.querySelectorAll('.moderado');
+            moderados.forEach(el => el.style.display = mostrandoTodo ? 'flex' : 'none');
+            nuevoBtn.textContent = mostrandoTodo ? 'Ocultar (mostrar solo urgentes)' : 'Ver más (hasta 7 días)';
+        });
+    } else {
+        btnVerMas.style.display = 'none';
     }
 }
 

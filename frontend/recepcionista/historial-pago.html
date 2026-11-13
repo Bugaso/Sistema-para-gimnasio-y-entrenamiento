@@ -25,6 +25,22 @@
                     </div>
                 </div>
 
+                <!-- ALERTAS DE VENCIMIENTO -->
+                <div class="admin-panel" id="panelVencimientos" style="margin-bottom: 24px; display: none; border-left: 4px solid #ef4444; border-radius: 8px 8px 8px 8px;">
+                    <div class="admin-panel-heading" style="padding: 16px 24px; border-bottom: 1px solid #eaeaea; display: flex; justify-content: space-between; align-items: center;">
+                        <div>
+                            <span style="color: #ef4444; font-weight: bold; font-size: 0.85rem; letter-spacing: 1px;">ATENCIÓN</span>
+                            <h2 style="margin: 0; color: #333; font-family: 'Oswald', sans-serif; text-transform: uppercase;">Próximos Vencimientos</h2>
+                        </div>
+                        <button id="btnVerMasVencimientos" class="admin-secondary-action" style="display: none; padding: 6px 12px; font-size: 0.8rem; background: #fff; border: 1px solid #d1d5d2; border-radius: 4px; cursor: pointer; color: #555; font-weight: bold;">
+                            Ver más (hasta 7 días)
+                        </button>
+                    </div>
+                    <div id="listaVencimientos" style="padding: 16px 24px; display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Se llena dinámicamente con JS -->
+                    </div>
+                </div>
+
                 <div class="admin-panel">
                     <div class="admin-panel-heading">
                         <div>
@@ -55,6 +71,7 @@
                                 <th>Plan Adquirido</th>
                                 <th>Dias Asistencia</th>
                                 <th>Fecha de Pago</th>
+                                <th>Fecha de Venc.</th>
                                 <th>Estado</th>
                                 <th style="text-align: right;">Acciones</th>
                             </tr>

@@ -1,7 +1,6 @@
 package com.gym.atlas.service.membresia;
 
 import com.gym.atlas.data.membresia.ClienteMembresia;
-import com.gym.atlas.data.membresia.Membresia;
 import com.gym.atlas.data.membresia.TipoMembresia;
 import com.gym.atlas.data.usuario.Usuario;
 import com.gym.atlas.dto.MessageResponse;
