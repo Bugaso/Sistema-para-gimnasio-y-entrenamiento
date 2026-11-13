@@ -3,19 +3,20 @@ import { apiRequest, getToken, clearToken } from '../api.js';
 const toast = document.getElementById('toast');
 const formatoImporte = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' });
 const mostrarInactivos = document.getElementById("chkInactivos");
-const tbody = document.getElementById('tbodyHistorialPagosCliente');
-let historial = []
+
+let ClienteRutinahistorial = []
 
 mostrarInactivos.addEventListener('change',aplicarFiltro)
 
 // --- HISTORIAL DE PAGOS (CLIENTE) ---
 export async function cargarHistorialPagosCliente() {
 
+    const tbody = document.getElementById('tbodyHistorialPagosCliente');
 
     try {
-        historial = await apiRequest('/api/cliente/historial-pagos', { token: getToken() });
+        ClienteRutinahistorial = await apiRequest('/api/cliente/historial-pagos', { token: getToken() });
 
-        if (!Array.isArray(historial) || historial.length === 0) {
+        if (!Array.isArray(ClienteRutinahistorial) || ClienteRutinahistorial.length === 0) {
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; color:#666; padding: 20px;">Aún no tienes pagos registrados.</td></tr>';
             return;
         }
@@ -40,9 +41,9 @@ function mostrarToast(m) {
 }
 
 function aplicarFiltro(){
-    let filtro = historial
+    let filtro = ClienteRutinahistorial
     if(!mostrarInactivos.checked){
-        filtro = historial.filter( pago =>
+        filtro = ClienteRutinahistorial.filter( pago =>
             pago.estado === 'ACTIVO'
         );
         console.log(filtro)
@@ -52,6 +53,7 @@ function aplicarFiltro(){
 
 function renderizarHistorial(listaPagos){
 
+    const tbody = document.getElementById('tbodyHistorialPagosCliente');
     tbody.innerHTML = '';
 
 

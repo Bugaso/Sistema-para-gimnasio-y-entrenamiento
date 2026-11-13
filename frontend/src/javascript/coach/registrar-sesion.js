@@ -20,6 +20,7 @@ const tbodyClientesModal = document.getElementById('tbodyClientesModal');
 // Caché en memoria
 let clientesAgrupados = [];
 let rutinaPlanificadaActual = null;
+const cacheHistorialAsignacion = new Map();
 
 document.addEventListener('DOMContentLoaded', async () => {
     renderCoachLayout('registrar-sesion');
@@ -52,9 +53,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         filtrarClientesModal(e.target.value);
     });
 
-    // Eventos de selección de rutina y día
+    // Eventos de selección de rutina, día y fecha
     selectRutinaCliente.addEventListener('change', alSeleccionarRutina);
     selectDia.addEventListener('change', generarVistaEjercicios);
+    fechaSesion.addEventListener('change', generarVistaEjercicios);
 });
 
 function autoseleccionarDiaActual() {
@@ -108,6 +110,7 @@ async function cargarAsignaciones() {
 }
 
 // --- LÓGICA DEL MODAL DE CLIENTES ---
+//Permite seleccionar un cliente mediante filtros
 function abrirModalClientes() {
     inputBuscarCliente.value = '';
     renderizarTablaClientesModal(clientesAgrupados);
@@ -214,12 +217,51 @@ function alSeleccionarRutina() {
     generarVistaEjercicios();
 }
 
-// 2. Traer la rutina y armar los inputs según el día seleccionado
+// Verificar si la sesión ya fue registrada en esa fecha
+async function verificarSesionRegistrada(idAsignacion, fecha, ejerciciosDelDia) {
+    if (!fecha) return false;
+
+    try {
+        let historial = cacheHistorialAsignacion.get(String(idAsignacion));
+
+        if (!historial) {
+            historial = await apiRequest(`/api/coach/historial/asignacion/${idAsignacion}`, { token: getToken() });
+            cacheHistorialAsignacion.set(String(idAsignacion), Array.isArray(historial) ? historial : []);
+        }
+
+        const sesionesEnFecha = historial.filter(s => s.fechaRegistro === fecha);
+        if (sesionesEnFecha.length === 0) return false;
+
+        // Si el endpoint incluye el detalle de ejercicios/series, comprobamos si coincide con el día elegido;
+        // si solo devuelve la cabecera de la sesión por fecha, se considera ya registrada.
+        return sesionesEnFecha.some(sesion => {
+            const detallesSesion = sesion.ejercicios || sesion.detalles || sesion.series;
+            if (!Array.isArray(detallesSesion) || detallesSesion.length === 0) {
+                return true;
+            }
+            const idsRegistrados = new Set(detallesSesion.map(d => Number(d.idEjercicio)));
+            return ejerciciosDelDia.some(ej => idsRegistrados.has(Number(ej.idEjercicio)));
+        });
+    } catch (error) {
+        console.warn("No se pudo verificar el historial previo de la sesión:", error);
+        return false;
+    }
+}
+
+function formatearFechaLocal(fechaISO) {
+    if (!fechaISO) return '';
+    const [anio, mes, dia] = fechaISO.split('-');
+    return `${dia}/${mes}/${anio}`;
+}
+
+// 2. Traer la rutina, validar si ya está completada y armar los inputs
 async function generarVistaEjercicios() {
     const idAsignacion = selectRutinaCliente.value;
     const dia = selectDia.value;
+    const fecha = fechaSesion.value;
+    const btnSubmit = document.querySelector('#formSesion button[type="submit"]');
 
-    if (!idAsignacion || !dia) {
+    if (!idAsignacion || !dia || !fecha) {
         formSesion.style.display = 'none';
         contenedorEjercicios.innerHTML = '';
         return;
@@ -237,7 +279,31 @@ async function generarVistaEjercicios() {
         if (ejerciciosDelDia.length === 0) {
             contenedorEjercicios.innerHTML = `<p style="color: #ef4444; font-weight: 600;">No hay ejercicios planificados para el día ${dia} en esta rutina.</p>`;
             formSesion.style.display = 'block';
-            document.querySelector('#formSesion button[type="submit"]').style.display = 'none';
+            btnSubmit.style.display = 'none';
+            return;
+        }
+
+        const yaRegistrada = await verificarSesionRegistrada(idAsignacion, fecha, ejerciciosDelDia);
+
+        if (yaRegistrada) {
+            contenedorEjercicios.innerHTML = `
+                <div style="background: #fef2f2; border: 1px solid #fecaca; border-left: 4px solid var(--lime); border-radius: 8px; padding: 20px 24px; color: #7f1d1d;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 6px;">
+                        <span style="background: #dcfce7; color: #166534; border: 1px solid #bbf7d0; padding: 3px 10px; border-radius: 12px; font-size: 0.75rem; font-weight: bold; text-transform: uppercase;">
+                            Sesión Completada
+                        </span>
+                        
+                    </div>
+                    <strong style="font-size: 1.05rem; color: #333;">Registro existente el ${formatearFechaLocal(fecha)}</strong>
+                    
+                    <p style="margin: 0; color: #555; font-size: 0.95rem;">
+                        Esta sesión de entrenamiento ya fue registrada para la fecha seleccionada. Por favor, selecciona <strong>otra rutina</strong>, <strong>otro día</strong> de la misma o cambia la fecha para realizar un nuevo registro.
+                    </p>
+                </div>
+            `;
+            formSesion.style.display = 'block';
+            btnSubmit.style.display = 'none';
+            document.getElementById('formStatus').textContent = '';
             return;
         }
 
@@ -353,16 +419,16 @@ formSesion.addEventListener('submit', async (e) => {
     }
 
     const seriesData = [];
-    const filasTotales = document.querySelectorAll('tbody tr');
+    const filasTotales = document.querySelectorAll('#contenedorEjercicios tbody tr[data-idejercicio]');
 
     filasTotales.forEach(fila => {
         const idEj = fila.dataset.idejercicio;
         const nroSerie = parseInt(fila.querySelector('td strong').textContent);
-        const reps = fila.querySelector('.rep-val').value;
-        const peso = fila.querySelector('.pes-val').value;
-        const esfTipo = fila.querySelector('.esf-tipo').value;
-        const esfCant = fila.querySelector('.esf-cant').value;
-        const tiem = fila.querySelector('.tiem-val').value;
+        const reps = fila.querySelector('.rep-val')?.value;
+        const peso = fila.querySelector('.pes-val')?.value;
+        const esfTipo = fila.querySelector('.esf-tipo')?.value;
+        const esfCant = fila.querySelector('.esf-cant')?.value;
+        const tiem = fila.querySelector('.tiem-val')?.value;
 
         if (reps || peso || tiem) {
             seriesData.push({
@@ -395,6 +461,9 @@ formSesion.addEventListener('submit', async (e) => {
             body: JSON.stringify(payload),
             token: getToken()
         });
+
+        // Invalidar caché de esa asignación para reflejar el nuevo registro al instante
+        cacheHistorialAsignacion.delete(String(idAsignacion));
 
         mostrarToast('¡Sesión registrada correctamente!');
         contenedorEjercicios.innerHTML = '';

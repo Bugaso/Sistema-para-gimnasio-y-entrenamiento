@@ -11,7 +11,7 @@ const selectDiaSemanaManual = document.getElementById('selectDiaSemanaManual');
 const contenedorEjerciciosCliente = document.getElementById('contenedorEjerciciosCliente');
 const formSesionCliente = document.getElementById('formSesionCliente');
 const botonGuardarSesionContainer = document.getElementById('botonGuardarSesionContainer');
-
+const toast = document.getElementById('toast');
 const selectorRutinaDia = document.getElementById('selectorRutinaDia');
 const infoRutinaSeleccionada = document.getElementById('infoRutinaSeleccionada');
 
@@ -416,16 +416,16 @@ async function guardarSesionCliente(e) {
     const fecha = document.getElementById('fechaCalendario').value;
 
     const seriesData = [];
-    const filasTotales = document.querySelectorAll('tbody tr');
+    const filasTotales = document.querySelectorAll('#contenedorEjerciciosCliente tbody tr[data-idejercicio]');
 
     filasTotales.forEach(fila => {
         const idEj = fila.dataset.idejercicio;
         const nroSerie = parseInt(fila.querySelector('td strong').textContent);
-        const reps = fila.querySelector('.rep-val').value;
-        const peso = fila.querySelector('.pes-val').value;
-        const esfTipo = fila.querySelector('.esf-tipo').value;
-        const esfCant = fila.querySelector('.esf-cant').value;
-        const tiem = fila.querySelector('.tiem-val').value;
+        const reps = fila.querySelector('.rep-val')?.value;
+        const peso = fila.querySelector('.pes-val')?.value;
+        const esfTipo = fila.querySelector('.esf-tipo')?.value;
+        const esfCant = fila.querySelector('.esf-cant')?.value;
+        const tiem = fila.querySelector('.tiem-val')?.value;
 
         if (reps || peso || tiem) {
             seriesData.push({
@@ -447,18 +447,7 @@ async function guardarSesionCliente(e) {
 
     status.textContent = 'Guardando...';
 
-    // Recuperamos el índice de la opción seleccionada en el select visual
-    const selectorIndice = document.getElementById('selectorRutinaDia').value;
-
-    // De tu array global de 'opcionesDisponibles' que creaste en 'cargarEntrenamiento()',
-    // pero como 'opcionesDisponibles' era local, necesitas recuperar la asignación seleccionada.
-    // Una forma sencilla es leer un data-attribute que le pongas al <select>, o buscarlo en el DOM,
-    // o hacer la variable 'opcionesDisponibles' global let opcionesDelDia = [];
-
-    // Para no reestructurar todo tu archivo, el idCliCou ya está dentro de 'asignacionesActivas'
-    // Como tu select value es el 'index', debes asegurarte de enviarle el idCliCou correcto.
-    // ASUMO QUE LA RUTINA A GUARDAR ES LA ÚNICA O LA SELECCIONADA EN ESE MOMENTO:
-    const idAsignacion = selectorIndice; // <- AJUSTAR según cómo manejes la selección de rutina
+    const idAsignacion = parseInt(document.getElementById('selectorRutinaDia').value);
 
     const payload = {
         idCliCou: idAsignacion,
@@ -480,5 +469,12 @@ async function guardarSesionCliente(e) {
     } catch (error) {
         status.textContent = error.message;
     }
+}
+
+function mostrarToast(m) {
+    if (!toast) return;
+    toast.textContent = m;
+    toast.hidden = false;
+    setTimeout(() => toast.hidden = true, 3500);
 }
 
