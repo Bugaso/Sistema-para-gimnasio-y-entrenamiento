@@ -6,6 +6,7 @@ import com.gym.atlas.data.membresia.TipoMembresia;
 import com.gym.atlas.data.usuario.Usuario;
 import com.gym.atlas.dto.MessageResponse;
 import com.gym.atlas.dto.membresia.ClienteMembresiaDTO;
+import com.gym.atlas.dto.membresia.HistorialPagoClienteResponse;
 import com.gym.atlas.dto.membresia.RegistrarClienteMembresiaRequest;
 import com.gym.atlas.repository.membresia.ClienteMembresiaRepository;
 import com.gym.atlas.repository.membresia.MembresiaRepository;
@@ -17,6 +18,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 
 @Service
@@ -43,20 +45,11 @@ public class ClienteMembresiaService {
     @Transactional
     public void actualizarEstadosVencidos() {
         LocalDate hoy = LocalDate.now();
-        // Lógica para buscar membresías ACTIVAS cuya fecha de vencimiento ya pasó,
-        // cambiarles el estado a VENCIDO, y hacer un saveAll().
-        clienteMembresiaRepository.findAll().stream().forEach(cliMem ->{
-            LocalDateTime vencimiento = cliMem.getFechaPago().plusDays(
-                    cliMem.getIdTipoMembresia().getDuracionMembresia()*cliMem.getCantCuotas());
-
-            String estado =  cliMem.getEstado();
-            if(vencimiento.isBefore(LocalDateTime.now())
-                    && estado.equalsIgnoreCase("VENCIDO")
-                    && estado.equalsIgnoreCase("BAJA")){
-
-                cliMem.setEstado("VENCIDO");
-                System.out.println("EL ESTADO SE ACTUALIZA A VENCIDO");
-                clienteMembresiaRepository.save(cliMem);
+        clienteMembresiaRepository.findAll().forEach(clienteMembresia -> {
+            LocalDate vencimiento = calcularVencimiento(clienteMembresia).toLocalDate();
+            if (vencimiento.isBefore(hoy) && "ACTIVO".equalsIgnoreCase(clienteMembresia.getEstado())) {
+                clienteMembresia.setEstado("VENCIDO");
+                clienteMembresiaRepository.save(clienteMembresia);
             }
         });
     }
@@ -98,64 +91,57 @@ public class ClienteMembresiaService {
         return clienteMembresiaRepository.save(clienteMembresia);
     }
 
-    @Transactional()
+    @Transactional
     public List<ClienteMembresiaDTO> obtenerHistorial() {
-        List<ClienteMembresiaDTO> listaCliMemDTO;
         List<ClienteMembresia> listaCliMem = clienteMembresiaRepository.findAll();
-        if(listaCliMem.isEmpty()){
-            return null;
-        }
-
-        listaCliMemDTO = listaCliMem.stream().map(cliMem -> {
-
-                        ClienteMembresiaDTO clienteMembresiaDTO = new ClienteMembresiaDTO(
-                            cliMem.getIdCliMem(),
-                            cliMem.getUsuario(),
-                            cliMem.getIdTipoMembresia().getIdTipoMem(),
-                            cliMem.getIdTipoMembresia().getMembresia().getDescripMembresia(),
-                            cliMem.getIdTipoMembresia().getDiasAsistencia(),
-                            cliMem.getCantCuotas(),
-                            cliMem.getFechaPago().toLocalDate().toString(),
-                            cliMem.getEstado(),
-                            cliMem.getCantEfect(),
-                            cliMem.getCostoTotal()
-                        );
-            System.out.println("DTO DE CLIENTEMEMBRESIA: " +clienteMembresiaDTO.toString());
-                    return clienteMembresiaDTO;
-                }
-        ).toList();
-
-        return listaCliMemDTO;
+        return listaCliMem.stream().map(cliMem -> {
+            return new ClienteMembresiaDTO(
+                    cliMem.getIdCliMem(),
+                    cliMem.getUsuario(),
+                    cliMem.getIdTipoMembresia().getIdTipoMem(),
+                    cliMem.getIdTipoMembresia().getMembresia().getDescripMembresia(),
+                    cliMem.getIdTipoMembresia().getDiasAsistencia(),
+                    cliMem.getCantCuotas(),
+                    cliMem.getFechaPago().toLocalDate().toString(),
+                    calcularVencimiento(cliMem).toLocalDate().toString(),
+                    obtenerEstadoActual(cliMem),
+                    cliMem.getCantEfect(),
+                    cliMem.getCostoTotal()
+            );
+        }).toList();
     }
 
-    public List<ClienteMembresiaDTO> obtenerHistorialCliente(Long idUsuario) {
-        List<ClienteMembresia> cliMemList = clienteMembresiaRepository.findAllByUsuarioIdUsuario(idUsuario);
-        if(cliMemList.isEmpty()){
-            return null;
+    @Transactional(readOnly = true)
+    public List<HistorialPagoClienteResponse> obtenerHistorialCliente(Long idUsuario) {
+        return clienteMembresiaRepository.findAllByUsuarioIdUsuario(idUsuario).stream()
+                .sorted(Comparator.comparing(ClienteMembresia::getFechaPago).reversed())
+                .map(clienteMembresia -> new HistorialPagoClienteResponse(
+                        clienteMembresia.getIdCliMem(),
+                        clienteMembresia.getIdTipoMembresia().getMembresia().getDescripMembresia(),
+                        clienteMembresia.getIdTipoMembresia().getDiasAsistencia(),
+                        clienteMembresia.getCantCuotas(),
+                        clienteMembresia.getFechaPago().toLocalDate().toString(),
+                        calcularVencimiento(clienteMembresia).toLocalDate().toString(),
+                        obtenerEstadoActual(clienteMembresia),
+                        clienteMembresia.getCostoTotal()
+                ))
+                .toList();
+    }
+
+    private LocalDateTime calcularVencimiento(ClienteMembresia clienteMembresia) {
+        return clienteMembresia.getFechaPago().plusDays(
+                (long) clienteMembresia.getIdTipoMembresia().getDuracionMembresia()
+                        * clienteMembresia.getCantCuotas()
+        );
+    }
+
+    private String obtenerEstadoActual(ClienteMembresia clienteMembresia) {
+        String estado = clienteMembresia.getEstado();
+        if ("ACTIVO".equalsIgnoreCase(estado)
+                && calcularVencimiento(clienteMembresia).toLocalDate().isBefore(LocalDate.now())) {
+            return "VENCIDO";
         }
-
-        List<ClienteMembresiaDTO> cliMemListDTO = cliMemList.stream().map( cliMem ->{
-
-
-                ClienteMembresiaDTO cliMemDTO = new ClienteMembresiaDTO(
-                        cliMem.getIdCliMem(),
-                        cliMem.getUsuario(),
-                        cliMem.getIdTipoMembresia().getIdTipoMem(),
-                        cliMem.getIdTipoMembresia().getMembresia().getDescripMembresia(),
-                        cliMem.getIdTipoMembresia().getDiasAsistencia(),
-                        cliMem.getCantCuotas(),
-                        cliMem.getFechaPago().toString(),
-                        cliMem.getEstado(),
-                        cliMem.getCantEfect(),
-                        cliMem.getCostoTotal()
-                );
-
-
-
-                return cliMemDTO;
-        }).toList();
-        return cliMemListDTO;
-
+        return estado;
     }
 
     public MessageResponse borrarPagoCliente(Long idCliMem) {

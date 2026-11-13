@@ -58,7 +58,7 @@ function aplicarFiltros() {
         return coincideTexto;
     });
 
-    renderizarTabla(filtrados);
+    renderizarTabla(filtrados.sort((a, b) => new Date(b.fechaPago) - new Date(a.fechaPago)));
 }
 
 function renderizarTabla(lista) {

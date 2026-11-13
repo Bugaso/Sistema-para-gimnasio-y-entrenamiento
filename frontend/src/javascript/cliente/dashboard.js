@@ -1,4 +1,5 @@
 import { apiRequest, getToken, clearToken } from '../api.js';
+import {cargarHistorialPagosCliente} from "./historial-pagos.js";
 
 // Elementos DOM
 const tabs = document.querySelectorAll('.tab-btn');
@@ -10,7 +11,6 @@ const selectDiaSemanaManual = document.getElementById('selectDiaSemanaManual');
 const contenedorEjerciciosCliente = document.getElementById('contenedorEjerciciosCliente');
 const formSesionCliente = document.getElementById('formSesionCliente');
 const botonGuardarSesionContainer = document.getElementById('botonGuardarSesionContainer');
-const toast = document.getElementById('toast');
 
 const selectorRutinaDia = document.getElementById('selectorRutinaDia');
 const infoRutinaSeleccionada = document.getElementById('infoRutinaSeleccionada');
@@ -66,6 +66,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     await cargarDatosPerfil();
     await verificarRutinaAsignada();
+    await cargarHistorialPagosCliente();
 });
 
 // --- PERFIL ---
@@ -481,6 +482,3 @@ async function guardarSesionCliente(e) {
     }
 }
 
-function mostrarToast(m) {
-    toast.textContent = m; toast.hidden = false; setTimeout(() => toast.hidden = true, 3500);
-}
