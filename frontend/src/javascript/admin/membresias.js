@@ -1,4 +1,4 @@
-import { apiRequest, getToken } from '../api.js';
+import {apiRequest, getToken, verificarAccesoRuta} from '../api.js';
 import { renderAdminLayout } from '../layout-admin.js';
 
 const form = document.getElementById('formMembresia');
@@ -12,8 +12,11 @@ let idEstadoMembresiaSeleccionada = null;
 let accionEstadoMembresia = null; // 'alta' o 'baja'
 let idBajaTipoSeleccionado = null;
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
+
     renderAdminLayout('membresias');
+    const tieneAcceso = await verificarAccesoRuta("/admin/validar", "/");
+    if (!tieneAcceso) return;
     cargarMembresias();
 
 });

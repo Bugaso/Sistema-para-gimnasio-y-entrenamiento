@@ -1,4 +1,4 @@
-import { apiRequest, getToken } from '../api.js';
+import {apiRequest, getToken, verificarAccesoRuta} from '../api.js';
 import { renderRecepcionLayout } from './layout-recepcionista.js';
 
 const form = document.getElementById('formHistorial');
@@ -13,6 +13,8 @@ let historialesTotales = [];
 let idEliminarSeleccionado = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const tieneAcceso = await verificarAccesoRuta("/api/recepcion/validar", "/");
+    if (!tieneAcceso) return;
     renderRecepcionLayout('historial_medico');
 
     const token = getToken();

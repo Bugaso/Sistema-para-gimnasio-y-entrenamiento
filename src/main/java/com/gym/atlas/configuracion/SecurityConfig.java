@@ -1,5 +1,6 @@
-package com.gym.atlas.Security;
+package com.gym.atlas.configuracion;
 
+import com.gym.atlas.security.JwtAuthenticationFilter;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -33,7 +34,6 @@ public class SecurityConfig {
             "/usuarios",
             "/usuarios/**",
             "/cliente-membresias/**",
-            // Endpoints de documentación (Swagger/OpenAPI) si los utilizas
             "/v3/api-docs/**",
             "/swagger-ui/**",
             "/swagger-ui.html",
@@ -42,22 +42,29 @@ public class SecurityConfig {
             "/images/**",
             "/favicon.ico",
             "/assets/**",
+            "/perfiles/**",
             "/rol",
 
             // HTMLs de Admin (Públicos)
-            "/admin",
-            "/admin/**", // Permite servir todas las páginas estáticas de la carpeta admin
+            "/admin", "/admin/**",
             "/admin/personal",
-            "/personal.html",       // <- Permite el archivo si está en la raíz
-            "/admin/personal.html",  // <- Permite el archivo si está dentro de /admin/
+            "/personal.html",
+            "/admin/personal.html",
 
-            //HTMLs de Recepción (Públicos)
+            // HTMLs de Recepción (Públicos)
             "/recepcionista",
             "/recepcionista/**",
+
+            // HTMLs de Coach y Cliente (Públicos)
             "/coach",
             "/coach/**",
+            "/cliente",
+            "/cliente/**"
+    };
 
-            "/cliente", "/cliente/**"
+    // Solo endpoints de datos protegidos por rol
+    private static final String[] RECEPCION_ENDPOINTS = {
+            "/api/recepcion/**"
     };
 
     private static final String[] AUTH_ENDPOINTS = {
@@ -71,12 +78,10 @@ public class SecurityConfig {
     private static final String[] ADMIN_ENDPOINTS = {
             "/admin/validar", "/admin/personal/registrar", "/api/admin/**"};  /*********/
 
-    //ARREGLO PARA RECEPCIÓN
-    private static final String[] RECEPCION_ENDPOINTS = {
-                    "/api/recepcion/**"
-            };
+
     private static final String[] COACH_ENDPOINTS = {
-            "/api/coach/**"
+            "/api/coach/**",
+            "/api/coach/historial/**"
     };
 
     // Proteger los datos (API) del cliente
@@ -96,9 +101,8 @@ public class SecurityConfig {
                         // 1. ¡CAMBIO CLAVE! Ponemos PRIMERO las rutas restringidas por Rol.
                         // Al estar arriba, Spring verificará el rol ANTES de ver si es una ruta pública.
                         .requestMatchers(ADMIN_ENDPOINTS).hasRole("ADMIN")
-                        .requestMatchers(RECEPCION_ENDPOINTS).hasAnyRole("RECEPCIONISTA", "ADMIN")
-                        .requestMatchers(COACH_ENDPOINTS).hasAnyRole("COACH", "ADMIN")
-                        .requestMatchers("/api/coach/historial/**").hasRole("COACH")
+                        .requestMatchers(RECEPCION_ENDPOINTS).hasAnyRole("RECEPCIONISTA")
+                        .requestMatchers(COACH_ENDPOINTS).hasAnyRole("COACH")
                         // Filtro para los datos del cliente
                         .requestMatchers(CLIENTE_ENDPOINTS).hasAnyRole("CLIENTE", "ADMIN")
 

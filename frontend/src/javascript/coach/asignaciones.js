@@ -1,4 +1,4 @@
-import { apiRequest, getToken } from '../api.js';
+import {apiRequest, getToken, verificarAccesoRuta} from '../api.js';
 import { renderCoachLayout } from '../layout-coach.js';
 
 const formAsignacion = document.getElementById('formAsignacion');
@@ -16,6 +16,8 @@ let rutinaDetalleActual = null;
 let idAsignacionAEliminar = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const tieneAcceso = await verificarAccesoRuta("/api/coach/validar", "/");
+    if (!tieneAcceso) return;
     renderCoachLayout('asignaciones');
     const token = getToken();
     if (!token) { window.location.href = '/login'; return; }

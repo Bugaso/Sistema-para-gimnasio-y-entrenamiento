@@ -9,8 +9,23 @@
     <link rel="stylesheet" href="../src/css/index/index.css" />
 </head>
 <body class="admin-page">
+<!-- PANTALLA DE CARGA Y VALIDACIÓN DE ACCESO -->
+<main class="admin-access" data-access-message>
+    <a class="logo" href="/" aria-label="Atlas Gym, volver al inicio">
+        <span class="logo-mark" aria-hidden="true">A</span>Atlas Gym
+    </a>
+    <div class="admin-access-card">
+        <p class="eyebrow">Acceso restringido</p>
+        <h1>Panel de admin</h1>
+        <p data-access-copy>Validando tus permisos de acceso…</p>
+        <a class="button" href="/login" data-access-action hidden>
+            Iniciar sesión <span class="button-arrow" aria-hidden="true">→</span>
+        </a>
+    </div>
+</main>
 
-<div class="admin-shell" data-admin-shell>
+<!-- LAYOUT PRINCIPAL (Oculto hasta que se valide el token en admin.js) -->
+<div class="admin-shell" data-admin-shell hidden>
     <!-- CONTENEDOR DE BARRA LATERAL -->
     <aside data-layout-sidebar></aside>
 

@@ -1,7 +1,7 @@
 package com.gym.atlas.service.usuario;
 
 
-import com.gym.atlas.Security.JwtService;
+import com.gym.atlas.security.JwtService;
 import com.gym.atlas.data.usuario.Rol;
 import com.gym.atlas.data.usuario.RolUs;
 import com.gym.atlas.data.usuario.Roles;

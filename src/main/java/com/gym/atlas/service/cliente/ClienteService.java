@@ -242,13 +242,11 @@ public class ClienteService {
         }
 
         // 2. Comprobar si ya existe un registro para esta rutina en este día exacto
-        boolean yaRegistrado = historialRutinaRepository
-                .findByAsignacionIdCliCouOrderByFechaRegistroDesc(asignacion.getIdCliCou())
-                .stream()
-                .anyMatch(h -> h.getFechaRegistro().equals(request.fechaRegistro()));
-
-        if (yaRegistrado) {
-            throw new RuntimeException("Ya registraste esta rutina en la fecha seleccionada.");
+        if(historialRutinaRepository.findByAsignacionIdCliCouAndFechaRegistro(
+                        asignacion.getIdCliCou(),
+                        request.fechaRegistro())
+                .isPresent()){
+            new RuntimeException("Ya se registro una sesion en esa fecha");
         }
 
         // 3. Crear cabecera: HistorialRutina

@@ -1,4 +1,4 @@
-import { apiRequest, getToken } from '../api.js';
+import {apiRequest, getToken, verificarAccesoRuta} from '../api.js';
 import { renderRecepcionLayout } from './layout-recepcionista.js';
 
 const buscadorCliente = document.getElementById('buscadorCliente');
@@ -12,6 +12,8 @@ let clienteAdentro = false;
 let clientesCache = []; // Caché para la búsqueda incremental
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const tieneAcceso = await verificarAccesoRuta("/api/recepcion/validar", "/");
+    if (!tieneAcceso) return;
     renderRecepcionLayout('asistencia');
 
     if (!getToken()) { window.location.href = '/login'; return; }

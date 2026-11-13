@@ -1,9 +1,13 @@
-import { getToken } from '../api.js';
-import { renderRecepcionLayout } from './layout-recepcionista.js';
+import {getToken, verificarAccesoRuta} from '../api.js';
+import {protegerVistaPorRol, renderRecepcionLayout} from './layout-recepcionista.js';
 
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', async () => {
     // Ilumina la opción de "Resumen/Overview" o lo deja sin iluminar si no hay ninguna coincidencia
     renderRecepcionLayout('overview');
+
+    const tieneAcceso = await verificarAccesoRuta("/api/recepcion/validar", "/");
+    if (!tieneAcceso) return;
+
 
     const token = getToken();
     if (!token) {

@@ -1,4 +1,35 @@
-import { clearToken } from '../api.js';
+import {apiRequest, clearToken, getToken} from '../api.js';
+
+
+export async function protegerVistaPorRol(rolesPermitidos = []) {
+    const token = getToken();
+    if (!token) {
+        window.location.replace('/login');
+        return false;
+    }
+
+    try {
+        // Consulta al endpoint /me (o decodifica el token si incluye los roles en los claims)
+        const usuario = await apiRequest('/me', { token });
+        const rolesUsuario = (usuario.roles || usuario.authorities || []).map(r =>
+            String(r.authority || r).replace('ROLE_', '').toUpperCase()
+        );
+
+        const tienePermiso = rolesPermitidos.some(rol =>
+            rolesUsuario.includes(rol.toUpperCase())
+        );
+
+        if (!tienePermiso) {
+            window.location.replace('/login'); // O redirige a /cliente/dashboard.html
+            return false;
+        }
+
+        return true;
+    } catch (error) {
+        window.location.replace('/login');
+        return false;
+    }
+}
 
 export function renderRecepcionLayout(activeNav) {
     const sidebarContainer = document.querySelector('[data-layout-sidebar]');

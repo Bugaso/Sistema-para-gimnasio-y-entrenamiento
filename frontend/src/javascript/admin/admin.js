@@ -10,6 +10,7 @@ import { renderAdminLayout } from "../layout-admin.js";
  * Función para verificar el acceso al panel de administrador
  */
 const verificarAccesoAdmin = async () => {
+
     const accessMessage = document.querySelector("[data-access-message]");
     const accessCopy = document.querySelector("[data-access-copy]");
     const accessAction = document.querySelector("[data-access-action]");

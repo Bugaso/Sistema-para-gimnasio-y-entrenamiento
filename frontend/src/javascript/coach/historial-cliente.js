@@ -1,4 +1,4 @@
-import { apiRequest, getToken } from '../api.js';
+import {apiRequest, getToken, verificarAccesoRuta} from '../api.js';
 import { renderCoachLayout } from '../layout-coach.js';
 
 // Elementos principales
@@ -28,6 +28,8 @@ let sesionesCache = [];
 let idSesionAEliminar = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const tieneAcceso = await verificarAccesoRuta("/api/coach/validar", "/");
+    if (!tieneAcceso) return;
     renderCoachLayout('historial-cliente');
     if (!getToken()) { window.location.href = '/login'; return; }
 

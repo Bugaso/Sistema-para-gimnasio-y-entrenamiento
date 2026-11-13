@@ -1,4 +1,4 @@
-import { apiRequest, getToken, clearToken } from '../api.js';
+import {apiRequest, getToken, clearToken, verificarAccesoRuta} from '../api.js';
 import { renderAdminLayout } from '../layout-admin.js';
 
 const form = document.getElementById('formComprobante');
@@ -17,11 +17,13 @@ let idEliminarSeleccionado = null;
 const formateadorMoneda = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' });
 
 document.addEventListener('DOMContentLoaded', async () => {
-    renderAdminLayout('comprobantes');
 
+    renderAdminLayout('comprobantes');
+    const tieneAcceso = await verificarAccesoRuta("/admin/validar", "/");
+    if (!tieneAcceso) return;
     const token = getToken();
     if (!token) {
-        window.location.href = '/inicio-sesion.html';
+        window.location.href = '/login';
         return;
     }
 

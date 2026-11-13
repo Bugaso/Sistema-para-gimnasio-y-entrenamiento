@@ -1,4 +1,4 @@
-import { apiRequest, getToken } from '../api.js';
+import {apiRequest, getToken, verificarAccesoRuta} from '../api.js';
 import { renderRecepcionLayout } from './layout-recepcionista.js'; // Ajusta la ruta a tu layout
 
 // Elementos del DOM
@@ -21,6 +21,8 @@ const alertaExtra = document.getElementById('alertaExtra');
 let asistenciasDelDia = []; // Almacena los datos originales traídos del backend
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const tieneAcceso = await verificarAccesoRuta("/api/recepcion/validar", "/");
+    if (!tieneAcceso) return;
     renderRecepcionLayout('historial_asistencia');
     if (!getToken()) { window.location.href = '/login'; return; }
 

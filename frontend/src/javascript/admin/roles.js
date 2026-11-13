@@ -1,6 +1,6 @@
 import '../../css/index/index.css';
 import '../../css/admin/admin.css';
-import { apiRequest, getToken, clearToken } from '../api.js';
+import {apiRequest, getToken, clearToken, verificarAccesoRuta} from '../api.js';
 
 const form = document.getElementById('formRol');
 const tabla = document.getElementById('tablaRoles');
@@ -13,6 +13,8 @@ let rolesTotales = [];
 let idEliminarSeleccionado = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const tieneAcceso = await verificarAccesoRuta("/admin/validar", "/");
+    if (!tieneAcceso) return;
     const token = getToken();
     if (!token) {
         window.location.href = '/login';
@@ -24,6 +26,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         clearToken();
         window.location.href = '/login';
     });
+
 
     // Filtro de búsqueda
     inputBuscar?.addEventListener('input', aplicarFiltros);

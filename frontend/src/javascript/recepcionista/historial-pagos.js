@@ -1,4 +1,4 @@
-import { apiRequest, getToken } from '../api.js';
+import {apiRequest, getToken, verificarAccesoRuta} from '../api.js';
 import {renderRecepcionLayout} from './layout-recepcionista.js'
 
 let historialTotal = [];
@@ -12,6 +12,10 @@ const modalConfirmarBaja = document.getElementById('modalConfirmarBaja');
 const toast = document.getElementById('toast');
 
 document.addEventListener('DOMContentLoaded', async () => {
+
+    const tieneAcceso = await verificarAccesoRuta("/api/recepcion/validar", "/");
+    if (!tieneAcceso) return;
+
     renderRecepcionLayout('historial_pago')
     // Eventos de filtrado
     inputBuscar?.addEventListener('input', aplicarFiltros);
@@ -59,6 +63,7 @@ function aplicarFiltros() {
         if (!mostrarInactivos && esInactivo) return false;
 
         return coincideTexto;
+
     });
 
     renderizarTabla(filtrados.sort((a, b) => new Date(b.fechaPago) - new Date(a.fechaPago)));

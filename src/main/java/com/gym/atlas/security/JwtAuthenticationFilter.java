@@ -1,4 +1,4 @@
-package com.gym.atlas.Security;
+package com.gym.atlas.security;
 
 import io.jsonwebtoken.ExpiredJwtException;
 import jakarta.servlet.FilterChain;

@@ -1,4 +1,4 @@
-package com.gym.atlas.Security;
+package com.gym.atlas.configuracion;
 
 import com.gym.atlas.repository.usuario.UsuarioRepository;
 import org.springframework.context.annotation.Bean;

@@ -1,6 +1,6 @@
 // Importamos el layout y la API subiendo un nivel (../)
 import { renderAdminLayout } from '../layout-admin.js';
-import { apiRequest, getToken, clearToken } from '../api.js';
+import {apiRequest, getToken, clearToken, verificarAccesoRuta} from '../api.js';
 
 const form = document.getElementById('formEmpleado');
 const tabla = document.getElementById('tablaEmpleados');
@@ -18,8 +18,11 @@ let idEliminarSeleccionado = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
     // 1. Renderizar la barra lateral y superior marcando "03 Personal"
-    renderAdminLayout('personnel');
 
+
+    renderAdminLayout('personnel');
+    const tieneAcceso = await verificarAccesoRuta("/admin/validar", "/");
+    if (!tieneAcceso) return;
     const token = getToken();
     if (!token) {
         window.location.href = '/login';

@@ -1,4 +1,4 @@
-package com.gym.atlas.Security;
+package com.gym.atlas.security;
 
 
 

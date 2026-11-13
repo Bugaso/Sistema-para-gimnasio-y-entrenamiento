@@ -1,4 +1,4 @@
-import { apiRequest, getToken, clearToken } from '../api.js';
+import {apiRequest, getToken, clearToken, verificarAccesoRuta} from '../api.js';
 import { renderAdminLayout } from '../layout-admin.js';
 
 const form = document.getElementById('formEjercicio');
@@ -16,8 +16,10 @@ let categoriasCargadas = [];
 let idEliminarSeleccionado = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
-    renderAdminLayout('ejercicios');
 
+    renderAdminLayout('ejercicios');
+    const tieneAcceso = await verificarAccesoRuta("/admin/validar", "/");
+    if (!tieneAcceso) return;
     const token = getToken();
     if (!token) {
         window.location.href = '/login';

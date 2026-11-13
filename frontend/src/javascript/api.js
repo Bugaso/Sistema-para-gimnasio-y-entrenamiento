@@ -107,3 +107,55 @@ export const registerEmployee = (payload) =>
       body: JSON.stringify(payload),
       token: getToken() // Enviamos el token automáticamente usando tu función existente
     })
+
+/**
+ * Valida el token JWT contra un endpoint protegido por rol.
+ * Muestra la pantalla de error y redirige si el usuario no tiene permisos.
+ */
+export async function verificarAccesoRuta(endpointValidacion, urlRedireccion = "/") {
+  const accessMessage = document.querySelector("[data-access-message]");
+  const accessTitle = accessMessage?.querySelector("h2");
+  const accessCopy = document.querySelector("[data-access-copy]");
+  const accessAction = document.querySelector("[data-access-action]");
+  const adminShell = document.querySelector("[data-admin-shell]");
+
+  const token = getToken();
+
+  if (!token) {
+    if (accessTitle) accessTitle.textContent = "Sesión no iniciada";
+    if (accessCopy) accessCopy.textContent = "Debes iniciar sesión para acceder a esta sección.";
+    if (accessAction) {
+      accessAction.href = "/login";
+      accessAction.textContent = "Ir al Login";
+      accessAction.hidden = false;
+    }
+    setTimeout(() => { window.location.href = "/login"; }, 2500);
+    return false;
+  }
+
+  try {
+    await apiRequest(endpointValidacion, {
+      method: "GET",
+      token
+    });
+
+    // Acceso concedido: ocultamos el aviso y mostramos la interfaz
+    if (accessMessage) accessMessage.hidden = true;
+    if (adminShell) adminShell.hidden = false;
+    return true;
+
+  } catch (error) {
+    if (accessTitle) accessTitle.textContent = "Acceso Denegado";
+    if (accessCopy) accessCopy.textContent = "Acceso denegado. No tienes los permisos necesarios para ver esta página.";
+    if (accessAction) {
+      accessAction.href = urlRedireccion;
+      accessAction.hidden = false;
+    }
+
+    setTimeout(() => {
+      window.location.href = urlRedireccion;
+    }, 2500);
+
+    return false;
+  }
+}

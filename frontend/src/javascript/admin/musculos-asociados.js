@@ -1,4 +1,4 @@
-import { apiRequest, getToken, clearToken } from '../api.js';
+import {apiRequest, getToken, clearToken, verificarAccesoRuta} from '../api.js';
 import { renderAdminLayout } from '../layout-admin.js';
 
 const form = document.getElementById('formMusculosAsociados');
@@ -15,8 +15,10 @@ let relacionesTotales = [];
 let idEliminarSeleccionado = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
-    renderAdminLayout('musculos_asociados');
 
+    renderAdminLayout('musculos_asociados');
+    const tieneAcceso = await verificarAccesoRuta("/admin/validar", "/");
+    if (!tieneAcceso) return;
     const token = getToken();
     if (!token) {
         window.location.href = '/login';

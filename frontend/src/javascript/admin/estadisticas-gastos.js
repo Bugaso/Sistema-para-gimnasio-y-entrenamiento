@@ -1,4 +1,4 @@
-import { apiRequest, getToken } from '../api.js';
+import {apiRequest, getToken, verificarAccesoRuta} from '../api.js';
 import { renderAdminLayout } from '../layout-admin.js';
 
 let comprobantesTotales = [];
@@ -8,12 +8,14 @@ let chartInstance = null;
 const formateadorMoneda = new Intl.NumberFormat('es-AR', { style: 'currency', currency: 'ARS' });
 
 document.addEventListener('DOMContentLoaded', async () => {
+
     // Si tienes un ítem en el menú lateral para esto, pásalo. Si no, usa cat_gastos o comprobantes.
     renderAdminLayout('estadisticas_gastos');
-
+    const tieneAcceso = await verificarAccesoRuta("/admin/validar", "/");
+    if (!tieneAcceso) return;
     const token = getToken();
     if (!token) {
-        window.location.href = '/inicio-sesion.html';
+        window.location.href = '/login';
         return;
     }
 

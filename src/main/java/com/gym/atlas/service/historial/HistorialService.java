@@ -44,6 +44,14 @@ public class HistorialService {
         Rutina rutina = rutinaRepo.findById(request.idRutina())
                 .orElseThrow(() -> new RuntimeException("Rutina no encontrada."));
 
+        if(historialRutinaRepo.findByAsignacionIdCliCouAndFechaRegistro(
+                asignacion.getIdCliCou(),
+                request.fechaRegistro())
+                .isPresent()){
+            new RuntimeException("Ya se registro una sesion en esa fecha");
+        }
+
+
         // 1. Guardar la cabecera del historial
         HistorialRutina cabecera = new HistorialRutina();
         cabecera.setAsignacion(asignacion);

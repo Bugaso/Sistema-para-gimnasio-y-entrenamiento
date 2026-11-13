@@ -1,4 +1,4 @@
-import { apiRequest, getToken, clearToken } from '../api.js';
+import {apiRequest, getToken, clearToken, verificarAccesoRuta} from '../api.js';
 import { renderAdminLayout } from '../layout-admin.js';
 
 const form = document.getElementById('formGrupoMuscular');
@@ -12,12 +12,14 @@ let gruposTotales = [];
 let idEliminarSeleccionado = null;
 
 document.addEventListener('DOMContentLoaded', async () => {
+
     // Marcamos la sección como activa
     renderAdminLayout('grupo_muscular');
-
+    const tieneAcceso = await verificarAccesoRuta("/admin/validar", "/");
+    if (!tieneAcceso) return;
     const token = getToken();
     if (!token) {
-        window.location.href = '/inicio-sesion.html';
+        window.location.href = '/login.html';
         return;
     }
 

@@ -1,4 +1,4 @@
-import { apiRequest, getToken } from '../api.js';
+import {apiRequest, getToken, verificarAccesoRuta} from '../api.js';
 import { renderCoachLayout } from '../layout-coach.js';
 
 // Elementos DOM
@@ -13,11 +13,13 @@ let opcionesEjercicios = '<option value="">Seleccione...</option>';
 let rutinaDetalleActual = null; // Para el modal de ver detalle
 
 document.addEventListener('DOMContentLoaded', async () => {
+    const tieneAcceso = await verificarAccesoRuta("/api/coach/validar", "/");
+    if (!tieneAcceso) return;
     renderCoachLayout('rutinas');
 
     const token = getToken();
     if (!token) {
-        window.location.href = '/inicio-sesion.html';
+        window.location.href = '/login.html';
         return;
     }
 

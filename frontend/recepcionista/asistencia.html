@@ -23,7 +23,23 @@
 </head>
 <body class="admin-page">
 
-<div class="admin-shell" data-admin-shell>
+<!-- PANTALLA DE CARGA Y VALIDACIÓN DE ACCESO -->
+<main class="admin-access" data-access-message>
+    <a class="logo" href="/" aria-label="Atlas Gym, volver al inicio">
+        <span class="logo-mark" aria-hidden="true">A</span>Atlas Gym
+    </a>
+    <div class="admin-access-card">
+        <p class="eyebrow">Acceso restringido</p>
+        <h1>Panel de recepcionista</h1>
+        <p data-access-copy>Validando tus permisos de acceso…</p>
+        <a class="button" href="/login" data-access-action hidden>
+            Iniciar sesión <span class="button-arrow" aria-hidden="true">→</span>
+        </a>
+    </div>
+</main>
+
+<!-- CONTENIDO PROTEGIDO (Oculto hasta que el endpoint /validar responda 200 OK) -->
+<div class="admin-shell" data-admin-shell hidden>
     <aside data-layout-sidebar></aside>
     <div class="admin-workspace">
         <header data-layout-topbar></header>
