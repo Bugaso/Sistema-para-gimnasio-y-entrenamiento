@@ -173,6 +173,13 @@
                 Consulta el estado de tus planes adquiridos, fechas de pago y próximos vencimientos.
             </p>
 
+            <div class="card-header">
+                <label style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-left: 20px;">
+                    <input type="checkbox" id="chkInactivos" style="width: auto;">
+                    <span style="font-size: 0.875rem; color: var(--muted);">Mostrar bajas/vencidas</span>
+                </label>
+            </div>
+
             <div class="admin-table-wrap">
                 <table class="admin-table">
                     <thead>
@@ -196,5 +203,6 @@
 
 <div class="admin-toast" id="toast" hidden></div>
 <script type="module" src="../src/javascript/cliente/dashboard.js"></script>
+<script type="module" src="../src/javascript/cliente/historial-pagos.js"></script>
 </body>
 </html>
