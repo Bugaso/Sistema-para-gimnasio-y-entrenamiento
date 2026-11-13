@@ -11,6 +11,7 @@ public record ClienteMembresiaDTO(
         int diasAsistencia,
         int cantCuotas,
         String fechaPago,
+        String fechaVencimiento,
         String estado,
         Double cantEfect,
         Double costoTotal

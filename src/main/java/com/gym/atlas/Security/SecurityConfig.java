@@ -99,7 +99,6 @@ public class SecurityConfig {
                         .requestMatchers(RECEPCION_ENDPOINTS).hasAnyRole("RECEPCIONISTA", "ADMIN")
                         .requestMatchers(COACH_ENDPOINTS).hasAnyRole("COACH", "ADMIN")
                         .requestMatchers("/api/coach/historial/**").hasRole("COACH")
-
                         // Filtro para los datos del cliente
                         .requestMatchers(CLIENTE_ENDPOINTS).hasAnyRole("CLIENTE", "ADMIN")
 

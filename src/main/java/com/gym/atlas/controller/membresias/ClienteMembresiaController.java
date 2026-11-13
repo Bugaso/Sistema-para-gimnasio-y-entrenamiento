@@ -2,14 +2,13 @@ package com.gym.atlas.controller.membresias;
 
 import com.gym.atlas.data.membresia.ClienteMembresia;
 import com.gym.atlas.dto.MessageResponse;
-import com.gym.atlas.dto.membresia.ClienteMemHistorialRequest;
 import com.gym.atlas.dto.membresia.ClienteMembresiaDTO;
+import com.gym.atlas.dto.membresia.HistorialPagoClienteResponse;
 import com.gym.atlas.dto.membresia.RegistrarClienteMembresiaRequest;
 import com.gym.atlas.service.membresia.ClienteMembresiaService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.lang.classfile.Attributes;
 import java.util.List;
 
 @RestController
@@ -35,7 +34,7 @@ public class ClienteMembresiaController {
     }
 
     @GetMapping("historial/{id}")
-    public ResponseEntity<List<ClienteMembresiaDTO>> obtenerHistorialCliente(@PathVariable Long id ){
+    public ResponseEntity<List<HistorialPagoClienteResponse>> obtenerHistorialCliente(@PathVariable Long id ){
         return ResponseEntity.ok(clienteMembresiaService.obtenerHistorialCliente(id));
     }
 

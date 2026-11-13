@@ -37,4 +37,5 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
             "INNER JOIN rol r ON ru.idRol = r.idRol " +
             "WHERE r.nomCatUs = 'CLIENTE'", nativeQuery = true)
     List<Usuario> findSoloClientes();
+
 }
