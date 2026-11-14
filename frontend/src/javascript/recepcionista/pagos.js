@@ -117,11 +117,18 @@ selectMembresia.addEventListener('change', (e) => {
     if (membresiaSeleccionada && tiposMembresiaActivos.length > 0) {
         selectTipoMembresia.disabled = false;
 
+        tiposMembresiaActivos.map(t => {
+            if (t.planificacion) {
+                console.log(t)
+                t.planificacion = "- Pro";
+            }
+        });
 
         selectTipoMembresia.innerHTML = '<option value="">Seleccione un plan...</option>' +
             tiposMembresiaActivos.map(t =>
-                `<option value="${t.idTipoMem}">${t.diasAsistencia} días/sem - ${t.duracionMembresia} días ($${t.costoMembresia})</option>`
-            ).join('');
+
+                `<option value="${t.idTipoMem}">${t.diasAsistencia} días/sem ${t.planificacion || ""} - ${t.duracionMembresia} días ($${t.costoMembresia})</option>`
+            ).join('')
     } else {
         selectTipoMembresia.innerHTML = '<option value="">Sin planes disponibles</option>';
         selectTipoMembresia.disabled = true;

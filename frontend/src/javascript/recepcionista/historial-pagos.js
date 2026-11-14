@@ -84,7 +84,12 @@ function renderizarTabla(lista) {
         const nombreCliente = reg.usuario?.nomApe || reg.nombreCliente || 'Cliente Desconocido';
         const dniCliente = reg.usuario?.dniUs || reg.dniCliente || '-';
         const nombrePlan = reg.nombreMembresia || 'Plan Base';
+
+
+
+
         // Formateo de fecha
+
         const diasAsistencia = reg.diasAsistencia || 0;
         const fecha = reg.fechaPago;
         const fechaVencimiento = reg.fechaVencimiento || '-';

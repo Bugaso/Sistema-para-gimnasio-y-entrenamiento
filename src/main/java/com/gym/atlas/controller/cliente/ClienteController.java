@@ -24,12 +24,12 @@ public class ClienteController {
 
     private final ClienteService clienteService;
     private final ClienteMembresiaService clienteMembresiaService;
-    private final UsuarioRepository usuarioRepository;
+
 
     public ClienteController(ClienteService clienteService, ClienteMembresiaService clienteMembresiaService, UsuarioRepository usuarioRepository) {
         this.clienteService = clienteService;
         this.clienteMembresiaService = clienteMembresiaService;
-        this.usuarioRepository = usuarioRepository;
+
     }
 
     @GetMapping("/perfil")
@@ -67,8 +67,7 @@ public class ClienteController {
 
     @GetMapping("/historial-pagos")
     public ResponseEntity<List<HistorialPagoClienteResponse>> obtenerHistorialPagosCliente(Authentication auth) {
-        Usuario usuario = usuarioRepository.findByMailUs(auth.getName())
-                .orElseThrow(() -> new IllegalStateException("Usuario autenticado no encontrado"));
-        return ResponseEntity.ok(clienteMembresiaService.obtenerHistorialCliente(usuario.getIdUsuario()));
+
+        return ResponseEntity.ok(clienteMembresiaService.obtenerHistorialCliente(auth));
     }
 }

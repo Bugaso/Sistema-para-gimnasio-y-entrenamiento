@@ -12,6 +12,7 @@ import com.gym.atlas.repository.membresia.MembresiaRepository;
 import com.gym.atlas.repository.membresia.TipoMembresiaRepository;
 import com.gym.atlas.repository.usuario.UsuarioRepository;
 import org.springframework.scheduling.annotation.Scheduled;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -94,11 +95,16 @@ public class ClienteMembresiaService {
     public List<ClienteMembresiaDTO> obtenerHistorial() {
         List<ClienteMembresia> listaCliMem = clienteMembresiaRepository.findAll();
         return listaCliMem.stream().map(cliMem -> {
+            String planificacion = "";
+            if(cliMem.getIdTipoMembresia().isPlanificacion()){
+                planificacion = " (Pro)";
+            }
+
             return new ClienteMembresiaDTO(
                     cliMem.getIdCliMem(),
                     cliMem.getUsuario(),
                     cliMem.getIdTipoMembresia().getIdTipoMem(),
-                    cliMem.getIdTipoMembresia().getMembresia().getDescripMembresia(),
+                    cliMem.getIdTipoMembresia().getMembresia().getDescripMembresia() + planificacion,
                     cliMem.getIdTipoMembresia().getDiasAsistencia(),
                     cliMem.getCantCuotas(),
                     cliMem.getFechaPago().toLocalDate().toString(),
@@ -111,8 +117,38 @@ public class ClienteMembresiaService {
     }
 
     @Transactional(readOnly = true)
+    public List<HistorialPagoClienteResponse> obtenerHistorialCliente(Authentication auth) {
+        Usuario usuario = usuarioRepository.findByMailUs(auth.getName())
+                .orElseThrow(() -> new IllegalStateException("Usuario autenticado no encontrado"));
+
+
+
+        return clienteMembresiaRepository.findAllByUsuarioIdUsuario(usuario.getIdUsuario()).stream()
+                .sorted(Comparator.comparing(ClienteMembresia::getFechaPago).reversed())
+                .map(clienteMembresia -> {
+                    String planificacion = "";
+                    if(clienteMembresia.getIdTipoMembresia().isPlanificacion()){
+                        planificacion = " (Pro)";
+                    }
+
+                    return new HistorialPagoClienteResponse(
+                        clienteMembresia.getIdCliMem(),
+                        clienteMembresia.getIdTipoMembresia().getMembresia().getDescripMembresia()+planificacion,
+                        clienteMembresia.getIdTipoMembresia().getDiasAsistencia(),
+                        clienteMembresia.getCantCuotas(),
+                        clienteMembresia.getFechaPago().toLocalDate().toString(),
+                        calcularVencimiento(clienteMembresia).toLocalDate().toString(),
+                        obtenerEstadoActual(clienteMembresia),
+                        clienteMembresia.getCostoTotal()
+                );})
+                .toList();
+    }
+
+    @Transactional(readOnly = true)
     public List<HistorialPagoClienteResponse> obtenerHistorialCliente(Long idUsuario) {
-        return clienteMembresiaRepository.findAllByUsuarioIdUsuario(idUsuario).stream()
+        Usuario usuario = usuarioRepository.findById(idUsuario)
+                .orElseThrow(() -> new IllegalStateException("Usuario autenticado no encontrado"));
+        return clienteMembresiaRepository.findAllByUsuarioIdUsuario(usuario.getIdUsuario()).stream()
                 .sorted(Comparator.comparing(ClienteMembresia::getFechaPago).reversed())
                 .map(clienteMembresia -> new HistorialPagoClienteResponse(
                         clienteMembresia.getIdCliMem(),
@@ -126,6 +162,7 @@ public class ClienteMembresiaService {
                 ))
                 .toList();
     }
+
 
     private LocalDateTime calcularVencimiento(ClienteMembresia clienteMembresia) {
         return clienteMembresia.getFechaPago().plusDays(
