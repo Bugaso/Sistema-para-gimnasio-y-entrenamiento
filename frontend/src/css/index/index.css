@@ -17,6 +17,9 @@
   --lime: #d90429;
   --lime-hover: #ef233c;
 
+  /* Verde para ingresos y estados financieros positivos */
+  --success: #16a34a;
+
   /* Líneas sutiles para fondos claros */
   --line: rgb(0 0 0 / 8%);
 }

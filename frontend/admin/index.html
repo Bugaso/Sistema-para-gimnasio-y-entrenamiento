@@ -27,13 +27,11 @@
     </div>
 </main>
 
-<!-- LAYOUT PRINCIPAL (Oculto hasta que se valide el token en admin.js) -->
+<!-- LAYOUT PRINCIPAL -->
 <div class="admin-shell" data-admin-shell hidden>
-    <!-- BARRA LATERAL DINÁMICA -->
     <aside data-layout-sidebar></aside>
 
     <div class="admin-workspace">
-        <!-- HEADER DINÁMICO -->
         <header data-layout-topbar></header>
 
         <div class="admin-content">
@@ -41,62 +39,64 @@
                 <div class="admin-heading">
                     <div>
                         <p class="eyebrow">Panel de control</p>
-                        <h1>Equipo Atlas</h1>
-                        <p>Gestiona permisos, roles y el personal que mantiene el gimnasio en movimiento.</p>
+                        <h1>Resumen General</h1>
+                        <p>Monitorea el balance financiero, los socios activos y la actividad diaria del gimnasio.</p>
                     </div>
-                    <!-- BOTÓN QUE DIRIGE A PERSONAL -->
-                    <a href="admin/personal.html" class="admin-primary-action">
-                        Añadir personal <span aria-hidden="true">+</span>
+                    <a href="/admin/comprobantes.html" class="admin-primary-action">
+                        Registrar gasto <span aria-hidden="true">+</span>
                     </a>
                 </div>
 
-                <!-- MÉTRICAS PRINCIPALES -->
+                <!-- MÉTRICAS PRINCIPALES (KPIs) -->
                 <div class="admin-metrics">
                     <article>
-                        <span>Personal activo</span>
-                        <strong data-active-count>—</strong>
-                        <small>Entrenadores y recepción</small>
+                        <span>Ingresos del mes</span>
+                        <strong data-ingresos-mes>—</strong>
+                        <small data-ingresos-detalle>Calculando cobros...</small>
                     </article>
                     <article>
-                        <span>Roles configurados</span>
-                        <strong data-role-count>—</strong>
-                        <small>Perfiles de acceso</small>
+                        <span>Membresías activas</span>
+                        <strong data-socios-activos>—</strong>
+                        <small data-por-vencer>Verificando vencimientos...</small>
                     </article>
                     <article>
-                        <span>Entrenadores</span>
-                        <strong data-trainer-count>—</strong>
-                        <small>Equipo de sala</small>
+                        <span>Asistencias hoy</span>
+                        <strong data-asistencias-hoy>—</strong>
+                        <small data-en-gimnasio>Consultando ingresos...</small>
                     </article>
                     <article class="metric-accent">
-                        <span>Estado del sistema</span>
-                        <strong>Activo</strong>
-                        <small>Datos sincronizados</small>
+                        <span>Balance neto (mes)</span>
+                        <strong data-balance-mes>—</strong>
+                        <small data-egresos-detalle>Egresos: —</small>
                     </article>
                 </div>
 
                 <!-- CUADRÍCULA DEL DASHBOARD -->
                 <div class="admin-overview-grid">
+                    <!-- BLOQUE IZQUIERDO: MOVIMIENTOS DE CAJA -->
                     <section class="admin-panel">
                         <div class="admin-panel-heading">
                             <div>
-                                <span>Actividad</span>
-                                <h2>Personal reciente</h2>
+                                <span>Caja y Finanzas</span>
+                                <h2>Últimos movimientos</h2>
                             </div>
-                            <a href="./personal.html" style="color: var(--lime); font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Ver todo</a>
+                            <a href="/admin/estadisticas-gastos.html" style="color: var(--lime); font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Ver estadísticas</a>
                         </div>
-                        <div class="recent-personnel" data-recent-personnel>
-                            <p style="padding: 16px; color: var(--muted); font-size: 0.875rem;">Cargando datos recientes...</p>
+                        <div class="recent-personnel" data-ultimos-movimientos>
+                            <p style="padding: 16px; color: var(--muted); font-size: 0.875rem;">Cargando movimientos recientes...</p>
                         </div>
                     </section>
 
+                    <!-- BLOQUE DERECHO: POPULARIDAD DE MEMBRESÍAS -->
                     <section class="admin-panel admin-role-summary">
                         <div class="admin-panel-heading">
                             <div>
                                 <span>Distribución</span>
-                                <h2>Equipo por rol</h2>
+                                <h2>Planes activos</h2>
                             </div>
+                            <a href="/admin/membresias.html" style="color: var(--lime); font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">Gestionar</a>
                         </div>
-                        <div data-role-summary>
+                        <div data-distribucion-planes style="padding: 8px 0;">
                             <p style="padding: 16px; color: var(--muted); font-size: 0.875rem;">Cargando distribución...</p>
                         </div>
                     </section>

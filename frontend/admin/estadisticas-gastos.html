@@ -3,19 +3,85 @@
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <meta name="description" content="Estadísticas de Gastos — Atlas Gym" />
-    <title>Estadísticas de Gastos — Atlas Gym</title>
+    <meta name="description" content="Estadísticas Financieras — Atlas Gym" />
+    <title>Estadísticas Financieras — Atlas Gym</title>
     <link rel="stylesheet" href="../src/css/admin/admin.css" />
     <link rel="stylesheet" href="../src/css/index/index.css" />
 
-    <!-- Importamos Chart.js desde CDN -->
+    <!-- Chart.js desde CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
     <style>
-        .stats-card { background: #ffffff; border: 1px solid #d1d5d2; border-radius: 8px; padding: 32px; box-shadow: 0 4px 12px rgba(0,0,0,0.03); }
-        .chart-container { position: relative; height: 400px; width: 100%; display: flex; justify-content: center; align-items: center; margin-top: 20px; }
-        .total-display { font-size: 2.5rem; font-family: 'Oswald', sans-serif; color: var(--lime, #84cc16); text-align: center; margin: 10px 0 30px 0; }
-        .total-label { text-align: center; color: #666; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; font-size: 0.9rem; }
+        .stats-grid-two {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(360px, 1fr));
+            gap: 24px;
+            margin-top: 24px;
+            margin-bottom: 24px;
+        }
+        .stats-card {
+            background: #ffffff;
+            border: 1px solid #d1d5d2;
+            border-radius: 8px;
+            padding: 28px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+        }
+        .stats-card-title {
+            text-align: center;
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            font-size: 1.25rem;
+            color: #222;
+            margin: 0 0 12px 0;
+            letter-spacing: 0.5px;
+        }
+        .chart-container {
+            position: relative;
+            height: 340px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 16px;
+        }
+        .chart-container-bar {
+            position: relative;
+            height: 320px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 20px;
+        }
+        .total-display {
+            font-size: 2.3rem;
+            font-family: 'Oswald', sans-serif;
+            text-align: center;
+            margin: 6px 0 16px 0;
+        }
+        .total-label {
+            text-align: center;
+            color: #666;
+            font-weight: bold;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.85rem;
+        }
+        .equation-bar {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            align-items: center;
+            gap: 12px;
+            background: #f7f9f9;
+            border: 1px solid #e5e7eb;
+            border-radius: 6px;
+            padding: 12px 20px;
+            margin: 12px auto 20px auto;
+            max-width: 720px;
+            font-size: 0.95rem;
+            color: #333;
+        }
     </style>
 </head>
 <body class="admin-page">
@@ -34,7 +100,7 @@
     </div>
 </main>
 
-<!-- LAYOUT PRINCIPAL (Oculto hasta que se valide el token en admin.js) -->
+<!-- LAYOUT PRINCIPAL -->
 <div class="admin-shell" data-admin-shell hidden>
     <aside data-layout-sidebar></aside>
     <div class="admin-workspace">
@@ -44,14 +110,15 @@
             <div class="admin-heading admin-heading-compact">
                 <div>
                     <p class="eyebrow">Gestión Financiera</p>
-                    <h1>Estadísticas de Gastos</h1>
-                    <p>Visualiza la distribución de tus gastos pagados por categoría.</p>
+                    <h1>Estadísticas Financieras</h1>
+                    <p>Analiza la distribución de egresos, ingresos por membresía y la ganancia neta del período.</p>
                 </div>
                 <a class="admin-primary-action" href="/admin/index.html">← Volver al panel</a>
             </div>
 
+            <!-- BARRA DE FILTROS GLOBAL -->
             <div class="admin-toolbar" style="background: #f7f9f9; padding: 16px; border-radius: 8px; border: 1px solid #d1d5d2;">
-                <div style="display: flex; gap: 20px; align-items: center; width: 100%;">
+                <div style="display: flex; flex-wrap: wrap; gap: 20px; align-items: center; width: 100%;">
                     <strong style="color: #333;">Filtrar por Fecha:</strong>
                     <label class="admin-filter">
                         <select id="filtroAnio" style="padding: 8px; border: 1px solid #ccc; border-radius: 4px;">
@@ -78,14 +145,55 @@
                 </div>
             </div>
 
-            <div class="stats-card">
-                <div class="total-label">Total Gastado (Pagado)</div>
-                <div class="total-display" id="totalMonto">$ 0,00</div>
+            <!-- FILA SUPERIOR: GASTOS E INGRESOS -->
+            <div class="stats-grid-two">
+                <!-- GRÁFICO 1: EGRESOS -->
+                <div class="stats-card">
+                    <h2 class="stats-card-title">Distribución de Egresos</h2>
+                    <div class="total-label">Total Gastado (Pagado)</div>
+                    <div class="total-display" id="totalGastos" style="color: #ef4444;">$ 0,00</div>
 
-                <div class="chart-container">
-                    <canvas id="chartGastos"></canvas>
-                    <div id="emptyState" style="display: none; color: #888; text-align: center; font-style: italic;">
-                        No hay gastos pagados registrados para este período.
+                    <div class="chart-container">
+                        <canvas id="chartGastos"></canvas>
+                        <div id="emptyGastos" style="display: none; color: #888; text-align: center; font-style: italic;">
+                            No hay gastos pagados registrados para este período.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRÁFICO 2: INGRESOS -->
+                <div class="stats-card">
+                    <h2 class="stats-card-title">Distribución de Ingresos</h2>
+                    <div class="total-label">Total Cobrado (Membresías)</div>
+                    <div class="total-display" id="totalIngresos" style="color: var(--success, #16a34a);;">$ 0,00</div>
+
+                    <div class="chart-container">
+                        <canvas id="chartIngresos"></canvas>
+                        <div id="emptyIngresos" style="display: none; color: #888; text-align: center; font-style: italic;">
+                            No hay ingresos por membresías registrados para este período.
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILA INFERIOR: BALANCE (INGRESOS - EGRESOS = GANANCIA NETA) -->
+            <div class="stats-card">
+                <h2 class="stats-card-title">Balance del Período (Ingresos − Egresos = Ganancia Neta)</h2>
+                <div class="total-label">Ganancia Neta</div>
+                <div class="total-display" id="totalGananciaNeta">$ 0,00</div>
+
+                <div class="equation-bar" id="detalleEcuacionBalance">
+                    <span>Ingresos: <strong>$ 0,00</strong></span>
+                    <span>−</span>
+                    <span>Egresos: <strong>$ 0,00</strong></span>
+                    <span>=</span>
+                    <span>Ganancia Neta: <strong>$ 0,00</strong></span>
+                </div>
+
+                <div class="chart-container-bar">
+                    <canvas id="chartBalance"></canvas>
+                    <div id="emptyBalance" style="display: none; color: #888; text-align: center; font-style: italic;">
+                        No hay movimientos financieros registrados para calcular el balance en este período.
                     </div>
                 </div>
             </div>
