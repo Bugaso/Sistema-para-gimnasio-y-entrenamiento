@@ -6,12 +6,17 @@
     <title>Historial de Asistencia — Atlas Gym</title>
     <link rel="stylesheet" href="../src/css/admin/admin.css" />
     <link rel="stylesheet" href="../src/css/index/index.css" />
+
+    <!-- Chart.js desde CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
     <style>
-        .filter-group { display: flex; gap: 16px; align-items: center; flex-wrap: wrap; }
-        .stat-badge { background: whitesmoke; padding: 6px 12px; border-radius: 4px; border: 1px solid #333; font-size: 0.8rem; color: var(--lime); font-weight: bold; }
+        .filter-group { display: flex; gap: 14px; align-items: center; flex-wrap: wrap; }
+        .stat-badge { background: whitesmoke; padding: 6px 12px; border-radius: 4px; border: 1px solid #d1d5d2; font-size: 0.8rem; color: var(--lime); font-weight: bold; }
         .row-clickable { cursor: pointer; transition: background 0.2s; }
-        .row-clickable:hover { background: rgba(255,255,255,0.05) !important; }
+        .row-clickable:hover { background: rgb(0 0 0 / 3%) !important; }
         .status-alert { color: #ef9d89; font-size: 0.8rem; font-weight: bold; margin-top: 4px; display: block; }
+        .chart-wrapper { position: relative; height: 290px; width: 100%; padding: 20px 24px; }
     </style>
 </head>
 <body class="admin-page">
@@ -31,7 +36,7 @@
     </div>
 </main>
 
-<!-- CONTENIDO PROTEGIDO (Oculto hasta que el endpoint /validar responda 200 OK) -->
+<!-- CONTENIDO PROTEGIDO -->
 <div class="admin-shell" data-admin-shell hidden>
     <aside data-layout-sidebar></aside>
     <div class="admin-workspace">
@@ -45,49 +50,62 @@
                 </div>
             </div>
 
-            <!-- PANEL DE FILTROS -->
+            <!-- BARRA DE FILTROS GLOBAL -->
             <div class="admin-panel" style="margin-bottom: 24px;">
-                <div class="admin-toolbar" style="flex-wrap: wrap; gap: 20px; padding: 20px 24px;">
+                <div class="admin-toolbar" style="flex-wrap: wrap; gap: 16px; padding: 20px 24px; border-bottom: 0;">
 
                     <!-- Búsqueda -->
-                    <label class="admin-search" style="width: min(300px, 100%);">
+                    <label class="admin-search" style="width: min(280px, 100%);">
                         <span aria-hidden="true">⌕</span>
                         <input type="text" id="buscadorHistorial" placeholder="Buscar por DNI o Nombre..." autocomplete="off" />
                     </label>
 
+                    <!-- Modo de fecha -->
                     <label class="admin-filter">
                         <select id="selectorFiltro">
-                            <option value = "dia">Dia</option>
-                            <option value = "fecha">Fecha</option>
+                            <option value="dia">Día</option>
+                            <option value="fecha">Rango de fechas</option>
+                            <option value="mes">Mes</option>
                         </select>
                     </label>
+
                     <div class="filter-group">
-                        <!-- Calendario -->
-                        <label class="admin-field" style="margin: 0; min-width: 140px;">
-                            <input type="date" id="filtroFecha" style="min-height: 44px;" />
-                        </label>
+                        <!-- Fecha única / Fecha inicio -->
+                        <div id="grupoFechaInicio">
+                            <label class="admin-field" style="margin: 0; min-width: 145px;">
+                                <input type="date" id="filtroFecha" style="min-height: 44px;" />
+                            </label>
+                        </div>
 
-                        <div id="rangoFecha" hidden>
-
-                            <label class="admin-field" style="margin: 0; min-width: 140px; display: flex; gap: 8px; align-items: center; flex-direction: row;">
-                                <span style="margin:0;">Hasta:</span>
+                        <!-- Fecha fin (solo en modo Rango) -->
+                        <div id="rangoFecha" style="display: none; align-items: center; gap: 8px;">
+                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase;">Hasta:</span>
+                            <label class="admin-field" style="margin: 0; min-width: 145px;">
                                 <input type="date" id="filtroFechaFin" style="min-height: 44px;" />
                             </label>
                         </div>
 
-                        <div id="rangoHoras" hidden>
-                            <!-- Rango de Horas -->
-                            <label class="admin-field" style="margin: 0; display: flex; align-items: center; gap: 8px; flex-direction: row;">
-                                <span style="margin:0;">De:</span>
-                                <input type="time" id="filtroHoraMin" style="min-height: 44px; width: 110px;" />
-                            </label>
-                            <label class="admin-field" style="margin: 0; display: flex; align-items: center; gap: 8px; flex-direction: row;">
-                                <span style="margin:0;">A:</span>
-                                <input type="time" id="filtroHoraMax" style="min-height: 44px; width: 110px;" />
+                        <!-- Selector de Mes (solo en modo Mes) -->
+                        <div id="rangoMes" style="display: none;">
+                            <label class="admin-field" style="margin: 0; min-width: 165px;">
+                                <input type="month" id="filtroMes" style="min-height: 44px;" />
                             </label>
                         </div>
+
+                        <!-- Rango de Horas (aplica a todos los modos) -->
+                        <div id="rangoHoras" style="display: flex; align-items: center; gap: 8px;">
+                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase;">De:</span>
+                            <label class="admin-field" style="margin: 0;">
+                                <input type="time" id="filtroHoraMin" style="min-height: 44px; width: 112px;" />
+                            </label>
+                            <span style="font-size: 0.75rem; font-weight: 700; color: var(--muted); text-transform: uppercase;">A:</span>
+                            <label class="admin-field" style="margin: 0;">
+                                <input type="time" id="filtroHoraMax" style="min-height: 44px; width: 112px;" />
+                            </label>
+                        </div>
+
                         <!-- Checkbox Solo Adentro -->
-                        <label class="remember" style="margin-left: anchor-size()">
+                        <label class="remember">
                             <input type="checkbox" id="filtroAdentro">
                             <span style="color: #1a1d1c; font-weight: bold;">Solo en el gimnasio</span>
                         </label>
@@ -98,8 +116,28 @@
                         <span class="stat-badge">Total visibles: <span id="contadorVisibles">0</span></span>
                     </div>
                 </div>
+            </div>
 
-                <!-- TABLA -->
+            <!-- GRÁFICO DE BARRAS POR HORARIO -->
+            <div class="admin-panel" style="margin-bottom: 24px;">
+                <div class="admin-panel-heading" style="min-height: 76px;">
+                    <div>
+                        <span>Concurrencia</span>
+                        <h2>Afluencia por Franja Horaria</h2>
+                    </div>
+                    <span class="stat-badge" id="badgeHoraPico">Horario pico: —</span>
+                </div>
+
+                <div class="chart-wrapper">
+                    <canvas id="chartHorarios"></canvas>
+                    <div id="emptyGraficoHorarios" style="display: none; text-align: center; color: var(--muted); font-style: italic; width: 100%;">
+                        No hay registros de ingreso en el rango de fecha y hora seleccionado.
+                    </div>
+                </div>
+            </div>
+
+            <!-- TABLA DE REGISTROS -->
+            <div class="admin-panel">
                 <div class="admin-table-wrap">
                     <table class="admin-table">
                         <thead>
@@ -127,7 +165,7 @@
         <h2 style="margin-top: 15px; margin-bottom: 5px;">Detalle de Permanencia</h2>
         <p style="color: var(--lime); font-weight: bold; font-size: 1.1rem; margin-bottom: 20px;" id="detalleNombre">-</p>
 
-        <div style="text-align: left; background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid var(--border);">
+        <div style="text-align: left; background: #1a1a1a; padding: 20px; border-radius: 8px; border: 1px solid var(--line);">
             <p style="margin-bottom: 12px;"><strong style="color: var(--muted);">Entrada:</strong> <span id="detalleEntrada" style="float: right; color: #fff;">-</span></p>
             <p style="margin-bottom: 12px;"><strong style="color: var(--muted);">Salida:</strong> <span id="detalleSalida" style="float: right; color: #fff;">-</span></p>
             <hr style="border-color: #333; margin: 15px 0;">
@@ -149,7 +187,6 @@
         </div>
     </div>
 </dialog>
-
 
 <div class="admin-toast" id="toast" hidden></div>
 <script type="module" src="../src/javascript/recepcionista/historial-asistencia.js"></script>
