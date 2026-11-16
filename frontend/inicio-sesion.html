@@ -5,6 +5,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="description" content="Inicia sesión en Atlas Gym y continúa avanzando hacia tus objetivos." />
     <title>Iniciar sesión — Atlas Gym</title>
+    <link rel="stylesheet" href="./src/css/admin/admin.css" />
+    <link rel="stylesheet" href="./src/css/index/index.css" />
   </head>
   <body class="login-page">
     <header class="site-header signup-header">
@@ -59,7 +61,7 @@
             <div class="form-field">
               <div class="field-label-row">
                 <label for="login-password">Contraseña</label>
-                <a href="mailto:hola@atlasgym.com?subject=Recuperar%20contraseña">¿Olvidaste tu contraseña?</a>
+                <a id="btnOlvidePassword">¿Olvidaste tu contraseña?</a>
               </div>
               <div class="password-wrap">
                 <input
@@ -98,6 +100,71 @@
       </div>
     </main>
 
+    <!-- MODAL: RECUPERACIÓN DE CONTRASEÑA EN 3 PASOS -->
+    <dialog class="admin-dialog" id="modalRecuperarPassword" style="max-width: 460px; width: 92%; border-radius: 8px; padding: 0;">
+      <div style="padding: 24px;">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+          <h2 id="tituloModalRecuperar" style="margin: 0; font-family: 'Oswald', sans-serif; text-transform: uppercase;">Recuperar Contraseña</h2>
+          <button type="button" id="btnCerrarModalRecuperar" style="background: transparent; border: 1px solid #d1d5d2; border-radius: 4px; padding: 4px 10px; cursor: pointer; font-weight: bold;">✕</button>
+        </div>
+
+        <!-- PASO 1: EMAIL Y DNI -->
+        <form id="formPaso1Solicitar">
+          <p style="color: #555; font-size: 0.9rem; margin-bottom: 16px;">
+            Ingresa el correo electrónico y el DNI asociados a tu cuenta para recibir un código de verificación.
+          </p>
+          <label class="admin-field" style="display: block; margin-bottom: 12px;">
+            <span>Correo Electrónico</span>
+            <input type="email" id="recEmail" class="client-input" placeholder="ejemplo@correo.com" required />
+          </label>
+          <label class="admin-field" style="display: block; margin-bottom: 16px;">
+            <span>DNI</span>
+            <input type="text" id="recDni" class="client-input" inputmode="numeric" pattern="[0-9]{6,12}" placeholder="Sin puntos ni espacios" required />
+          </label>
+          <p id="statusPaso1" style="color: #d90429; font-size: 0.85rem; font-weight: bold; min-height: 20px;"></p>
+          <div class="admin-dialog-actions" style="margin-top: 12px;">
+            <button type="submit" id="btnEnviarCodigo" class="admin-primary-action" style="width: 100%; padding: 12px;">Enviar Código</button>
+          </div>
+        </form>
+
+        <!-- PASO 2: VALIDAR CÓDIGO DE 6 DÍGITOS -->
+        <form id="formPaso2Validar" style="display: none;">
+          <p style="color: #555; font-size: 0.9rem; margin-bottom: 16px;">
+            Enviamos un código de 6 dígitos a <strong id="lblEmailDestino"></strong>. Ingrésalo a continuación:
+          </p>
+          <label class="admin-field" style="display: block; margin-bottom: 16px;">
+            <span>Código de Verificación (6 dígitos)</span>
+            <input type="text" id="recCodigo" class="client-input" inputmode="numeric" pattern="[0-9]{6}" maxlength="6" placeholder="000000" style="text-align: center; font-size: 1.4rem; letter-spacing: 6px; font-weight: bold;" required />
+          </label>
+          <p id="statusPaso2" style="color: #d90429; font-size: 0.85rem; font-weight: bold; min-height: 20px;"></p>
+          <div class="admin-dialog-actions" style="margin-top: 12px; display: flex; gap: 8px;">
+            <button type="button" id="btnVolverPaso1" style="flex: 1;">Atrás</button>
+            <button type="submit" id="btnValidarCodigo" class="admin-primary-action" style="flex: 2; padding: 12px;">Validar Código</button>
+          </div>
+        </form>
+
+        <!-- PASO 3: NUEVA CONTRASEÑA -->
+        <form id="formPaso3Password" style="display: none;">
+          <p style="color: #555; font-size: 0.9rem; margin-bottom: 16px;">
+            Código verificado. Escribe tu nueva contraseña (mínimo 8 caracteres):
+          </p>
+          <label class="admin-field" style="display: block; margin-bottom: 12px;">
+            <span>Nueva Contraseña</span>
+            <input type="password" id="recNuevaPass" class="client-input" minlength="8" autocomplete="new-password" required />
+          </label>
+          <label class="admin-field" style="display: block; margin-bottom: 16px;">
+            <span>Confirmar Nueva Contraseña</span>
+            <input type="password" id="recConfirmarPass" class="client-input" minlength="8" autocomplete="new-password" required />
+          </label>
+          <p id="statusPaso3" style="color: #d90429; font-size: 0.85rem; font-weight: bold; min-height: 20px;"></p>
+          <div class="admin-dialog-actions" style="margin-top: 12px;">
+            <button type="submit" id="btnConfirmarNuevaPass" class="admin-primary-action" style="width: 100%; padding: 12px;">Confirmar Cambio</button>
+          </div>
+        </form>
+      </div>
+    </dialog>
+
+    <script type="module" src="./src/javascript/recuperar-password.js"></script>
     <script type="module" src="./src/javascript/inicio-sesion.js"></script>
   </body>
 </html>

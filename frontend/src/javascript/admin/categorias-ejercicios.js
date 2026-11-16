@@ -138,11 +138,11 @@ async function procesarEliminacion() {
 
     try {
         const token = getToken();
-        await apiRequest(`/api/admin/categorias-ejercicios/${idEliminarSeleccionado}`, {
+        const msg = await apiRequest(`/api/admin/categorias-ejercicios/${idEliminarSeleccionado}`, {
             method: 'DELETE', token
         });
 
-        mostrarToast("Categoría eliminada.");
+        mostrarToast(msg.value);
         confirmDialog.close();
         await cargarCategorias();
     } catch (error) {

@@ -1,6 +1,5 @@
-package com.gym.atlas.controller.usuarios;
+package com.gym.atlas.controller.usuario;
 
-import com.gym.atlas.data.usuario.Usuario;
 import com.gym.atlas.dto.usuario.ClienteResponse;
 import com.gym.atlas.repository.usuario.UsuarioRepository;
 import org.springframework.http.ResponseEntity;

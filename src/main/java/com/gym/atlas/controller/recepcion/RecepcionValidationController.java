@@ -1,4 +1,4 @@
-package com.gym.atlas.controller.usuarios;
+package com.gym.atlas.controller.recepcion;
 
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;

@@ -1,4 +1,4 @@
-package com.gym.atlas.controller.usuarios;
+package com.gym.atlas.controller.usuario;
 
 
 import com.gym.atlas.dto.rol.RolResponse;

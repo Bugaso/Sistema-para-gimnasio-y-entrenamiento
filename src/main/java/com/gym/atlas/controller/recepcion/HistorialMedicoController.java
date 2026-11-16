@@ -1,9 +1,9 @@
-package com.gym.atlas.controller.usuarios;
+package com.gym.atlas.controller.recepcion;
 
 import com.gym.atlas.dto.MessageResponse;
 import com.gym.atlas.dto.usuario.HistorialMedicoRequest;
 import com.gym.atlas.dto.usuario.HistorialMedicoResponse;
-import com.gym.atlas.service.usuario.HistorialMedicoService;
+import com.gym.atlas.service.recepcion.HistorialMedicoService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 

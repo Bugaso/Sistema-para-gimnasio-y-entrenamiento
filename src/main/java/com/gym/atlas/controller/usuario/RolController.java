@@ -1,4 +1,4 @@
-package com.gym.atlas.controller.usuarios;
+package com.gym.atlas.controller.usuario;
 
 import com.gym.atlas.data.usuario.Rol;
 import com.gym.atlas.service.usuario.RolService;

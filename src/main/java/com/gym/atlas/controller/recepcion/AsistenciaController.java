@@ -1,11 +1,11 @@
-package com.gym.atlas.controller.usuarios;
+package com.gym.atlas.controller.recepcion;
 
 import com.gym.atlas.dto.MessageResponse;
 import com.gym.atlas.dto.asistencia.AsistenciaHistorialResponse;
 import com.gym.atlas.dto.asistencia.AsistenciaRequest;
 import com.gym.atlas.dto.asistencia.ValidacionAsistenciaResponse;
 import com.gym.atlas.dto.usuario.EstadoAsistenciaResponse;
-import com.gym.atlas.service.usuario.AsistenciaService;
+import com.gym.atlas.service.recepcion.AsistenciaService;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

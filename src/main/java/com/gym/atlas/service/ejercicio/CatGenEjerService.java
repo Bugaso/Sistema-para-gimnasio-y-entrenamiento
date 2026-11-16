@@ -57,6 +57,7 @@ public class CatGenEjerService {
 
     @Transactional
     public MessageResponse eliminarCategoria(Integer id) {
+
         if (!catGenEjerRepository.existsById(id)) {
             throw new RuntimeException("La categoría especificada no existe.");
         }

@@ -1,4 +1,4 @@
-package com.gym.atlas.service.usuario;
+package com.gym.atlas.service.recepcion;
 
 import com.gym.atlas.data.usuario.HistorialMedico;
 import com.gym.atlas.data.usuario.Usuario;

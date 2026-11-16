@@ -145,22 +145,34 @@ async function cargarEntrenamiento() {
         // Creamos un Set para almacenar los IDs de las rutinas que YA fueron completadas hoy
         const rutinasCompletadasIds = new Set();
 
-        // 1. Agregar Rutinas Completadas
+        // 1. Agregar Rutinas Completadas (cruzando con asignacionesActivas para recuperar los rangos planificados)
         if (respuestaHistorial && respuestaHistorial.length > 0) {
             respuestaHistorial.forEach((sesion) => {
-                // Guardamos el ID para usarlo como filtro después
                 rutinasCompletadasIds.add(sesion.idCliCou);
-                //console.log(sesion.idCliCou);
+
+                const asignacionCorrespondiente = asignacionesActivas.find(
+                    a => Number(a.idCliCou) === Number(sesion.idCliCou)
+                );
+
+                const ejerciciosEnriquecidos = (sesion.ejercicios || []).map(ej => {
+                    const detallePlan = asignacionCorrespondiente?.detalles?.find(
+                        d => Number(d.idEjercicio) === Number(ej.idEjercicio)
+                    );
+                    return {
+                        ...detallePlan,
+                        ...ej
+                    };
+                });
+
                 opcionesDisponibles.push({
-                    idCliCou : sesion.idCliCou,
+                    idCliCou: sesion.idCliCou,
                     tipo: 'completada',
                     titulo: `${sesion.nomRutina} (Completada)`,
                     fechaRegistro: sesion.fechaRegistro,
                     coach: sesion.nomCoach,
-                    ejercicios: sesion.ejercicios || [],
+                    ejercicios: ejerciciosEnriquecidos,
                     idRutina: sesion.idRutina
                 });
-                //console.log(opcionesDisponibles);
             });
         }
 
@@ -263,10 +275,16 @@ function renderizarTarjetas(ejercicios, esCompletado) {
     }
 
     ejercicios.forEach((ej, index) => {
+        const planSeries = ej.rangoSeries ?? ej.rango_series ?? ej.series ?? '-';
+        const planReps = ej.rangoRep ?? ej.rangoReps ?? ej.rango_rep ?? ej.repeticiones ?? '-';
+        const planPeso = ej.rangoPeso ?? ej.rango_peso ?? ej.peso ?? '-';
+        const planEsfuerzo = ej.medidaEsfuerzo ?? ej.medida_esfuerzo ?? '-';
+        const planCantEsfuerzo = ej.cantMedida ?? ej.cant_medida ?? ej.cantEsfuerzo ?? '-';
+
         let seriesSugeridas = 1;
 
         if (!esCompletado) {
-            const match = ej.rangoSeries ? ej.rangoSeries.match(/\d+/) : null;
+            const match = String(planSeries).match(/\d+/);
             if (match) seriesSugeridas = parseInt(match[0]);
         }
 
@@ -283,7 +301,7 @@ function renderizarTarjetas(ejercicios, esCompletado) {
             <div class="video-container" id="video-container-${index}"></div>
             
             <div class="info-planificada">
-                <strong>Planificado:</strong> ${ej.rangoSeries || '-'} Series | ${ej.rangoRep || '-'} Reps | Peso: ${ej.rangoPeso || '-'} | Esfuerzo: ${ej.medidaEsfuerzo || '-'}: ${ej.cantMedida || '-'}
+                <strong>Planificado:</strong> ${planSeries} Series | ${planReps} Reps | Peso: ${planPeso} | Esfuerzo: ${planEsfuerzo}: ${planCantEsfuerzo}
             </div>
             
             <div class="admin-table-wrap">
@@ -305,7 +323,6 @@ function renderizarTarjetas(ejercicios, esCompletado) {
             </div>
         `;
         contenedorEjerciciosCliente.appendChild(card);
-
         // Lógica del Video
         const btnVideo = card.querySelector('.btn-ver-video');
         const videoContainer = card.querySelector(`#video-container-${index}`);

@@ -44,21 +44,25 @@ export function renderRecepcionLayout(activeNav) {
 
                 <nav class="admin-nav" aria-label="Navegación de Recepción">
                     <p>Gestión de Clientes</p>
+                    <a class="admin-nav-link ${activeNav === 'registrar_cliente' ? 'is-active' : ''}" href="/recepcionista/registrar-cliente.html">
+                        <span aria-hidden="true">01</span>Registrar Cliente
+                    </a>
                     <a class="admin-nav-link ${activeNav === 'historial_medico' ? 'is-active' : ''}" href="/recepcionista/historial-medico.html">
-                        <span aria-hidden="true">01</span>Historial Médico
+                        <span aria-hidden="true">02</span>Historial Médico
                     </a>
                     <a class="admin-nav-link ${activeNav === 'registrar_pago' ? 'is-active' : ''}" href="/recepcionista/registrar-pago.html">
-                        <span aria-hidden="true">02</span>Registrar pago
+                        <span aria-hidden="true">03</span>Registrar pago
                     </a>
                     <a class="admin-nav-link ${activeNav === 'historial_pago' ? 'is-active' : ''}" href="/recepcionista/historial-pago.html">
-                        <span aria-hidden="true">03</span>Historial de pagos
+                        <span aria-hidden="true">04</span>Historial de pagos
                     </a>
                     <a class="admin-nav-link ${activeNav === 'asistencia' ? 'is-active' : ''}" href="/recepcionista/asistencia.html">
-                        <span aria-hidden="true">04</span>Asistencia
+                        <span aria-hidden="true">05</span>Asistencia
                     </a>
                     <a class="admin-nav-link ${activeNav === 'historial_asistencia' ? 'is-active' : ''}" href="/recepcionista/asistencia-historial.html">
-                        <span aria-hidden="true">05</span>Historial de Asistencia
+                        <span aria-hidden="true">06</span>Historial de Asistencia
                     </a>
+                    
                 </nav>
 
                 <div class="admin-sidebar-footer">

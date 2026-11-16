@@ -1,4 +1,4 @@
-package com.gym.atlas.service.usuario;
+package com.gym.atlas.service.recepcion;
 
 import com.gym.atlas.data.membresia.ClienteMembresia;
 import com.gym.atlas.data.usuario.AsistenciaCliente;
@@ -11,7 +11,6 @@ import com.gym.atlas.dto.usuario.EstadoAsistenciaResponse;
 import com.gym.atlas.repository.membresia.ClienteMembresiaRepository;
 import com.gym.atlas.repository.usuario.AsistenciaClienteRepository;
 import com.gym.atlas.repository.usuario.UsuarioRepository;
-import com.gym.atlas.service.membresia.ClienteMembresiaService;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
