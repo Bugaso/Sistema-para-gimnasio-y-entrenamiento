@@ -7,6 +7,107 @@
     <title>Músculos Asociados — Atlas Gym</title>
     <link rel="stylesheet" href="../src/css/admin/admin.css" />
     <link rel="stylesheet" href="../src/css/index/index.css" />
+    <style>
+        .selector-group {
+            display: flex;
+            gap: 8px;
+            align-items: stretch;
+        }
+        .selector-group input {
+            flex: 1;
+            background-color: #f7f9f9;
+            cursor: pointer;
+            font-weight: 600;
+            color: #333;
+        }
+        .selector-group input:disabled {
+            background-color: #eceeef;
+            color: #888;
+            cursor: not-allowed;
+        }
+        .selector-group button {
+            white-space: nowrap;
+            padding: 0 16px;
+        }
+        .selector-group button:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+        }
+
+        /* Modales de búsqueda */
+        .admin-search-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 16px;
+        }
+        .admin-search-modal-backdrop.active {
+            display: flex;
+        }
+        .admin-search-modal-card {
+            background: #ffffff;
+            border: 1px solid #d1d5d2;
+            border-radius: 8px;
+            width: 100%;
+            max-width: 620px;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: 0 20px 35px rgba(0, 0, 0, 0.18);
+            overflow: hidden;
+        }
+        .admin-search-modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 18px 24px;
+            border-bottom: 1px solid #eaeaea;
+            background: #f7f9f9;
+        }
+        .admin-search-modal-header h3 {
+            margin: 0;
+            font-family: 'Oswald', sans-serif;
+            text-transform: uppercase;
+            font-size: 1.35rem;
+            color: #333;
+        }
+        .btn-cerrar-search-modal {
+            background: transparent;
+            border: 1px solid #d1d5d2;
+            color: #555;
+            border-radius: 4px;
+            padding: 4px 10px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .btn-cerrar-search-modal:hover {
+            background: #e5e7eb;
+        }
+        .admin-search-modal-body {
+            padding: 20px 24px;
+            overflow-y: auto;
+        }
+        .modal-filter-box {
+            margin-bottom: 16px;
+        }
+        .modal-filter-box input {
+            width: 100%;
+            box-sizing: border-box;
+            padding: 10px 14px;
+            border: 1px solid #d1d5d2;
+            border-radius: 6px;
+            font-size: 0.95rem;
+        }
+        .modal-filter-box input:focus {
+            border-color: var(--lime);
+            outline: none;
+            box-shadow: 0 0 0 3px rgb(217 4 41 / 10%);
+        }
+    </style>
 </head>
 <body class="admin-page">
 <!-- PANTALLA DE CARGA Y VALIDACIÓN DE ACCESO -->
@@ -24,7 +125,7 @@
     </div>
 </main>
 
-<!-- LAYOUT PRINCIPAL (Oculto hasta que se valide el token en admin.js) -->
+<!-- LAYOUT PRINCIPAL -->
 <div class="admin-shell" data-admin-shell hidden>
     <aside data-layout-sidebar></aside>
     <div class="admin-workspace">
@@ -50,25 +151,27 @@
                 </div>
 
                 <form id="formMusculosAsociados" style="padding: 24px;">
-                    <!-- Campos ocultos para saber si estamos en modo edición -->
                     <input type="hidden" id="idMuscAsociados" name="id" />
+                    <input type="hidden" id="idEjercicio" name="idEjercicio" />
+                    <input type="hidden" id="idGrupoMusc" name="idGrupoMusc" />
 
                     <div class="admin-form-grid">
                         <label class="admin-field">
                             <span>Ejercicio</span>
-                            <select id="idEjercicio" name="idEjercicio" required>
-                                <option value="">Selecciona un ejercicio...</option>
-                            </select>
+                            <div class="selector-group">
+                                <input type="text" id="inputEjercicioSeleccionado" placeholder="Ningún ejercicio seleccionado..." readonly required />
+                                <button type="button" id="btnAbrirModalEjercicios" class="admin-primary-action">Buscar</button>
+                            </div>
                         </label>
 
                         <label class="admin-field">
                             <span>Grupo Muscular</span>
-                            <select id="idGrupoMusc" name="idGrupoMusc" required>
-                                <option value="">Selecciona un grupo muscular...</option>
-                            </select>
+                            <div class="selector-group">
+                                <input type="text" id="inputGrupoSeleccionado" placeholder="Ningún grupo seleccionado..." readonly required />
+                                <button type="button" id="btnAbrirModalGrupos" class="admin-primary-action">Buscar</button>
+                            </div>
                         </label>
 
-                        <!-- LISTA DESPLEGABLE DE PRIORIDAD -->
                         <label class="admin-field admin-field-wide">
                             <span>Prioridad / Tipo de estímulo</span>
                             <select id="prioridadMusc" name="prioridadMusc" required>
@@ -121,6 +224,66 @@
                         </tbody>
                     </table>
                 </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: SELECCIONAR EJERCICIO -->
+<div id="modalEjercicios" class="admin-search-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="tituloModalEjercicios">
+    <div class="admin-search-modal-card">
+        <div class="admin-search-modal-header">
+            <h3 id="tituloModalEjercicios">Seleccionar Ejercicio</h3>
+            <button type="button" id="btnCerrarModalEjercicios" class="btn-cerrar-search-modal">✕</button>
+        </div>
+        <div class="admin-search-modal-body">
+            <div class="modal-filter-box">
+                <input type="text" id="inputFiltrarEjercicios" placeholder="Filtrar ejercicio por nombre..." autocomplete="off" />
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Nombre del Ejercicio</th>
+                        <th style="width: 130px; text-align: center;">Acción</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tbodyEjerciciosModal">
+                    <tr>
+                        <td colspan="2" style="text-align: center; color: #666;">Cargando ejercicios...</td>
+                    </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- MODAL: SELECCIONAR GRUPO MUSCULAR -->
+<div id="modalGrupos" class="admin-search-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="tituloModalGrupos">
+    <div class="admin-search-modal-card">
+        <div class="admin-search-modal-header">
+            <h3 id="tituloModalGrupos">Seleccionar Grupo Muscular</h3>
+            <button type="button" id="btnCerrarModalGrupos" class="btn-cerrar-search-modal">✕</button>
+        </div>
+        <div class="admin-search-modal-body">
+            <div class="modal-filter-box">
+                <input type="text" id="inputFiltrarGrupos" placeholder="Filtrar grupo muscular por nombre..." autocomplete="off" />
+            </div>
+            <div class="admin-table-wrap">
+                <table class="admin-table">
+                    <thead>
+                    <tr>
+                        <th>Grupo Muscular</th>
+                        <th style="width: 130px; text-align: center;">Acción</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tbodyGruposModal">
+                    <tr>
+                        <td colspan="2" style="text-align: center; color: #666;">Cargando grupos musculares...</td>
+                    </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
     </div>

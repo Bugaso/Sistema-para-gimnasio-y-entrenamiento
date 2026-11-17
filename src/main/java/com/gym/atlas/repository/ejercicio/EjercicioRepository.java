@@ -10,4 +10,6 @@ import java.util.Optional;
 public interface EjercicioRepository extends JpaRepository<Ejercicio, Integer> {
 
     Optional<Ejercicio> findByNomEjercicio(String nomEjercicio);
+
+    boolean existsByCategoria_IdCategoriaGen(Integer categoriaIdCategoriaGen);
 }

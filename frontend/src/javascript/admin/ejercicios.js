@@ -208,11 +208,13 @@ async function procesarEliminacion() {
         });
 
         mostrarToast("Ejercicio eliminado.");
-        confirmDialog.close();
+
         await cargarEjercicios();
     } catch (error) {
+
         mostrarToast("Error al eliminar: " + error.message);
     } finally {
+        confirmDialog.close();
         idEliminarSeleccionado = null;
     }
 }

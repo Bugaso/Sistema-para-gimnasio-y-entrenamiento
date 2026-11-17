@@ -145,11 +145,12 @@ async function procesarEliminacion() {
         });
 
         mostrarToast("Grupo muscular eliminado.");
-        confirmDialog.close();
+
         await cargarGrupos();
     } catch (error) {
         mostrarToast("Error al eliminar: " + error.message);
     } finally {
+        confirmDialog.close();
         idEliminarSeleccionado = null;
     }
 }

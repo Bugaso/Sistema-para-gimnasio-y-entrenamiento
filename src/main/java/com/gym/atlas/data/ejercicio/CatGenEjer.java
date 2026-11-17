@@ -13,7 +13,10 @@ public class CatGenEjer {
     @Column(nullable = false, length = 100)
     private String nombreCat;
 
+
+
     public CatGenEjer() {}
+
 
     public Integer getIdCategoriaGen() { return idCategoriaGen; }
     public void setIdCategoriaGen(Integer idCategoriaGen) { this.idCategoriaGen = idCategoriaGen; }

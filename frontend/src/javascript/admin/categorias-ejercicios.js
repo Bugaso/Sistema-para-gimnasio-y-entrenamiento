@@ -147,6 +147,7 @@ async function procesarEliminacion() {
         await cargarCategorias();
     } catch (error) {
         mostrarToast("Error al eliminar: " + error.message);
+        confirmDialog.close();
     } finally {
         idEliminarSeleccionado = null;
     }

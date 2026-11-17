@@ -58,6 +58,9 @@ public class EquipamientoService {
         if (!equipamientoRepository.existsById(id)) {
             throw new RuntimeException("El equipamiento especificado no existe.");
         }
+        if(equipamientoRepository.existsByIdEquipamiento(id)){
+            throw new RuntimeException("El equipamiento no se puede eliminar porque está en uso");
+        }
         equipamientoRepository.deleteById(id);
         return new MessageResponse("Equipamiento eliminado exitosamente.");
     }

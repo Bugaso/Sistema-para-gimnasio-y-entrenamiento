@@ -4,6 +4,7 @@ import com.gym.atlas.data.ejercicio.GrupoMuscular;
 import com.gym.atlas.dto.ejercicio.GrupoMuscularRequest;
 import com.gym.atlas.dto.MessageResponse;
 import com.gym.atlas.repository.ejercicio.GrupoMuscularRepository;
+import com.gym.atlas.repository.ejercicio.MusculosAsociadosRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -13,9 +14,12 @@ import java.util.List;
 public class GrupoMuscularService {
 
     private final GrupoMuscularRepository grupoMuscularRepository;
+    private final MusculosAsociadosRepository musculosAsociadosRepository;
 
-    public GrupoMuscularService(GrupoMuscularRepository grupoMuscularRepository) {
+
+    public GrupoMuscularService(GrupoMuscularRepository grupoMuscularRepository, MusculosAsociadosRepository musculosAsociadosRepository) {
         this.grupoMuscularRepository = grupoMuscularRepository;
+        this.musculosAsociadosRepository = musculosAsociadosRepository;
     }
 
     public List<GrupoMuscular> obtenerGruposMusculares() {
@@ -59,6 +63,9 @@ public class GrupoMuscularService {
     public MessageResponse eliminarGrupoMuscular(Integer id) {
         if (!grupoMuscularRepository.existsById(id)) {
             throw new RuntimeException("El grupo muscular especificado no existe.");
+        }
+        if(musculosAsociadosRepository.existsByGrupoMuscular_IdGrupoMusc(id)){
+            throw new RuntimeException("El grupo muscular no se puede eliminar porque está relacionado asociado a un ejercicio");
         }
         grupoMuscularRepository.deleteById(id);
         return new MessageResponse("Grupo muscular eliminado exitosamente.");

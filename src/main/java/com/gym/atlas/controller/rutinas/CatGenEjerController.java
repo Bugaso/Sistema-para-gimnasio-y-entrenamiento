@@ -36,11 +36,6 @@ public class CatGenEjerController {
 
     @DeleteMapping("/{id}")
     public ResponseEntity<MessageResponse> eliminarCategoria(@PathVariable Integer id) {
-        try{
             return ResponseEntity.ok(service.eliminarCategoria(id));
-        }catch (Exception e){
-            return ResponseEntity.ok(null);
-        }
-
     }
 }

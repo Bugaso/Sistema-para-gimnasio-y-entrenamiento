@@ -144,11 +144,12 @@ async function procesarEliminacion() {
         });
 
         mostrarToast("Equipamiento eliminado.");
-        confirmDialog.close();
+
         await cargarEquipamientos();
     } catch (error) {
         mostrarToast("Error al eliminar: " + error.message);
     } finally {
+        confirmDialog.close();
         idEliminarSeleccionado = null;
     }
 }

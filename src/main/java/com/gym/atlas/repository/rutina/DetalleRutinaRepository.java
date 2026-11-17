@@ -16,4 +16,6 @@ public interface DetalleRutinaRepository extends JpaRepository<DetalleRutina, In
     @Modifying
     @Transactional
     void deleteByRutinaIdRutina(Integer idRutina);
+
+    boolean existsByEjercicio_IdEjercicio(Integer ejercicioIdEjercicio);
 }

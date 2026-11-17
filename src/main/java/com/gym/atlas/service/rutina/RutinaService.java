@@ -34,7 +34,7 @@ public class RutinaService {
 
     public RutinaService(RutinaRepository rutinaRepository, DetalleRutinaRepository detalleRepository,
                          ClienteCoachRepository asignacionRepository, UsuarioRepository usuarioRepository,
-                         EjercicioRepository ejercicioRepository, MedidaEsfuerzoRepository medidaEsfuerzoRepository,
+                         EjercicioRepository ejercicioRepository,
                          ClienteMembresiaRepository clienteMembresiaRepository) {
         this.rutinaRepository = rutinaRepository;
         this.detalleRepository = detalleRepository;

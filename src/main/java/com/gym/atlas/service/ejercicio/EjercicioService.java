@@ -3,12 +3,14 @@ package com.gym.atlas.service.ejercicio;
 import com.gym.atlas.data.ejercicio.CatGenEjer;
 import com.gym.atlas.data.ejercicio.Ejercicio;
 import com.gym.atlas.data.ejercicio.Equipamiento;
+import com.gym.atlas.data.rutina.DetalleRutina;
 import com.gym.atlas.dto.ejercicio.EjercicioRequest;
 import com.gym.atlas.dto.ejercicio.EjercicioResponse;
 import com.gym.atlas.dto.MessageResponse;
 import com.gym.atlas.repository.ejercicio.CatGenEjerRepository;
 import com.gym.atlas.repository.ejercicio.EjercicioRepository;
 import com.gym.atlas.repository.ejercicio.EquipamientoRepository;
+import com.gym.atlas.repository.rutina.DetalleRutinaRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -20,13 +22,15 @@ public class EjercicioService {
     private final EjercicioRepository ejercicioRepository;
     private final CatGenEjerRepository catGenEjerRepository;
     private final EquipamientoRepository equipamientoRepository;
+    private final DetalleRutinaRepository detalleRutinaRepository;
 
     public EjercicioService(EjercicioRepository ejercicioRepository,
                             CatGenEjerRepository catGenEjerRepository,
-                            EquipamientoRepository equipamientoRepository) {
+                            EquipamientoRepository equipamientoRepository, DetalleRutinaRepository detalleRutinaRepository) {
         this.ejercicioRepository = ejercicioRepository;
         this.catGenEjerRepository = catGenEjerRepository;
         this.equipamientoRepository = equipamientoRepository;
+        this.detalleRutinaRepository = detalleRutinaRepository;
     }
 
     public List<EjercicioResponse> obtenerEjercicios() {
@@ -63,6 +67,9 @@ public class EjercicioService {
     public MessageResponse eliminarEjercicio(Integer id) {
         if (!ejercicioRepository.existsById(id)) {
             throw new RuntimeException("El ejercicio especificado no existe.");
+        }
+        if(detalleRutinaRepository.existsByEjercicio_IdEjercicio(id)){
+            throw new RuntimeException("No se puede eliminar un ejercicio que esté en uso");
         }
         ejercicioRepository.deleteById(id);
         return new MessageResponse("Ejercicio eliminado exitosamente.");

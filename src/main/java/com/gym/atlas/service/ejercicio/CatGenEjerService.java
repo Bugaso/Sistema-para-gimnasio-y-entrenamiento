@@ -4,6 +4,7 @@ import com.gym.atlas.data.ejercicio.CatGenEjer;
 import com.gym.atlas.dto.ejercicio.CatGenEjerRequest;
 import com.gym.atlas.dto.MessageResponse;
 import com.gym.atlas.repository.ejercicio.CatGenEjerRepository;
+import com.gym.atlas.repository.ejercicio.EjercicioRepository;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,8 +15,11 @@ public class CatGenEjerService {
 
     private final CatGenEjerRepository catGenEjerRepository;
 
-    public CatGenEjerService(CatGenEjerRepository catGenEjerRepository) {
+    private final EjercicioRepository ejercicioRepository;
+
+    public CatGenEjerService(CatGenEjerRepository catGenEjerRepository, EjercicioRepository ejercicioRepository) {
         this.catGenEjerRepository = catGenEjerRepository;
+        this.ejercicioRepository = ejercicioRepository;
     }
 
     public List<CatGenEjer> obtenerCategorias() {
@@ -60,6 +64,9 @@ public class CatGenEjerService {
 
         if (!catGenEjerRepository.existsById(id)) {
             throw new RuntimeException("La categoría especificada no existe.");
+        }
+        if(ejercicioRepository.existsByCategoria_IdCategoriaGen(id)){
+            throw new RuntimeException("No se puede una categoria que está en uso");
         }
         catGenEjerRepository.deleteById(id);
         return new MessageResponse("Categoría eliminada exitosamente.");
