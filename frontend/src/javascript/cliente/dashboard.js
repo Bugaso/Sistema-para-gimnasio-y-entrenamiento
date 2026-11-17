@@ -68,13 +68,13 @@ document.addEventListener('DOMContentLoaded', async () => {
     await verificarRutinaAsignada();
     await cargarHistorialPagosCliente();
 });
-
+let emailActual;
 // --- PERFIL ---
 async function cargarDatosPerfil() {
     try {
         const perfil = await apiRequest('/api/cliente/perfil', { token: getToken() });
         idClienteActual = perfil.idUsuario;
-
+        emailActual = document.getElementById('mailUs').value
         document.getElementById('nomApe').value = perfil.nomApe || '';
         document.getElementById('dniUs').value = perfil.dniUs || '';
         document.getElementById('fechaNacimiento').value = perfil.fechaNacimiento || '';
@@ -99,12 +99,18 @@ async function actualizarPerfil(e) {
         mailUs: document.getElementById('mailUs').value,
         contacoE: document.getElementById('contacoE').value
     };
+    let email = payload.mailUs;
 
     try {
         await apiRequest('/api/cliente/perfil', { method: 'PUT', body: JSON.stringify(payload), token: getToken() });
         status.textContent = '¡Datos actualizados con éxito!';
         status.style.color = 'var(--lime)';
         setTimeout(() => status.textContent = '', 3000);
+        if(email !== emailActual){
+            
+            clearToken();
+            window.location.href = '/login';
+        }
     } catch (error) {
         status.textContent = 'Error al actualizar.';
         status.style.color = 'red';

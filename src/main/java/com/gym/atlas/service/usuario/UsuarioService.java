@@ -211,7 +211,7 @@ public class UsuarioService {
     }
 
     @Transactional
-    public MessageResponse actualizarEmpleado(Integer id, EmpleadoRequest request) {
+    public MessageResponse actualizarEmpleado(Long id, EmpleadoRequest request) {
         Long idUsuario = Long.valueOf(id);
         Usuario usuario = usuarioRepository.findById(idUsuario)
                 .orElseThrow(() -> new RuntimeException("El empleado especificado no existe."));

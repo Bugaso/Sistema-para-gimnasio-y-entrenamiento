@@ -75,7 +75,7 @@ public class AdminController {
 
     // PUT: Modificar empleado
     @PutMapping("/api/admin/empleados/{id}")
-    public ResponseEntity<MessageResponse> actualizarEmpleado(@PathVariable Integer id, @RequestBody EmpleadoRequest request) {
+    public ResponseEntity<MessageResponse> actualizarEmpleado(@PathVariable Long id, @RequestBody EmpleadoRequest request) {
         try {
             MessageResponse response = usuarioService.actualizarEmpleado(id, request);
             return ResponseEntity.ok(response);
