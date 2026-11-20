@@ -4,16 +4,21 @@ import com.gym.atlas.data.usuario.Rol;
 import com.gym.atlas.repository.usuario.RolRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.slf4j.LoggerFactory;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.logging.Logger;
+
 @Component
-@RequiredArgsConstructor
-@Slf4j
 public class GeneracionRoles implements CommandLineRunner {
 
     private final RolRepository roleRepository;
+    private static final Logger log = (Logger) LoggerFactory.getLogger(GeneracionRoles.class);
+    public GeneracionRoles(RolRepository roleRepository) {
+        this.roleRepository = roleRepository;
+    }
 
     @Override
     @Transactional
@@ -31,7 +36,7 @@ public class GeneracionRoles implements CommandLineRunner {
             role.setNomCatUs(name);
             role.setEstado(true);
             roleRepository.save(role);
-            log.info("Rol creado: {}", name);
+            log.info("Rol creado:"+role.toString());
         }
     }
 }
